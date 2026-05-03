@@ -1,0 +1,628 @@
+#!/usr/bin/env python3
+"""
+STDD CLI — Spec+Test Driven Development 命令行工具
+
+用法:
+  stdd new <name>          创建新的 change 目录骨架
+  stdd validate [<name>]   验证 change 目录结构和规格
+  stdd status [<name>]     显示 artifact 完成状态
+  stdd archive <name>      归档已完成的 change
+  stdd trace <tc-id>       查看 spec<->test<->code 追溯链
+  stdd install <platform>  安装 STDD skills 到指定平台
+  stdd init                初始化 STDD 到当前项目
+"""
+
+import argparse
+import sys
+import os
+import io
+
+# 修复 Windows GBK 终端 Unicode 显示问题
+if sys.stdout.encoding != "utf-8":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+
+def _find_change_dir(name=None):
+    """查找 change 目录。支持短名称或完整目录名。"""
+    from pathlib import Path
+    project_root = Path.cwd()
+    changes_dir = project_root / "changes"
+
+    if not changes_dir.exists():
+        return None
+
+    if name:
+        # 先尝试精确匹配
+        exact = changes_dir / name
+        if exact.exists() and exact.is_dir():
+            return exact
+        # 尝试在目录名末尾匹配（支持省略日期前缀）
+        for d in sorted(changes_dir.iterdir(), reverse=True):
+            if d.is_dir() and d.name.endswith(name) and (d / ".stdd.yaml").exists():
+                return d
+        return None
+    else:
+        # 返回最近修改的 change
+        changes = [d for d in changes_dir.iterdir() if d.is_dir() and (d / ".stdd.yaml").exists()]
+        if not changes:
+            return None
+        return sorted(changes, key=lambda d: d.stat().st_mtime, reverse=True)[0]
+
+
+def cmd_init(args):
+    """初始化 STDD 到当前项目"""
+    import shutil
+    from pathlib import Path
+
+    project_root = Path.cwd()
+    stdd_source = Path(__file__).resolve().parent.parent
+
+    # 创建 .stdd 目录结构
+    dirs = [
+        ".stdd/skills",
+        ".stdd/templates",
+        ".stdd/standards",
+        ".stdd/platforms/claude-code/skills",
+        ".stdd/platforms/workbuddy/skills",
+        ".stdd/platforms/trae/skills",
+        "changes",
+        "specs",
+        "archive",
+    ]
+    for d in dirs:
+        (project_root / d).mkdir(parents=True, exist_ok=True)
+
+    # 复制核心文件
+    files_to_copy = [
+        ".stdd/config.yaml",
+        ".stdd/skills/understand.md",
+        ".stdd/skills/spec.md",
+        ".stdd/skills/slice.md",
+        ".stdd/skills/build.md",
+        ".stdd/skills/verify.md",
+        ".stdd/skills/deliver.md",
+        ".stdd/templates/proposal.md",
+        ".stdd/templates/design.md",
+        ".stdd/templates/spec.md",
+        ".stdd/templates/test-plan.md",
+        ".stdd/templates/tasks.md",
+        ".stdd/templates/slices.md",
+        ".stdd/templates/design-adjustments.md",
+        ".stdd/templates/test-report.md",
+        ".stdd/standards/python.md",
+        "STDD.md",
+        "AGENTS.md",
+    ]
+    for f in files_to_copy:
+        src = stdd_source / f
+        dst = project_root / f
+        if src.exists() and not dst.exists():
+            shutil.copy2(src, dst)
+
+    # 复制平台 skills
+    for platform in ["claude-code", "workbuddy", "trae"]:
+        platform_skills = stdd_source / ".stdd" / "platforms" / platform / "skills"
+        if platform_skills.exists():
+            for skill_file in platform_skills.iterdir():
+                dst = project_root / ".stdd" / "platforms" / platform / "skills" / skill_file.name
+                if not dst.exists():
+                    shutil.copy2(skill_file, dst)
+
+    print("✅ STDD 初始化完成")
+    print(f"   项目根目录: {project_root}")
+    print(f"   已创建 .stdd/ 目录、changes/、specs/、archive/")
+    print()
+    print("🚀 开始使用:")
+    print("   /stdd-understand  <需求描述>    启动新变更的需求理解阶段")
+    print("   /stdd-spec                      进入规格设计阶段")
+    print("   /stdd-continue                  继续执行当前变更")
+
+
+def cmd_new(args):
+    """创建新的 change 目录骨架"""
+    from datetime import date
+    from pathlib import Path
+    import yaml
+
+    project_root = Path.cwd()
+    change_name = args.name
+    today = date.today().isoformat()
+    dir_name = f"{today}-{change_name}"
+    change_dir = project_root / "changes" / dir_name
+
+    if change_dir.exists():
+        print(f"❌ Change 目录已存在: changes/{dir_name}")
+        sys.exit(1)
+
+    # 创建目录结构
+    (change_dir / "specs").mkdir(parents=True)
+
+    # 从模板创建文件
+    templates_dir = project_root / ".stdd" / "templates"
+    for tmpl_name in ["proposal", "design", "test-plan"]:
+        tmpl = templates_dir / f"{tmpl_name}.md"
+        if tmpl.exists():
+            import shutil
+            shutil.copy2(tmpl, change_dir / f"{tmpl_name}.md")
+
+    # 创建 .stdd.yaml
+    state = {
+        "change_id": dir_name,
+        "status": "active",
+        "current_phase": "understand",
+        "phases": {
+            "understand": {"status": "pending"},
+            "spec": {"status": "pending"},
+            "slice": {"status": "pending"},
+            "build": {"status": "pending"},
+            "verify": {"status": "pending"},
+            "deliver": {"status": "pending"},
+        },
+        "design_adjustments": {"count": 0},
+        "traceability": {"spec_scenarios": 0, "tc_cases": 0, "test_functions": 0},
+    }
+    with open(change_dir / ".stdd.yaml", "w", encoding="utf-8") as f:
+        yaml.dump(state, f, allow_unicode=True, default_flow_style=False)
+
+    print(f"✅ Change 创建完成: changes/{dir_name}")
+    print(f"   模板已就绪: proposal.md, design.md, test-plan.md")
+    print(f"   状态文件: .stdd.yaml")
+    print()
+    print("🚀 下一步:")
+    print(f"   /stdd-understand  开始需求理解阶段")
+
+
+def cmd_validate(args):
+    """验证 change 目录结构和规格"""
+    from pathlib import Path
+    import yaml
+    import re
+
+    project_root = Path.cwd()
+
+    change_dir = _find_change_dir(args.name)
+    if change_dir is None:
+        print(f"❌ 找不到 change: {args.name or '(无)'}")
+        sys.exit(1)
+
+    errors = []
+    warnings = []
+
+    # 1. 检查必需文件
+    required_files = ["proposal.md", "design.md", "test-plan.md", ".stdd.yaml"]
+    for f in required_files:
+        if not (change_dir / f).exists():
+            errors.append(f"缺少必需文件: {f}")
+
+    # 2. 验证 .stdd.yaml
+    state_file = change_dir / ".stdd.yaml"
+    if state_file.exists():
+        with open(state_file, "r", encoding="utf-8") as f:
+            state = yaml.safe_load(f)
+        valid_phases = ["understand", "spec", "slice", "build", "verify", "deliver"]
+        for phase in state.get("phases", {}):
+            if phase not in valid_phases:
+                errors.append(f".stdd.yaml: 无效的阶段: {phase}")
+
+    # 3. 验证 spec 文件格式（GIVEN/WHEN/THEN）
+    specs_dir = change_dir / "specs"
+    if specs_dir.exists():
+        for spec_file in specs_dir.rglob("*.md"):
+            content = spec_file.read_text(encoding="utf-8")
+            scenarios = re.findall(r'####\s+Scenario:', content)
+            given_count = len(re.findall(r'\*\*GIVEN\*\*', content))
+            when_count = len(re.findall(r'\*\*WHEN\*\*', content))
+            then_count = len(re.findall(r'\*\*THEN\*\*', content))
+
+            if len(scenarios) == 0:
+                warnings.append(f"{spec_file.name}: 未找到 Scenario")
+            if given_count != len(scenarios):
+                warnings.append(f"{spec_file.name}: GIVEN 数量 ({given_count}) 与 Scenario 数量 ({len(scenarios)}) 不匹配")
+            if when_count != len(scenarios):
+                warnings.append(f"{spec_file.name}: WHEN 数量 ({when_count}) 与 Scenario 数量 ({len(scenarios)}) 不匹配")
+            if then_count < len(scenarios):
+                errors.append(f"{spec_file.name}: THEN 数量 ({then_count}) 少于 Scenario 数量 ({len(scenarios)})")
+
+            # 检查 THEN 中是否包含 SHALL
+            then_pattern = re.findall(r'\*\*THEN\*\*\s*(.+?)(?:\n|$)', content)
+            for t in then_pattern:
+                if "SHALL" not in t:
+                    warnings.append(f"{spec_file.name}: THEN 中未使用 SHALL: {t[:50]}...")
+
+    # 4. 检查 TC-ID 唯一性
+    test_plan = change_dir / "test-plan.md"
+    if test_plan.exists():
+        content = test_plan.read_text(encoding="utf-8")
+        tc_ids = re.findall(r'(TC-[A-Z]+-\d{3})', content)
+        duplicates = [tc for tc in tc_ids if tc_ids.count(tc) > 1]
+        if duplicates:
+            errors.append(f"test-plan.md: 重复的 TC-ID: {set(duplicates)}")
+        if tc_ids:
+            print(f"   共找到 {len(tc_ids)} 个 TC-ID, {len(set(tc_ids))} 个唯一")
+
+    # 5. 检查 spec Scenario → TC 映射
+    if specs_dir.exists() and test_plan.exists():
+        spec_scenarios = []
+        for spec_file in specs_dir.rglob("*.md"):
+            content = spec_file.read_text(encoding="utf-8")
+            capability = spec_file.stem.upper()[:8]
+            spec_scenarios.extend(re.findall(r'####\s+Scenario:\s*(.+)', content))
+
+        tc_cases = len(re.findall(r'\*\*ID\*\*\s*\|', test_plan.read_text(encoding="utf-8")))
+
+        print(f"   Spec Scenarios: {len(spec_scenarios)}, TC Cases: {tc_cases}")
+        if tc_cases < len(spec_scenarios):
+            errors.append(f"test-plan.md: TC 案例数 ({tc_cases}) 少于 Spec Scenario 数 ({len(spec_scenarios)})")
+
+    # 输出结果
+    print()
+    if errors:
+        print(f"❌ 验证失败 ({len(errors)} 个错误):")
+        for e in errors:
+            print(f"   - {e}")
+    if warnings:
+        print(f"⚠️  警告 ({len(warnings)} 个):")
+        for w in warnings:
+            print(f"   - {w}")
+    if not errors and not warnings:
+        print(f"✅ 验证通过")
+    if errors:
+        sys.exit(1)
+
+
+def cmd_status(args):
+    """显示 artifact 完成状态"""
+    from pathlib import Path
+    import yaml
+
+    project_root = Path.cwd()
+
+    change_dir = _find_change_dir(args.name)
+    if change_dir is None:
+        print(f"❌ 找不到 change: {args.name or '(无)'}")
+        sys.exit(1)
+
+    state_file = change_dir / ".stdd.yaml"
+    if not state_file.exists():
+        print("❌ 缺少 .stdd.yaml 状态文件")
+        sys.exit(1)
+
+    with open(state_file, "r", encoding="utf-8") as f:
+        state = yaml.safe_load(f)
+
+    print(f"\n📋 Change: {state.get('change_id', change_dir.name)}")
+    print(f"   状态: {state.get('status', 'unknown')}")
+    print(f"   当前阶段: {state.get('current_phase', 'unknown')}")
+    print()
+
+    phase_order = ["understand", "spec", "slice", "build", "verify", "deliver"]
+    phase_names = {
+        "understand": "Phase 1: UNDERSTAND (需求理解)",
+        "spec": "Phase 2: SPEC (规格设计)",
+        "slice": "Phase 3: SLICE (切片规划)",
+        "build": "Phase 4: BUILD (TDD实现)",
+        "verify": "Phase 5: VERIFY (质量验证)",
+        "deliver": "Phase 6: DELIVER (交付)",
+    }
+    status_icons = {
+        "pending": "⬜",
+        "in_progress": "🔄",
+        "completed": "✅",
+    }
+
+    for phase in phase_order:
+        phase_info = state.get("phases", {}).get(phase, {})
+        phase_status = phase_info.get("status", "pending")
+        icon = status_icons.get(phase_status, "❓")
+        name = phase_names.get(phase, phase)
+        confirmed = phase_info.get("confirmed_at", "")
+        confirm_str = f" (确认于 {confirmed})" if confirmed else ""
+        print(f"   {icon}  {name}: {phase_status}{confirm_str}")
+
+    # 检查文件存在性
+    print(f"\n📁 文件状态:")
+    expected_files = [
+        "proposal.md", "design.md", "test-plan.md",
+        "tasks.md", "test-report.md", "design-adjustments.md"
+    ]
+    for f in expected_files:
+        exists = (change_dir / f).exists()
+        icon = "✅" if exists else "⬜"
+        print(f"   {icon}  {f}")
+
+    specs_dir = change_dir / "specs"
+    if specs_dir.exists():
+        spec_files = list(specs_dir.rglob("*.md"))
+        print(f"   📋 Spec 文件: {len(spec_files)} 个")
+        for sf in spec_files:
+            print(f"      - {sf.relative_to(change_dir)}")
+
+
+def cmd_archive(args):
+    """归档已完成的 change"""
+    from pathlib import Path
+    import shutil
+    import yaml
+
+    project_root = Path.cwd()
+    change_dir = _find_change_dir(args.name)
+
+    if change_dir is None:
+        print(f"❌ 找不到 change: {args.name}")
+        sys.exit(1)
+
+    # 检查是否完成
+    state_file = change_dir / ".stdd.yaml"
+    if state_file.exists():
+        with open(state_file, "r", encoding="utf-8") as f:
+            state = yaml.safe_load(f)
+        if state.get("phases", {}).get("verify", {}).get("status") != "completed":
+            print("⚠️  Phase 5 (VERIFY) 尚未完成，确认要归档吗？")
+            if not args.yes:
+                resp = input("输入 y 继续: ")
+                if resp.lower() != "y":
+                    print("已取消")
+                    sys.exit(0)
+
+    # 创建归档目录
+    archive_dir = project_root / "archive" / args.name
+    if archive_dir.exists():
+        print(f"❌ 归档目录已存在: archive/{args.name}")
+        sys.exit(1)
+
+    # 移动
+    shutil.move(str(change_dir), str(archive_dir))
+
+    # 合并 specs
+    archive_specs = archive_dir / "specs"
+    main_specs = project_root / "specs"
+    if archive_specs.exists() and not args.skip_specs:
+        for spec_file in archive_specs.rglob("*.md"):
+            rel_path = spec_file.relative_to(archive_specs)
+            dest = main_specs / rel_path
+            dest.parent.mkdir(parents=True, exist_ok=True)
+
+            if dest.exists():
+                # 合并：追加 MODIFIED requirements
+                existing = dest.read_text(encoding="utf-8")
+                new_content = spec_file.read_text(encoding="utf-8")
+                # 简单合并：追加新内容，标注来源
+                merge_note = f"\n\n<!-- 合并自 {args.name} -->\n"
+                combined = existing + merge_note + new_content
+                dest.write_text(combined, encoding="utf-8")
+                print(f"   合并: {rel_path}")
+            else:
+                shutil.copy2(spec_file, dest)
+                print(f"   新增: {rel_path}")
+
+    # 更新状态
+    if state_file.exists():
+        with open(state_file, "r", encoding="utf-8") as f:
+            state = yaml.safe_load(f)
+        state["status"] = "archived"
+        with open(state_file, "w", encoding="utf-8") as f:
+            yaml.dump(state, f, allow_unicode=True, default_flow_style=False)
+
+    print(f"✅ 归档完成: archive/{args.name}")
+    if not args.skip_specs:
+        print(f"✅ Specs 已合并到 specs/")
+
+
+def cmd_trace(args):
+    """查看 spec↔test↔code 追溯链"""
+    from pathlib import Path
+    import re
+
+    project_root = Path.cwd()
+    tc_id = args.tc_id.upper()
+
+    if not tc_id.startswith("TC-"):
+        print(f"❌ 无效的 TC-ID 格式: {tc_id}")
+        print(f"   期望格式: TC-<CAPABILITY>-<NNN> (如 TC-CASUAL-001)")
+        sys.exit(1)
+
+    print(f"\n🔍 追溯链: {tc_id}")
+    print("=" * 60)
+
+    # 1. 在 test-plan.md 中查找
+    found_in_test_plan = False
+    changes_dir = project_root / "changes"
+    if changes_dir.exists():
+        for change_dir in changes_dir.iterdir():
+            test_plan = change_dir / "test-plan.md"
+            if test_plan.exists():
+                content = test_plan.read_text(encoding="utf-8")
+                if tc_id in content:
+                    found_in_test_plan = True
+                    # 提取对应的 case 信息
+                    block_pattern = re.compile(
+                        rf'####\s+案例\s+[\d.]+\s*—\s*(.+?)\n'
+                        rf'.*?\*\*ID\*\*\s*\|\s*{re.escape(tc_id)}.*?'
+                        rf'\*\*预期结果\*\*\s*\|\s*(.+?)(?:\n|$)',
+                        re.DOTALL
+                    )
+                    match = block_pattern.search(content)
+                    if match:
+                        print(f"📋 Test Plan: {change_dir.name}/test-plan.md")
+                        print(f"   案例标题: {match.group(1).strip()}")
+                        print(f"   预期结果: {match.group(2).strip()[:80]}...")
+                    else:
+                        print(f"📋 Test Plan: {change_dir.name}/test-plan.md")
+                        print(f"   状态: 已引用")
+
+    # 2. 在测试文件中查找
+    print()
+    tests_dir = project_root / "tests"
+    if tests_dir.exists():
+        for test_file in tests_dir.rglob("test_*.py"):
+            content = test_file.read_text(encoding="utf-8")
+            if tc_id in content:
+                found_in_test = True
+                # 提取所在的测试函数
+                lines = content.split("\n")
+                for i, line in enumerate(lines):
+                    if tc_id in line:
+                        # 向上找最近的 def test_
+                        func_line = ""
+                        for j in range(i, max(i - 50, -1), -1):
+                            if lines[j].strip().startswith("def test_"):
+                                func_line = lines[j].strip()
+                                break
+                        print(f"🧪 测试: {test_file.relative_to(project_root)}")
+                        if func_line:
+                            print(f"   函数: {func_line}")
+                        print(f"   行号: {i + 1}")
+                        break
+
+    if not found_in_test_plan:
+        print("⚠️  未在 test-plan.md 中找到此 TC-ID")
+
+
+def cmd_install(args):
+    """安装 STDD skills 到指定平台"""
+    from pathlib import Path
+    import shutil
+
+    project_root = Path.cwd()
+    stdd_source = Path(__file__).resolve().parent.parent
+    platform = args.platform
+
+    platform_map = {
+        "claude-code": {
+            "source": ".stdd/platforms/claude-code/skills",
+            "target_base": ".claude/skills",
+            "description": "Claude Code",
+        },
+        "workbuddy": {
+            "source": ".stdd/platforms/workbuddy/skills",
+            "target_base": ".workbuddy/skills",
+            "description": "WorkBuddy",
+            "target_is_home": True,
+            "home_subdir": ".workbuddy/skills",
+        },
+        "trae": {
+            "source": ".stdd/platforms/trae/skills",
+            "target_base": ".trae/skills",
+            "description": "Trae",
+        },
+        "cursor": {
+            "source": "STDD.md",
+            "target_base": ".cursor/rules",
+            "description": "Cursor",
+            "single_file": True,
+            "target_name": "stdd.md",
+        },
+    }
+
+    if platform not in platform_map:
+        print(f"❌ 不支持的平台: {platform}")
+        print(f"   支持的平台: {', '.join(platform_map.keys())}")
+        sys.exit(1)
+
+    cfg = platform_map[platform]
+
+    if cfg.get("single_file"):
+        source_file = stdd_source / cfg["source"]
+        target_dir = Path.home() / cfg["target_base"] if cfg.get("target_is_home") else project_root / cfg["target_base"]
+        target_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source_file, target_dir / cfg.get("target_name", cfg["source"]))
+        print(f"✅ 已安装 STDD 到 {cfg['description']}: {target_dir / cfg.get('target_name', cfg['source'])}")
+    else:
+        source_dir = stdd_source / cfg["source"]
+        if cfg.get("target_is_home"):
+            target_base = Path.home() / cfg["home_subdir"]
+        else:
+            target_base = project_root / cfg["target_base"]
+        target_base.mkdir(parents=True, exist_ok=True)
+
+        count = 0
+        for skill_file in source_dir.iterdir():
+            if skill_file.suffix == ".md":
+                dest = target_base / skill_file.name
+                shutil.copy2(skill_file, dest)
+                count += 1
+        print(f"✅ 已安装 {count} 个 STDD skills 到 {cfg['description']}: {target_base}")
+
+    print()
+    print("📋 使用方式:")
+    if platform == "claude-code":
+        print("   /stdd-understand  <需求>    启动新变更")
+        print("   /stdd-spec                  进入规格设计")
+        print("   /stdd-continue              继续执行")
+    elif platform == "workbuddy":
+        print("   在对话框中输入: /reload stdd")
+        print("   然后通过关键词触发 (如 'stdd-understand')")
+    elif platform == "trae":
+        print("   /stdd-understand  <需求>    启动新变更")
+    elif platform == "cursor":
+        print("   规则已安装到 .cursor/rules/stdd.md")
+        print("   在 Cursor 中自动生效")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="STDD CLI — Spec+Test Driven Development",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+示例:
+  stdd init                    初始化 STDD 到当前项目
+  stdd new fix-login-bug       创建新 change
+  stdd validate                验证当前 change
+  stdd status                  查看当前 change 状态
+  stdd archive v1.5-stable     归档已完成的 change
+  stdd trace TC-CASUAL-001     追溯 spec↔test↔code 链
+  stdd install claude-code     安装到 Claude Code
+        """,
+    )
+    subparsers = parser.add_subparsers(dest="command", help="可用命令")
+
+    # init
+    p_init = subparsers.add_parser("init", help="初始化 STDD 到当前项目")
+
+    # new
+    p_new = subparsers.add_parser("new", help="创建新的 change 目录骨架")
+    p_new.add_argument("name", help="change 名称（如 fix-login-bug）")
+
+    # validate
+    p_validate = subparsers.add_parser("validate", help="验证 change 结构")
+    p_validate.add_argument("name", nargs="?", help="change 目录名（默认使用最近的）")
+
+    # status
+    p_status = subparsers.add_parser("status", help="显示 artifact 完成状态")
+    p_status.add_argument("name", nargs="?", help="change 目录名（默认使用最近的）")
+
+    # archive
+    p_archive = subparsers.add_parser("archive", help="归档已完成的 change")
+    p_archive.add_argument("name", help="change 目录名")
+    p_archive.add_argument("--yes", "-y", action="store_true", help="跳过确认")
+    p_archive.add_argument("--skip-specs", action="store_true", help="不合并 specs")
+
+    # trace
+    p_trace = subparsers.add_parser("trace", help="查看 spec↔test↔code 追溯链")
+    p_trace.add_argument("tc_id", help="TC-ID（如 TC-CASUAL-001）")
+
+    # install
+    p_install = subparsers.add_parser("install", help="安装 STDD 到指定平台")
+    p_install.add_argument("platform", help="目标平台 (claude-code, workbuddy, trae, cursor)")
+
+    args = parser.parse_args()
+
+    if not args.command:
+        parser.print_help()
+        sys.exit(1)
+
+    commands = {
+        "init": cmd_init,
+        "new": cmd_new,
+        "validate": cmd_validate,
+        "status": cmd_status,
+        "archive": cmd_archive,
+        "trace": cmd_trace,
+        "install": cmd_install,
+    }
+
+    commands[args.command](args)
+
+
+if __name__ == "__main__":
+    main()

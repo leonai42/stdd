@@ -1,0 +1,56 @@
+# STDD 项目配置文件
+# Spec+Test Driven Development
+
+# 项目信息
+project:
+  name: stdd
+  language: python          # 默认开发语言
+  python_version: "3.10"
+
+# STDD 版本
+stdd_version: "1.0.0"
+
+# 目录路径（相对于项目根目录）
+paths:
+  changes_dir: changes
+  specs_dir: specs
+  archive_dir: archive
+  templates_dir: .stdd/templates
+  standards_dir: .stdd/standards
+  skills_dir: .stdd/skills
+  platforms_dir: .stdd/platforms
+
+# 强制确认门
+gates:
+  phase1_understand:
+    required: true
+    description: "用户确认 proposal.md 后才能进入 Phase 2"
+  phase2_spec:
+    required: true
+    description: "用户确认 design.md + specs + test-plan.md 后才能进入 Phase 3"
+  phase5_verify:
+    required: true
+    description: "用户确认 test-report.md + design-adjustments.md 后才能进入 Phase 6"
+
+# Phase 5 迭代限制
+verify:
+  max_iterations: 5         # 最大迭代轮数
+  auto_fix: true            # 自动修复质量检查失败
+
+# 测试配置
+test:
+  framework: pytest
+  unit_dir: tests/unit
+  integration_dir: tests/integration
+  coverage_target: 80
+
+# 质量检查命令
+quality:
+  test: "pytest tests/ -v"
+  lint: "ruff check app/ tests/"
+  typecheck: null           # 暂不启用 mypy/pyright
+
+# TC-ID 命名规则
+tc_id:
+  pattern: "TC-{CAPABILITY}-{NNN}"
+  example: "TC-CASUAL-001"
