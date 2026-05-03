@@ -1,3 +1,7 @@
+---
+name: stdd-verify
+description: "STDD Phase 5: 质量验证 — 全量测试、Diff审查、设计调整汇总，最多5轮迭代后用户确认"
+---
 # STDD Phase 5: VERIFY — 质量验证
 
 ## 阶段目标

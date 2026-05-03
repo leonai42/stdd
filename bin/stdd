@@ -538,7 +538,14 @@ def cmd_install(args):
         count = 0
         for skill_file in source_dir.iterdir():
             if skill_file.suffix == ".md":
-                dest = target_base / skill_file.name
+                if platform == "claude-code":
+                    # Claude Code uses directory-per-skill format: skill-name/SKILL.md
+                    skill_name = skill_file.stem
+                    skill_dir = target_base / skill_name
+                    skill_dir.mkdir(parents=True, exist_ok=True)
+                    dest = skill_dir / "SKILL.md"
+                else:
+                    dest = target_base / skill_file.name
                 shutil.copy2(skill_file, dest)
                 count += 1
         print(f"✅ 已安装 {count} 个 STDD skills 到 {cfg['description']}: {target_base}")

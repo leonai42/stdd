@@ -1,3 +1,7 @@
+---
+name: stdd-spec
+description: "STDD Phase 2: 规格设计与测试方案 — 将 proposal 转化为精确的技术规格、行为规格和测试方案（最重要的阶段）"
+---
 # STDD Phase 2: SPEC — 规格设计与测试方案
 
 ## 阶段目标
