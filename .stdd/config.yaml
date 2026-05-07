@@ -32,10 +32,35 @@ gates:
     required: true
     description: "用户确认 test-report.md + design-adjustments.md 后才能进入 Phase 6"
 
+# 长程模式配置（Gate 2 之后可选，默认启用，使 Phase 3-5 连续自动执行）
+long_range:
+  default: true                       # 默认使用全自动长程模式
+  pre_auth:
+    # --- A. 流程决策授权 ---
+    design_deviation:
+      minor: "auto_record"            # auto_record | pause
+      major: "auto_record_continue"   # auto_record_continue | pause | degrade
+    technical_blocker:
+      strategy: "workaround"          # workaround | skip_slice | degrade
+    iteration:
+      max_rounds: 10                  # 长程模式下扩展为 10 轮
+      on_cap: "report_in_summary"     # report_in_summary | pause
+    # --- B. 操作类授权（最常见的打断源）---
+    operations:
+      directory: "allow"              # allow | ask — 目录创建/删除
+      file_write: "allow"             # allow | ask — 源码、测试、文档写入
+      command_exec: "allow"           # allow | ask — pytest, ruff, mypy 等
+      script_exec: "allow"            # allow | ask — Python/Shell 脚本执行
+      network: "allow"                # allow | ask — pip install, API 调用
+      file_read: "allow"              # allow | ask — 读取模板/config/standards/源码
+      git_readonly: "allow"           # allow | ask — git diff/log/status
+    # --- C. Gate 3 保持强制确认，不自动跳过 ---
+    gate3: "mandatory"                # 始终 mandatory，不可配置
+
 # Phase 5 迭代限制
 verify:
-  max_iterations: 5         # 最大迭代轮数
-  auto_fix: true            # 自动修复质量检查失败
+  max_iterations: 5                   # 普通模式最大迭代轮数
+  auto_fix: true                      # 自动修复质量检查失败
 
 # 测试配置
 test:

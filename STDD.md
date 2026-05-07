@@ -17,6 +17,10 @@ STDD is a Spec+Test dual-driven development methodology that transforms requirem
 2. Phase 2 结束：用户确认 design.md + specs + test-plan.md | End of Phase 2: User confirms design + specs + test-plan
 3. Phase 5 结束：用户确认 test-report.md + design-adjustments.md | End of Phase 5: User confirms test report + design adjustments
 
+**Gate 2 后执行模式选择 / Execution Mode Selection After Gate 2**：
+- 🚀 全自动长程模式（默认）：一次性预授权 → Phase 3-5 连续自动执行 → Gate 3 等待确认
+- 📋 普通交互模式：Phase 3-5 按需暂停交互 → Gate 3 等待确认
+
 **核心理念 / Core Philosophy**：
 - Spec 先行 / Spec-first：先定义行为（GIVEN/WHEN/THEN），再写代码。Define behavior before writing code.
 - TDD 执行 / TDD execution：RED → GREEN → REFACTOR，按垂直切片推进。Proceed by vertical slices.
@@ -30,9 +34,11 @@ STDD is a Spec+Test dual-driven development methodology that transforms requirem
 ```
 Phase 1: UNDERSTAND  →  proposal.md  →  用户确认 / User confirm
 Phase 2: SPEC        →  design.md + specs + test-plan.md  →  用户确认 / User confirm
+                       └→ 执行模式选择（长程/普通）
 Phase 3: SLICE       →  tasks.md + slices.md  →  自动 / Auto
-Phase 4: BUILD       →  TDD RED→GREEN→REFACTOR  →  自动 / Auto
+Phase 4: BUILD       →  TDD RED→GREEN→REFACTOR  →  自动(长程)/按需交互(普通)
 Phase 5: VERIFY      →  test-report.md + design-adjustments.md  →  用户确认 / User confirm
+                       (九类失败模式检查 / Nine failure mode checks)
 Phase 6: DELIVER     →  archive + merge specs + git tag
 ```
 
@@ -55,8 +61,8 @@ Split test plan into independently implementable vertical slices. Ordered by dep
 Execute RED → GREEN → REFACTOR per slice. Write test first (RED), minimal implementation (GREEN), then refactor (REFACTOR).
 
 **Phase 5: VERIFY — 质量验证 | Quality Verification**
-全量测试 + Lint + Diff 审查 + 五类失败模式检查。最多 5 轮迭代。汇总设计调整到 design-adjustments.md。
-Full test + Lint + Diff review + five failure mode check. Max 5 iterations. Summarize design adjustments to design-adjustments.md.
+全量测试 + Lint + Diff 审查 + 九类失败模式检查。普通模式最多 5 轮迭代，长程模式最多 10 轮。汇总设计调整到 design-adjustments.md。
+Full test + Lint + Diff review + nine failure mode checks. Max 5 iterations (normal) or 10 (long-range). Summarize design adjustments to design-adjustments.md.
 
 **Phase 6: DELIVER — 交付 | Delivery**
 归档到 archive/ → 合并 specs 到 specs/ → Git commit + tag。

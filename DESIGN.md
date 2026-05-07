@@ -1,7 +1,7 @@
 # STDD — 系统设计文档 | System Design
 
-> 版本 / Version：V1.0
-> 日期 / Date：2026-05-03
+> 版本 / Version：V1.1
+> 日期 / Date：2026-05-07
 >
 > STDD (Spec+Test Driven Development) 是一套 AI 辅助的 Spec 先行 + TDD 执行的研发流程系统。
 > STDD is an AI-assisted, spec-first + TDD execution methodology for software development.
@@ -47,6 +47,13 @@ Gate 3: Phase 5 结束 — 用户确认 test-report.md + design-adjustments.md
 
 三道门都是必须的，不可跳过。没有用户明确确认，Skill 必须中断等待。
 All three gates are mandatory. Without explicit user confirmation, the Skill must pause and wait.
+
+Gate 2 之后可选择执行模式：
+- **全自动长程模式（默认）**：一次性预授权所有 Phase 3-5 交互点，之后连续自动执行，仅在 Gate 3 等待确认。
+- **普通交互模式**：Phase 3-5 按需暂停交互，保持现有行为。
+After Gate 2, execution mode can be selected:
+- **Full-Auto Long-Range Mode (default)**: One-time pre-auth for all Phase 3-5 interaction points, then continuous auto-execution, only pausing at Gate 3.
+- **Normal Interactive Mode**: Phase 3-5 pauses for interaction as needed, maintaining existing behavior.
 
 ---
 
@@ -117,14 +124,23 @@ UNDERSTAND             SPEC                   BUILD LOOP             DELIVER
 - **中文**：全量质量检查 + 设计调整汇总。最多 5 轮迭代：运行 pytest/lint → Diff 审查 → 五类失败模式检查 → 汇总设计调整 → 生成 test-report.md。完成后必须等待用户确认。
 - **EN**：Full quality check + design adjustment summary. Max 5 iterations: run pytest/lint → diff review → five failure mode check → summarize design adjustments → generate test-report.md. Must wait for user confirmation upon completion.
 
-**五类失败模式检查 / Five Failure Modes**：
-| # | 模式 / Mode | 说明 / Description |
-|---|------------|-------------------|
-| (a) | 幻觉行为 / Hallucinated actions | 编造的文件路径、环境变量、函数名、库 API |
-| (b) | 范围蔓延 / Scope creep | 超出计划文件的改动 |
-| (c) | 级联错误 / Cascading errors | 异常被静默吞掉、空数组 fallback 掩盖问题 |
-| (d) | 上下文丢失 / Context loss | 与 proposal/design/spec 决策矛盾 |
-| (e) | 工具误用 / Tool misuse | 错误的工具选择或参数 |
+**九类失败模式检查 / Nine Failure Modes**：
+
+| # | 模式 / Mode | 说明 / Description | 版本 |
+|---|------------|-------------------|------|
+| (a) | 幻觉行为 / Hallucinated actions | 编造的文件路径、环境变量、函数名、库 API | V1.0 |
+| (b) | 范围蔓延 / Scope creep | 超出计划文件的改动 | V1.0 |
+| (c) | 级联错误 / Cascading errors | 异常被静默吞掉、空数组 fallback 掩盖问题 | V1.0 |
+| (d) | 上下文丢失 / Context loss | 与 proposal/design/spec 决策矛盾 | V1.0 |
+| (e) | 工具误用 / Tool misuse | 错误的工具选择或参数 | V1.0 |
+| (f) | 运行时行为偏差 / Runtime behavior deviation | 静态结构正确但动态行为异常（CSS/JS/交互） | V1.1 |
+| (g) | 管线断链 / Pipeline chain break | 多步转换链路缺失步骤或隐式假定 | V1.1 |
+| (h) | 内容质量偏差 / Content quality deviation | 数据不一致、长度越界、引用缺失、设计不当 | V1.1 |
+| (i) | 指令衰减 / Instruction decay | Prompt 明确写了但 AI 未充分执行 | V1.1 |
+
+> (f)-(i) 为 V1.1 新增，基于 FPPT 项目 Phase 2-5 实测中发现的 4 个 TDD 系统性盲区：
+> 盲区A "静态结构 vs 动态行为" → (f)；盲区B "单元测试 vs 集成链路" → (g)；
+> 盲区C "结构合规 vs 内容质量" → (h)；盲区D "Prompt测试 vs 执行结果测试" → (i)。
 
 ### Phase 6: DELIVER — 交付 | Delivery
 
@@ -182,16 +198,38 @@ THEN: 返回友好回复
 
 ### 3.4 自动迭代 vs 用户交互 / Auto-Iteration vs. User Interaction
 
-| 场景 / Scenario | 行为 / Behavior |
-|----------------|----------------|
-| Phase 3 切片规划 / Slice planning | 自动完成，不中断 / Auto, no interrupt |
-| Phase 4 单切片 TDD / Single slice TDD | 自动完成 / Auto |
-| Phase 4 小设计偏离 / Minor design deviation | 记录 pending-adjustments，继续 / Record & continue |
-| Phase 4 大设计偏离 / Major design deviation | 暂停，询问用户 / Pause, ask user |
-| Phase 5 质量检查失败 / Quality check failure | 自动修复，重新检查 / Auto-fix, re-check |
-| Phase 5 达到 5 轮上限 / Iteration cap hit | 暂停，向用户报告 / Pause, report to user |
-| Phase 5 完成 / Complete | **强制等待用户确认** / Forced user confirmation |
-| Phase 5 用户有异议 / User disagrees | 回到 Phase 2 / Return to Phase 2 |
+| 场景 / Scenario | 普通模式 / Normal | 长程模式 / Long-Range |
+|----------------|-------------------|---------------------|
+| Phase 3 切片规划 / Slice planning | 自动完成，不中断 | 自动完成，不中断 |
+| Phase 4 单切片 TDD / Single slice TDD | 自动完成 | 自动完成 |
+| Phase 4 小设计偏离 / Minor design deviation | 记录 pending-adjustments，继续 | 记录 pending-adjustments，继续 |
+| Phase 4 大设计偏离 / Major design deviation | 暂停，询问用户 | 自动记录并继续（test-report 汇总） |
+| Phase 4 技术阻塞 / Technical blocker | 暂停，询问用户 | 尝试绕过/跳过；无法处理时降级暂停 |
+| Phase 5 质量检查失败 / Quality check failure | 自动修复，重新检查 | 自动修复，重新检查 |
+| Phase 5 达到迭代上限 / Iteration cap hit | 暂停，向用户报告 | 汇总到 test-report，继续（通过率<95%时降级） |
+| Phase 5 完成 / Complete | **强制等待用户确认** | **强制等待用户确认**（不自动跳过） |
+| Phase 5 用户有异议 / User disagrees | 回到 Phase 2 | 回到 Phase 2 |
+
+### 3.5 长程模式预授权 / Long-Range Mode Pre-Auth
+
+长程模式下，Gate 2 确认后进入一次性预授权流程，扫描 Phase 3-5 所有潜在交互点并统一授权：
+
+**A. 流程决策授权**：
+- 设计偏离处理策略（小偏离/大偏离）
+- 技术阻塞处理策略（绕过/跳过/降级）
+- 迭代上限策略（扩展轮数 + 达上限行为）
+
+**B. 操作类授权**（最常见的打断源）：
+- 目录操作、文件写入、命令执行（pytest/ruff/mypy）
+- 脚本执行、网络访问（pip install）、文件读取、Git 只读操作
+
+**C. 降级触发条件**：
+- 连续自动修复同一问题达到上限（3 次）仍失败
+- 测试通过率低于 95%
+- 发现安全相关问题
+- 预授权范围外的未预期情况
+
+长程模式状态记录在 `.stdd.yaml` 的 `long_range` 字段中。
 
 ---
 
@@ -495,8 +533,20 @@ At each mandatory gate, the Skill presents a standardized confirmation message.
                     ┌───────────┐
               ┌──→  │   SPEC    │──→ 用户确认 → completed
               │     └────┬──────┘
-              │          │ /stdd-slice (auto)
+              │          │ 模式选择 (Gate 2 后)
               │          ▼
+              │     ┌─────────────────────┐
+              │     │  长程模式?           │
+              │     │  Long-Range Mode?   │
+              │     └────┬────────┬───────┘
+              │          │ 是     │ 否
+              │          ▼        ▼
+              │     ┌────────┐  ┌────────┐
+              │     │一次性   │  │ 普通   │
+              │     │预授权   │  │ 模式   │
+              │     └───┬────┘  └───┬────┘
+              │         └────┬─────┘
+              │              ▼
               │     ┌───────────┐
               │     │   SLICE   │──→ auto-completed
               │     └────┬──────┘
@@ -504,11 +554,14 @@ At each mandatory gate, the Skill presents a standardized confirmation message.
               │          ▼
               │     ┌───────────┐
               │     │   BUILD   │──→ auto-completed
+              │     │(长程:自动 │     (降级时暂停)
+              │     │ 处理偏离) │
               │     └────┬──────┘
               │          │ /stdd-verify (auto)
               │          ▼
               │     ┌───────────┐
-              │     │  VERIFY   │──→ 用户确认 → completed
+              │     │  VERIFY   │──→ 用户确认(Gate 3) → completed
+              │     │(长程:10轮)│     (两种模式均强制)
               │     └────┬──────┘
               │          │
               │     ┌────┴────┐
