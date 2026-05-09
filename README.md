@@ -1,6 +1,6 @@
 # STDD — Spec+Test Driven Development
 
-> AI 辅助的 Spec 先行 + TDD 执行研发流程系统 | AI-assisted Spec-first + TDD execution methodology
+> V1.2 · AI 辅助的 Spec 先行 + TDD 执行研发流程系统 | AI-assisted Spec-first + TDD execution methodology
 >
 > 通过 6 个阶段 + 3 道强制确认门保证研发质量 | 6 phases + 3 mandatory confirmation gates to ensure quality
 
@@ -53,6 +53,8 @@ python /path/to/stdd-project/bin/stdd install claude-code
 | **P3: SLICE** | 自动 / Auto | tasks.md + slices.md | 无 / None |
 | **P4: BUILD** | 自动 / Auto | TDD RED→GREEN→REFACTOR | 仅阻塞时 / On blocker |
 | **P5: VERIFY** | 自动 / Auto | test-report.md + design-adjustments.md | **强制用户确认** / Forced |
+|                |            | 全量测试 + 覆盖率诊断 + E2E + Lint |                           |
+|                |            | + 十一类失败模式检查 |                           |
 | **P6: DELIVER** | `/stdd-continue` | archive + merge specs + git tag | 无 / None |
 
 ```

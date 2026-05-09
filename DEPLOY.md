@@ -1,6 +1,6 @@
 # STDD 部署与使用指南 | Deployment & Usage Guide
 
-> STDD (Spec+Test Driven Development) V1.0
+> STDD (Spec+Test Driven Development) V1.2
 > 适用平台 / Supported Platforms：Claude Code / WorkBuddy / Trae / Cursor / Windsurf / GitHub Copilot
 
 ---
@@ -102,7 +102,7 @@ The system will guide you through Phase 1 (requirement understanding), generate 
 ```
 Phase 1: /stdd-understand  →  需求理解 / Understand → proposal.md → 用户确认 / User confirm
 Phase 2: /stdd-spec        →  规格设计 / Spec design → design.md + specs + test-plan.md → 用户确认 / User confirm
-Phase 3-5: /stdd-continue  →  自动迭代 / Auto-iterate：切片 / Slice → TDD实现 / TDD impl → 质量验证 / Verify → 用户确认 / User confirm
+Phase 3-5: /stdd-continue  →  自动迭代 / Auto-iterate：切片 / Slice → TDD实现 / TDD impl → 质量验证(11类失败模式+E2E+覆盖率) / Verify(11 failure modes+E2E+coverage) → 用户确认 / User confirm
 Phase 6: /stdd-continue    →  交付 / Deliver：归档 / Archive + 合并 specs / Merge specs + git tag
 ```
 
@@ -243,7 +243,24 @@ gates:
 quality:
   test: "pytest tests/ -v"
   lint: "ruff check app/ tests/"
-  typecheck: null           # 暂不启用 / Not yet enabled
+  typecheck: null                     # 暂不启用 / Not yet enabled
+
+  # E2E 测试 / E2E tests (V1.2)
+  e2e:
+    enabled: false                    # 项目级开关，默认关闭
+    runner: playwright                # playwright | cypress | custom_script
+    command: null                     # 自定义命令
+    scope: critical_only              # critical_only | full
+
+  # 覆盖率诊断 / Coverage diagnostics (V1.2)
+  coverage:
+    enabled: true                     # 诊断模式，不阻断
+    tool: pytest-cov
+    fail_under: 0                     # 0 = 不阻断，仅报告
+    scope: changed_files_only         # changed_files_only | full
+
+  # 多 Python 版本 / Multi Python versions (V1.2)
+  python_versions: []                 # 如 ["3.10", "3.12"]，为空不执行
 
 # TC-ID 规则 / TC-ID rule
 tc_id:

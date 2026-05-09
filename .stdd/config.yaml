@@ -73,7 +73,28 @@ test:
 quality:
   test: "pytest tests/ -v"
   lint: "ruff check app/ tests/"
-  typecheck: null           # 暂不启用 mypy/pyright
+  typecheck: null                     # 暂不启用 mypy/pyright
+
+  # E2E 测试配置（V1.2 新增）
+  # E2E 只在 Step 1 通过后运行一次，不放入迭代循环。失败不触发自动修复。
+  e2e:
+    enabled: false                    # 项目级开关，默认关闭
+    runner: playwright                # playwright | cypress | custom_script
+    command: null                     # 自定义命令，如 "npx playwright test" 或 "pytest tests/e2e/"
+    scope: critical_only              # critical_only | full
+    critical_paths: []                # scope=critical_only 时生效，定义关键用户路径
+
+  # 覆盖率诊断配置（V1.2 新增）
+  # 覆盖率仅作诊断信号，不作为门禁。只统计变更文件的增量覆盖。
+  coverage:
+    enabled: true                     # 默认开启（诊断模式，不阻断）
+    tool: pytest-cov                  # pytest-cov | coverage.py
+    fail_under: 0                     # 0 = 不阻断，仅报告
+    scope: changed_files_only         # changed_files_only | full
+
+  # 多 Python 版本兼容性测试（V1.2 新增）
+  python_versions: []                 # 如 ["3.10", "3.12"]，为空则不执行多版本测试
+                                      # 配置后 Step 1 会对每个版本运行 pytest
 
 # TC-ID 命名规则
 tc_id:

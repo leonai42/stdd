@@ -1,7 +1,7 @@
 # STDD — 系统设计文档 | System Design
 
-> 版本 / Version：V1.1
-> 日期 / Date：2026-05-07
+> 版本 / Version：V1.2
+> 日期 / Date：2026-05-09
 >
 > STDD (Spec+Test Driven Development) 是一套 AI 辅助的 Spec 先行 + TDD 执行的研发流程系统。
 > STDD is an AI-assisted, spec-first + TDD execution methodology for software development.
@@ -121,10 +121,10 @@ UNDERSTAND             SPEC                   BUILD LOOP             DELIVER
 
 ### Phase 5: VERIFY — 质量验证 | Quality Verification
 
-- **中文**：全量质量检查 + 设计调整汇总。最多 5 轮迭代：运行 pytest/lint → Diff 审查 → 五类失败模式检查 → 汇总设计调整 → 生成 test-report.md。完成后必须等待用户确认。
-- **EN**：Full quality check + design adjustment summary. Max 5 iterations: run pytest/lint → diff review → five failure mode check → summarize design adjustments → generate test-report.md. Must wait for user confirmation upon completion.
+- **中文**：全量质量检查 + 设计调整汇总。最多 5 轮迭代（长程 10 轮）：运行 pytest/覆盖率诊断/Lint/类型检查/多版本测试/E2E → Diff 审查 → 十一类失败模式检查 → 汇总设计调整 → 生成 test-report.md。完成后必须等待用户确认。
+- **EN**：Full quality check + design adjustment summary. Max 5 iterations (10 for long-range): run pytest/coverage diagnostics/lint/typecheck/multi-version test/E2E → diff review → eleven failure mode check → summarize design adjustments → generate test-report.md. Must wait for user confirmation upon completion.
 
-**九类失败模式检查 / Nine Failure Modes**：
+**十一类失败模式检查 / Eleven Failure Modes**：
 
 | # | 模式 / Mode | 说明 / Description | 版本 |
 |---|------------|-------------------|------|
@@ -137,10 +137,15 @@ UNDERSTAND             SPEC                   BUILD LOOP             DELIVER
 | (g) | 管线断链 / Pipeline chain break | 多步转换链路缺失步骤或隐式假定 | V1.1 |
 | (h) | 内容质量偏差 / Content quality deviation | 数据不一致、长度越界、引用缺失、设计不当 | V1.1 |
 | (i) | 指令衰减 / Instruction decay | Prompt 明确写了但 AI 未充分执行 | V1.1 |
+| (j) | 覆盖真空 / Coverage vacuum | 某 capability 零自动化测试覆盖 | V1.2 |
+| (k) | 契约断层 / Contract gap | 跨 capability API 字段名/header 不一致 | V1.2 |
 
 > (f)-(i) 为 V1.1 新增，基于 FPPT 项目 Phase 2-5 实测中发现的 4 个 TDD 系统性盲区：
 > 盲区A "静态结构 vs 动态行为" → (f)；盲区B "单元测试 vs 集成链路" → (g)；
 > 盲区C "结构合规 vs 内容质量" → (h)；盲区D "Prompt测试 vs 执行结果测试" → (i)。
+>
+> (j)-(k) 为 V1.2 新增，基于 FPPT 项目验收测试回溯中发现的 STDD 流程盲区（16 个实测问题中堵住 10 个）：
+> 类别A "Desktop App 零自动化测试" → (j)；类别B "前后端API契约不一致" → (k)。
 
 ### Phase 6: DELIVER — 交付 | Delivery
 
@@ -574,3 +579,13 @@ At each mandatory gate, the Skill presents a standardized confirmation message.
                          │ DELIVER │──→ auto-completed
                          └─────────┘
 ```
+
+---
+
+## 附录 C. 版本历史 / Version History
+
+| 版本 | 日期 | 变更内容 |
+|------|------|---------|
+| **V1.2** | 2026-05-09 | Phase 5 增强：新增 E2E 测试（可配置）、覆盖率诊断、多 Python 版本测试；失败模式从 9 类扩展至 11 类，新增 (j) 覆盖真空、(k) 契约断层。基于 FPPT 验收测试回溯的 16 个实测问题改进 |
+| **V1.1** | 2026-05-07 | 长程开发模式支持；失败模式从 5 类扩展至 9 类，新增 (f) 运行时行为偏差、(g) 管线断链、(h) 内容质量偏差、(i) 指令衰减。基于 FPPT 项目 Phase 2-5 实测中发现的 4 个 TDD 系统性盲区 |
+| **V1.0** | 2026-05-06 | 初始发布：6 阶段流程 + 3 道强制确认门 + 5 类失败模式检查。支持 Claude Code / WorkBuddy / Trae / Cursor 平台 |

@@ -38,7 +38,7 @@ Phase 2: SPEC        →  design.md + specs + test-plan.md  →  用户确认 / 
 Phase 3: SLICE       →  tasks.md + slices.md  →  自动 / Auto
 Phase 4: BUILD       →  TDD RED→GREEN→REFACTOR  →  自动(长程)/按需交互(普通)
 Phase 5: VERIFY      →  test-report.md + design-adjustments.md  →  用户确认 / User confirm
-                       (九类失败模式检查 / Nine failure mode checks)
+                       (十一类失败模式检查 / Eleven failure mode checks)
 Phase 6: DELIVER     →  archive + merge specs + git tag
 ```
 
@@ -61,8 +61,8 @@ Split test plan into independently implementable vertical slices. Ordered by dep
 Execute RED → GREEN → REFACTOR per slice. Write test first (RED), minimal implementation (GREEN), then refactor (REFACTOR).
 
 **Phase 5: VERIFY — 质量验证 | Quality Verification**
-全量测试 + Lint + Diff 审查 + 九类失败模式检查。普通模式最多 5 轮迭代，长程模式最多 10 轮。汇总设计调整到 design-adjustments.md。
-Full test + Lint + Diff review + nine failure mode checks. Max 5 iterations (normal) or 10 (long-range). Summarize design adjustments to design-adjustments.md.
+全量测试 + 覆盖率诊断 + 多版本测试 + E2E 测试（可配置）+ Lint + Diff 审查 + 十一类失败模式检查。普通模式最多 5 轮迭代，长程模式最多 10 轮。汇总设计调整到 design-adjustments.md。
+Full test + coverage diagnostics + multi-version test + E2E tests (configurable) + Lint + Diff review + eleven failure mode checks. Max 5 iterations (normal) or 10 (long-range). Summarize design adjustments to design-adjustments.md.
 
 **Phase 6: DELIVER — 交付 | Delivery**
 归档到 archive/ → 合并 specs 到 specs/ → Git commit + tag。
