@@ -28,6 +28,12 @@ bin/                    # 辅助脚本
 - `/stdd-continue` — 继续执行当前变更（Phase 3-5）
 - `/stdd-status` — 查看变更状态
 
+## 业务知识库
+
+在进行基金、证券、期货、资产管理业务的设计与开发时，须参考 `.claude/memory/` 下的金融业务知识库：
+- [基金资管业务知识库](.claude/memory/finance-knowledge-base.md) — 术语、公式、规则标准、监管规范
+- 源文档位于 `D:\mycode\FPPT\output\finance-reference\`（4份规范文档，2026年5月版）
+
 ## 开发约定
 
 - STDD 本身使用 STDD 流程开发
