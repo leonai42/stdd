@@ -1,0 +1,22 @@
+# 长程模式配置（Gate 2 之后可选，默认启用，使 Phase 3-5 连续自动执行）
+
+long_range:
+  default: true
+  pre_auth:
+    design_deviation:
+      minor: "auto_record"
+      major: "auto_record_continue"
+    technical_blocker:
+      strategy: "workaround"
+    iteration:
+      max_rounds: 10
+      on_cap: "report_in_summary"
+    operations:
+      directory: "allow"
+      file_write: "allow"
+      command_exec: "allow"
+      script_exec: "allow"
+      network: "allow"
+      file_read: "allow"
+      git_readonly: "allow"
+    gate3: "mandatory"

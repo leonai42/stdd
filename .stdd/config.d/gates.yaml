@@ -1,0 +1,12 @@
+# STDD 确认门配置
+
+gates:
+  phase1_understand:
+    required: true
+    description: "用户确认 proposal.md 后才能进入 Phase 2"
+  phase2_spec:
+    required: true
+    description: "用户确认 design.md + specs + test-plan.md 后才能进入 Phase 3"
+  phase5_verify:
+    required: true
+    description: "用户确认 test-report.md + design-adjustments.md 后才能进入 Phase 6"

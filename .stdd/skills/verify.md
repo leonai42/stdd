@@ -19,6 +19,15 @@
 进入本阶段时，先读取 `.stdd.yaml` 中的 `long_range.mode` 确定当前模式。
 从 `.stdd/config.yaml` 的 `long_range.pre_auth.iteration.max_rounds` 读取长程模式迭代上限。
 
+## CLI 桥接检查
+
+所有 CLI 操作前必须执行：
+
+1. 检查 CLI 可用性：执行 `python bin/stdd --help`，检查返回码 = 0
+   - 非零返回 → 报告"CLI 不可用"并暂停，不尝试后续 CLI 操作
+2. 执行 CLI 命令后，检查返回码 = 0
+   - 非零返回 → 报告命令失败和退出码，暂停等待用户处理
+
 ## 执行流程
 
 ### 迭代循环（普通模式最多 5 轮，长程模式最多 N 轮可配置）
@@ -315,6 +324,8 @@
 
 - 用户确认 → 进入 Phase 6
 - 用户有异议或变更需求 → 回到 Phase 2 修订
+
+> 确认门模板参见: `.stdd/skills/_shared/confirm-gate.md`
 
 ## 产出物
 

@@ -107,6 +107,8 @@ AND: <附加结果>      →   额外的 Assert
 
 **未确认前，绝对不允许进入 Phase 3。**
 
+> 确认门模板参见: `.stdd/skills/_shared/confirm-gate.md`
+
 ### Step 6: 写入文件
 
 用户确认后：

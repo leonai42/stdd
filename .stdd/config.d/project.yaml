@@ -1,0 +1,13 @@
+paths:
+  archive_dir: archive
+  changes_dir: changes
+  platforms_dir: .stdd/platforms
+  skills_dir: .stdd/skills
+  specs_dir: specs
+  standards_dir: .stdd/standards
+  templates_dir: .stdd/templates
+project:
+  language: python
+  name: stdd
+  python_version: '3.10'
+stdd_version: '2.0'

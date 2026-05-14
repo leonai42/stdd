@@ -1,0 +1,22 @@
+change_id: 2026-05-14-v1.2.1-v1.3-optimization
+current_phase: understand
+design_adjustments:
+  count: 0
+phases:
+  build:
+    status: pending
+  deliver:
+    status: pending
+  slice:
+    status: pending
+  spec:
+    status: pending
+  understand:
+    status: pending
+  verify:
+    status: pending
+status: archived
+traceability:
+  spec_scenarios: 0
+  tc_cases: 0
+  test_functions: 0

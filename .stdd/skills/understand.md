@@ -72,6 +72,8 @@
 
 **确认前不生成文件。**
 
+> 确认门模板参见: `.stdd/skills/_shared/confirm-gate.md`
+
 ### Step 5: 生成终版 proposal.md
 
 用户确认后：

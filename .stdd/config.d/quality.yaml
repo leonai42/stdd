@@ -1,0 +1,32 @@
+# STDD 质量检查配置
+
+verify:
+  max_iterations: 5
+  auto_fix: true
+
+test:
+  framework: pytest
+  unit_dir: tests/unit
+  integration_dir: tests/integration
+  coverage_target: 80
+
+quality:
+  test: "pytest tests/ -v"
+  lint: "ruff check app/ tests/"
+  typecheck: null
+  e2e:
+    enabled: false
+    runner: playwright
+    command: null
+    scope: critical_only
+    critical_paths: []
+  coverage:
+    enabled: true
+    tool: pytest-cov
+    fail_under: 0
+    scope: changed_files_only
+  python_versions: []
+
+tc_id:
+  pattern: "TC-{CAPABILITY}-{NNN}"
+  example: "TC-CASUAL-001"
