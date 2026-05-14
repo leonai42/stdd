@@ -1,6 +1,6 @@
 # STDD — Spec+Test Driven Development
 
-> V1.4 · AI 辅助的 Spec 先行 + TDD 执行研发流程系统 | AI-assisted Spec-first + TDD execution methodology
+> V2.0 · AI 辅助的 Spec 先行 + TDD 执行研发流程系统 | AI-assisted Spec-first + TDD execution methodology
 >
 > 通过 6 个阶段 + 3 道强制确认门保证研发质量 | 6 phases + 3 mandatory confirmation gates to ensure quality
 
@@ -51,12 +51,15 @@ python /path/to/stdd-project/bin/stdd install claude-code
 STDD 项目 / STDD Project                  你的项目（安装后）/ Your Project (after init)
 ├── .stdd/                                ├── .stdd/
 │   ├── skills/          # 6 阶段 Skill   │   ├── skills/ templates/ standards/
-│   ├── templates/       # 8 文档模板     │   └── platforms/ config.yaml
-│   ├── standards/       # 开发规范       ├── specs/           # 主规范 / Master specs
-│   └── platforms/       # 多平台适配     ├── changes/         # 活跃变更 / Active changes
-├── bin/stdd             # CLI 脚本       ├── archive/         # 已完成 / Archived
-├── STDD.md              # 通用流程指引   ├── STDD.md
-├── DESIGN.md            # 系统设计       └── AGENTS.md
+│   ├── skills/_shared/  # DRY 共享片段   │   ├── config.d/        # 配置（多文件）
+│   ├── templates/       # 8 文档模板     │   └── platforms/       # 多平台适配
+│   ├── standards/       # 开发规范       ├── specs/               # 主规范 / Master specs
+│   ├── config.d/        # 模块化配置     ├── changes/             # 活跃变更 / Active changes
+│   └── platforms/       # 多平台适配     ├── archive/             # 已完成 / Archived
+├── stdd/cli/            # CLI 模块       ├── STDD.md
+├── bin/stdd             # CLI 入口       └── AGENTS.md
+├── STDD.md              # 通用流程指引
+├── DESIGN.md            # 系统设计
 ├── DEPLOY.md            # 部署指南
 └── README.md
 ```
@@ -74,6 +77,9 @@ STDD 项目 / STDD Project                  你的项目（安装后）/ Your Pr
 | `stdd status [name]` | 查看变更当前阶段 / View current phase of a change |
 | `stdd archive <name>` | 归档已完成变更并合并 specs / Archive completed change and merge specs |
 | `stdd trace <tc-id>` | 追溯 spec↔test↔code 双向映射链 / Trace spec↔test↔code bidirectional chain |
+| `stdd rollback <name>` | 从 archive 恢复已归档变更 / Restore archived change |
+| `stdd diff [name]` | 显示 spec↔test 覆盖差异表 / Show spec↔test coverage differences |
+| `stdd abort <name>` | 放弃变更并归档 / Abort change and archive |
 
 ---
 
@@ -94,6 +100,7 @@ STDD 项目 / STDD Project                  你的项目（安装后）/ Your Pr
 
 - Python 3.10+（仅 CLI 脚本需要 / CLI only）
 - PyYAML 6.0+ (`pip install pyyaml`)
+- pytest 7.0+ (`pip install pytest`)
 - Git 2.0+
 - 至少一个支持的 AI 编程平台 / At least one supported AI coding platform
 

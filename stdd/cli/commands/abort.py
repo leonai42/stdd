@@ -27,6 +27,15 @@ def cmd_abort(args: argparse.Namespace) -> None:
             print("已取消")
             sys.exit(0)
 
+    dry_run = getattr(args, "dry_run", False)
+    if dry_run:
+        print(" [DRY-RUN] 将执行以下操作:")
+        print(f"   放弃变更: changes/{change_dir.name}")
+        print(f"   移至: archive/aborted/{change_dir.name}")
+        print(f"   更新状态: status=aborted")
+        print(" [DRY-RUN] 文件系统未发生变化")
+        return
+
     # 确保 archive/aborted/ 目录存在
     aborted_dir = project_root / "archive" / "aborted"
     aborted_dir.mkdir(parents=True, exist_ok=True)

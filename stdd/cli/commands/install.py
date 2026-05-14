@@ -137,9 +137,6 @@ def cmd_install(args: argparse.Namespace) -> None:
 
         count = 0
         for skill_file in sorted(core_skills_dir.glob("*.md")):
-            # 跳过 _shared/ 目录下的文件
-            if skill_file.parent.name == "_shared":
-                continue
             skill_content = skill_file.read_text(encoding="utf-8")
             skill_key = skill_file.stem  # understand, spec, slice, etc.
 

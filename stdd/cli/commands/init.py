@@ -23,8 +23,6 @@ def cmd_init(args: argparse.Namespace) -> None:
         "specs",
         "archive",
     ]
-    for d in dirs:
-        (project_root / d).mkdir(parents=True, exist_ok=True)
 
     files_to_copy = [
         ".stdd/config.d/project.yaml",
@@ -49,6 +47,34 @@ def cmd_init(args: argparse.Namespace) -> None:
         "STDD.md",
         "AGENTS.md",
     ]
+    dry_run = getattr(args, "dry_run", False)
+    if dry_run:
+        print(" [DRY-RUN] 将执行以下操作:")
+        print(f"   项目根目录: {project_root}")
+        for d in dirs:
+            print(f"   创建目录: {d}")
+        force = getattr(args, "force", False)
+        for f in files_to_copy:
+            src = stdd_source / f
+            if src.exists():
+                dst = project_root / f
+                if force or not dst.exists():
+                    print(f"   复制: {f}")
+            else:
+                print(f"   (缺失源文件: {f})")
+        for platform in ["claude-code", "workbuddy", "trae"]:
+            platform_skills = stdd_source / ".stdd" / "platforms" / platform / "skills"
+            if platform_skills.exists():
+                for skill_file in platform_skills.iterdir():
+                    dst = project_root / ".stdd" / "platforms" / platform / "skills" / skill_file.name
+                    if force or not dst.exists():
+                        print(f"   复制: {dst}")
+        print(" [DRY-RUN] 文件系统未发生变化")
+        return
+
+    for d in dirs:
+        (project_root / d).mkdir(parents=True, exist_ok=True)
+
     force = getattr(args, "force", False)
     copied = 0
     skipped = 0

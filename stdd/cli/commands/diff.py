@@ -46,7 +46,7 @@ def cmd_diff(args: argparse.Namespace) -> None:
             if id_match:
                 current_case["id"] = id_match.group(1)
 
-            expected_match = re.search(r"\*\*预期结果\*\*\s*\|\s*(.+)", line)
+            expected_match = re.search(r"\*\*预期结果\*\*\s*\|\s*([^|]+)", line)
             if expected_match:
                 current_case["expected"] = expected_match.group(1).strip()
 

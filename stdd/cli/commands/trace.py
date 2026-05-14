@@ -46,7 +46,7 @@ def cmd_trace(args: argparse.Namespace) -> None:
                         if tc_id in line:
                             in_target_case = True
                             # 案例标题在同一行或上一行
-                            title_match = re.search(r"####\s+案例\s+[\d.]+\s*—\s*(.+)", line)
+                            title_match = re.search(r"####\s+案例\s+[\d.]+\s*[—\-]\s*(.+)", line)
                             if not title_match:
                                 # 尝试从上一行或当前块开头提取
                                 pass
@@ -55,13 +55,13 @@ def cmd_trace(args: argparse.Namespace) -> None:
                             continue
                         if in_target_case:
                             # 提取案例标题（如果在 TC-ID 行之前出现）
-                            title_match = re.search(r"####\s+案例\s+[\d.]+\s*—\s*(.+)", line)
+                            title_match = re.search(r"####\s+案例\s+[\d.]+\s*[—\-]\s*(.+)", line)
                             if title_match:
                                 case_title = title_match.group(1).strip()
                             # 提取预期结果
                             if "**预期结果**" in line:
                                 in_expected = True
-                                result_match = re.search(r"\*\*预期结果\*\*\s*\|\s*(.+)", line)
+                                result_match = re.search(r"\*\*预期结果\*\*\s*\|\s*([^|]+)", line)
                                 if result_match:
                                     expected_result = result_match.group(1).strip()
                                 continue

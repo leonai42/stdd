@@ -50,7 +50,11 @@ def read_config(project_root: Path) -> Dict[str, Any]:
         for cfg_file in sorted(config_d.glob("*.yaml")):
             import yaml
             with open(cfg_file, "r", encoding="utf-8") as f:
-                config.update(yaml.safe_load(f) or {})
+                data = yaml.safe_load(f)
+                if isinstance(data, dict):
+                    config.update(data)
+                else:
+                    get_logger().warning("config.d/%s 不是 dict 类型，已跳过", cfg_file.name)
         if config:
             get_logger().info("从 config.d/ 加载配置 (%d 个文件)", len(list(config_d.glob("*.yaml"))))
             legacy = project_root / ".stdd" / "config.yaml"

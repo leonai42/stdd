@@ -30,6 +30,17 @@ def cmd_new(args: argparse.Namespace) -> None:
         print(f" Change 目录已存在: changes/{dir_name}")
         sys.exit(1)
 
+    dry_run = getattr(args, "dry_run", False)
+    if dry_run:
+        print(" [DRY-RUN] 将执行以下操作:")
+        print(f"   创建 change 目录: changes/{dir_name}")
+        print(f"   创建 specs 子目录: changes/{dir_name}/specs")
+        print(f"   复制模板: proposal.md, design.md, test-plan.md")
+        print(f"   创建状态文件: changes/{dir_name}/.stdd.yaml")
+        print(f"   状态版本: 2.0, 状态: active")
+        print(" [DRY-RUN] 文件系统未发生变化")
+        return
+
     (change_dir / "specs").mkdir(parents=True)
 
     templates_dir = project_root / ".stdd" / "templates"

@@ -11,7 +11,7 @@ def find_change_dir(name: Optional[str] = None, project_root: Optional[Path] = N
 
     if name:
         exact = changes_dir / name
-        if exact.exists() and exact.is_dir():
+        if exact.exists() and exact.is_dir() and (exact / ".stdd.yaml").exists():
             return exact
         for d in sorted(changes_dir.iterdir(), reverse=True):
             if d.is_dir() and d.name.endswith(name) and (d / ".stdd.yaml").exists():

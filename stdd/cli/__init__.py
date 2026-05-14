@@ -131,7 +131,8 @@ def main() -> None:
     try:
         func(args)
     except Exception as e:
-        print(f" 执行错误: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
 
 

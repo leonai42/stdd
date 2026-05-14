@@ -45,6 +45,14 @@ def cmd_rollback(args: argparse.Namespace) -> None:
         print(f"   无法恢复，目标路径已被占用")
         sys.exit(1)
 
+    dry_run = getattr(args, "dry_run", False)
+    if dry_run:
+        print(" [DRY-RUN] 将执行以下操作:")
+        print(f"   从 archive/ 恢复: {target.name} -> changes/{target.name}")
+        print(f"   更新状态: status=active, current_phase=understand")
+        print(" [DRY-RUN] 文件系统未发生变化")
+        return
+
     logger.info("恢复 %s -> changes/%s", target.name, target.name)
 
     # 更新状态
