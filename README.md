@@ -1,6 +1,6 @@
 # STDD — Spec+Test Driven Development
 
-> V1.2 · AI 辅助的 Spec 先行 + TDD 执行研发流程系统 | AI-assisted Spec-first + TDD execution methodology
+> V1.4 · AI 辅助的 Spec 先行 + TDD 执行研发流程系统 | AI-assisted Spec-first + TDD execution methodology
 >
 > 通过 6 个阶段 + 3 道强制确认门保证研发质量 | 6 phases + 3 mandatory confirmation gates to ensure quality
 

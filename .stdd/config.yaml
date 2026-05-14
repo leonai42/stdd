@@ -8,7 +8,7 @@ project:
   python_version: "3.10"
 
 # STDD 版本
-stdd_version: "1.2.1"
+stdd_version: "1.4.0"
 
 # 目录路径（相对于项目根目录）
 paths:
