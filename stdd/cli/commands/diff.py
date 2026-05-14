@@ -75,7 +75,7 @@ def cmd_diff(args: argparse.Namespace) -> None:
                                     tc_references[tc_id].append((py_file, i))
                                     break
                 except Exception:
-                    pass
+                    logger.debug("无法解析文件 %s", py_file.name, exc_info=True)
 
     # 输出四列对照表
     print(f"\n  Spec->Test 覆盖差异: {change_dir.name}")
@@ -114,7 +114,7 @@ def cmd_diff(args: argparse.Namespace) -> None:
                                         break
                         break
                 except Exception:
-                    pass
+                    logger.debug("无法解析文件 %s", py_file.name, exc_info=True)
 
         print(f"{title:<30} {tc_id:<18} {test_func:<22} {status}")
 

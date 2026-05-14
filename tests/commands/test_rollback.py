@@ -48,6 +48,18 @@ def test_rollback_not_found(temp_project: Path, monkeypatch):
         cmd_rollback(args)
 
 
+def test_rollback_dry_run(archived_change: Path, temp_project: Path, monkeypatch, capsys):
+    """--dry-run 预览但不恢复。"""
+    monkeypatch.chdir(temp_project)
+    name_part = archived_change.name.split("-", 3)[-1]
+    args = argparse.Namespace(name=name_part, dry_run=True, verbose=0)
+    cmd_rollback(args)
+    captured = capsys.readouterr()
+    assert "[DRY-RUN]" in captured.out
+    # 变更仍在 archive 中
+    assert archived_change.exists()
+
+
 def test_rollback_no_archive_dir(temp_project: Path, monkeypatch):
     """没有 archive/ 目录时报错。"""
     monkeypatch.chdir(temp_project)

@@ -71,6 +71,35 @@ AND: <附加结果>      →   额外的 Assert
 4. 回归风险矩阵（改动区域风险评估）
 5. 建议补充顺序（P0 → P1 → P2）
 
+### Step 4.5: 设计审查（自动化文档 Review）
+
+在提交用户确认之前，自动审查 design.md 和 specs 的质量：
+
+1. **需求覆盖检查**：
+   - design.md 是否覆盖了 proposal.md 中所有 What Changes？
+   - 每个 Capability 是否有对应的 spec 文件？
+   - 是否有遗漏的技术决策？
+
+2. **Scenario 完备性检查**：
+   - 每个 Requirement 是否至少 1 个 Scenario？
+   - 每个 Scenario 是否严格使用 GIVEN/WHEN/THEN/AND 格式？
+   - THEN 中是否包含 SHALL（大写）表示强制行为？
+   - AND 数量是否在限制内（≤5）？
+
+3. **TC-ID 一致性检查**：
+   - test-plan.md 的 TC-ID 是否全局唯一？
+   - TC 案例数是否 ≥ Scenario 数？
+   - 每个 Scenario 是否至少有 1 个 TC 案例？
+
+4. **文档一致性检查**：
+   - design.md 中引用的文件路径是否有效？
+   - specs 中的技术术语与 design.md 是否一致？
+   - 版本号引用是否正确？
+
+审查发现问题后**自动修复**，然后进入 Step 5 用户确认。
+
+---
+
 ### Step 5: 用户确认（强制门 — STDD 最关键的门）
 
 向用户展示完整的 Phase 2 产出后，**必须等待用户明确确认**：

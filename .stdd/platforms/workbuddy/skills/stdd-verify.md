@@ -23,7 +23,7 @@ trigger_keywords: ["stdd-verify", "stdd verify", "spec-driven", "tdd"]
 - **长程模式**：最多 10 轮迭代（可配置），达上限后在 test-report 中汇总继续。Gate 3 仍为强制确认门，不自动跳过。
 
 进入本阶段时，先读取 `.stdd.yaml` 中的 `long_range.mode` 确定当前模式。
-从 `.stdd/config.yaml` 的 `long_range.pre_auth.iteration.max_rounds` 读取长程模式迭代上限。
+从 `.stdd/config.d/long_range.yaml` 的 `long_range.pre_auth.iteration.max_rounds` 读取长程模式迭代上限。
 
 ## 执行流程
 
@@ -37,7 +37,7 @@ trigger_keywords: ["stdd-verify", "stdd verify", "spec-driven", "tdd"]
 
 #### Step 1: 运行全量质量检查
 
-读取 `.stdd/config.yaml` 中的 `quality` 配置，执行：
+读取 `.stdd/config.d/quality.yaml` 中的 `quality` 配置，执行：
 
 1. **全量测试**：`pytest tests/ -v`
 2. **Lint 检查**：`ruff check app/ tests/`

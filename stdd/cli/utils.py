@@ -71,5 +71,5 @@ def read_config(project_root: Path) -> Dict[str, Any]:
 
 
 def fix_windows_encoding() -> None:
-    if sys.stdout.encoding != "utf-8":
+    if sys.stdout.encoding != "utf-8" and hasattr(sys.stdout, "buffer"):
         sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")

@@ -22,7 +22,11 @@ def cmd_abort(args: argparse.Namespace) -> None:
     if not args.yes:
         print(f" 确认放弃变更: {change_dir.name}?")
         print(f"   此操作将把 change 移至 archive/aborted/")
-        resp = input("输入 y 确认: ")
+        try:
+            resp = input("输入 y 确认: ")
+        except EOFError:
+            print("无法读取输入（非交互环境），操作已取消")
+            sys.exit(1)
         if resp.lower() != "y":
             print("已取消")
             sys.exit(0)
@@ -50,7 +54,7 @@ def cmd_abort(args: argparse.Namespace) -> None:
     state_file = change_dir / ".stdd.yaml"
     if state_file.exists():
         with open(state_file, "r", encoding="utf-8") as f:
-            state = yaml.safe_load(f)
+            state = yaml.safe_load(f) or {}
         state["status"] = "aborted"
         with open(state_file, "w", encoding="utf-8") as f:
             yaml.dump(state, f, allow_unicode=True, default_flow_style=False)

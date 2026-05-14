@@ -21,7 +21,7 @@ def cmd_status(args: argparse.Namespace) -> None:
         sys.exit(1)
 
     with open(state_file, "r", encoding="utf-8") as f:
-        state = yaml.safe_load(f)
+        state = yaml.safe_load(f) or {}
 
     print(f"\n  Change: {state.get('change_id', change_dir.name)}")
     print(f"   状态: {state.get('status', 'unknown')}")

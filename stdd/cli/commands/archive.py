@@ -24,7 +24,7 @@ def cmd_archive(args: argparse.Namespace) -> None:
     state_file = change_dir / ".stdd.yaml"
     if state_file.exists():
         with open(state_file, "r", encoding="utf-8") as f:
-            state = yaml.safe_load(f)
+            state = yaml.safe_load(f) or {}
         if state.get("phases", {}).get("verify", {}).get("status") != "completed":
             print("   Phase 5 (VERIFY) 尚未完成，确认要归档吗？")
             if not args.yes:
@@ -39,10 +39,9 @@ def cmd_archive(args: argparse.Namespace) -> None:
         sys.exit(1)
 
     if dry_run:
-        logger.info("[dry-run] 将移动 %s -> archive/%s", change_dir, change_dir.name)
-        logger.info("[dry-run] 将合并 specs 到 specs/")
-        logger.info("[dry-run] 将更新 .stdd.yaml status=archived")
-        print(f"[dry-run] 将归档: {change_dir.name}")
+        print(f"[dry-run] 将移动 {change_dir.name} -> archive/{change_dir.name}")
+        print(f"[dry-run] 将合并 specs 到 specs/")
+        print(f"[dry-run] 将更新 .stdd.yaml status=archived")
         return
 
     # 合并 specs（在移动前，失败时源不受影响）
@@ -79,7 +78,7 @@ def cmd_archive(args: argparse.Namespace) -> None:
 
     if state_file.exists():
         with open(state_file, "r", encoding="utf-8") as f:
-            state = yaml.safe_load(f)
+            state = yaml.safe_load(f) or {}
         state["status"] = "archived"
         with open(state_file, "w", encoding="utf-8") as f:
             yaml.dump(state, f, allow_unicode=True, default_flow_style=False)

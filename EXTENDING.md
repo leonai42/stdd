@@ -33,7 +33,7 @@ description: "{meta['description']}"
 
 3. **在 `SKILL_META` 中添加 keyword 配置**（如平台需要特定触发词）
 
-4. **在 `bin/stdd` 中注册平台**（如有平台特有安装逻辑）
+4. **在 `stdd/cli/commands/install.py` 中完成平台配置**（如有平台特有安装逻辑）
 
 ### 现有平台参考
 - **Claude Code**：directory-per-skill 格式（`skill-name/SKILL.md`）

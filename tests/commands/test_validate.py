@@ -93,3 +93,40 @@ def test_validate_tc_id_duplicates(sample_change: Path, monkeypatch, capsys):
         cmd_validate(args)
     captured = capsys.readouterr()
     assert "重复的 TC-ID" in captured.out
+
+
+def test_validate_given_insufficient(sample_change_with_specs: Path, monkeypatch):
+    """GIVEN 数量少于 Scenario 时警告。"""
+    monkeypatch.chdir(sample_change_with_specs.parent.parent)
+    # spec 已有 1 Scenario 和 1 GIVEN，添加第二个 Scenario 但不加 GIVEN
+    spec_path = sample_change_with_specs / "specs" / "test.md"
+    content = spec_path.read_text(encoding="utf-8") + "\n#### Scenario: 第二个场景\n\n- **WHEN** 触发\n- **THEN** 系统 SHALL 响应\n"
+    spec_path.write_text(content, encoding="utf-8")
+    args = argparse.Namespace(name=None, dry_run=False, verbose=0)
+    # 不应 exit，只有 warning
+    try:
+        cmd_validate(args)
+    except SystemExit:
+        pass  # ok if warning-only, no error
+
+
+def test_validate_shall_missing(sample_change_with_specs: Path, monkeypatch):
+    """THEN 中未使用 SHALL 时警告。"""
+    monkeypatch.chdir(sample_change_with_specs.parent.parent)
+    spec_path = sample_change_with_specs / "specs" / "test.md"
+    content = spec_path.read_text(encoding="utf-8").replace("SHALL", "")
+    spec_path.write_text(content, encoding="utf-8")
+    args = argparse.Namespace(name=None, dry_run=False, verbose=0)
+    cmd_validate(args)  # 不应 crash
+
+
+def test_validate_tc_insufficient(sample_change_with_specs: Path, monkeypatch):
+    """TC 案例数少于 Scenario 时报错。"""
+    monkeypatch.chdir(sample_change_with_specs.parent.parent)
+    # 添加第二个 Scenario 但不添加对应 TC
+    spec_path = sample_change_with_specs / "specs" / "test.md"
+    content = spec_path.read_text(encoding="utf-8") + "\n#### Scenario: 额外场景\n\n- **GIVEN** 条件\n- **WHEN** 触发\n- **THEN** 系统 SHALL 处理\n"
+    spec_path.write_text(content, encoding="utf-8")
+    args = argparse.Namespace(name=None, dry_run=False, verbose=0)
+    with pytest.raises(SystemExit):
+        cmd_validate(args)

@@ -6,11 +6,13 @@ from pathlib import Path
 from stdd.cli.commands.status import cmd_status
 
 
-def test_status_valid_change(sample_change: Path, monkeypatch):
-    """正常显示 change 状态。"""
+def test_status_valid_change(sample_change: Path, monkeypatch, capsys):
     monkeypatch.chdir(sample_change.parent.parent)
     args = argparse.Namespace(name=None, dry_run=False, verbose=0)
-    cmd_status(args)  # 不应抛异常
+    cmd_status(args)
+    captured = capsys.readouterr()
+    assert "当前阶段" in captured.out or "Phase" in captured.out
+    assert "understa" in captured.out.lower()  # understand phase
 
 
 def test_status_with_name(sample_change: Path, monkeypatch):

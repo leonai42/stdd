@@ -1,6 +1,6 @@
 ---
 name: stdd-build
-description: "STDD Phase 4: BUILD — 按切片执行 RED→GREEN→REFACTOR TDD 循环，完成代码实现"
+description: "STDD Phase 4: TDD 实现 — 逐切片实现并通过测试"
 ---
 # STDD Phase 4: BUILD — TDD 实现
 
@@ -22,13 +22,15 @@ description: "STDD Phase 4: BUILD — 按切片执行 RED→GREEN→REFACTOR TDD
 
 进入本阶段时，先读取 `.stdd.yaml` 中的 `long_range.mode` 确定当前模式。
 
+**长程退出检测**：在每个切片开始前，检查用户最新消息是否包含"切换普通模式"或"退出长程"。如检测到，更新 `.stdd.yaml` 中 `long_range.mode: normal`，当前切片完成后暂停等待用户确认，后续切片按普通模式交互。
+
 ## 执行流程
 
 ### Step 0: 学习开发规范
 
 在开始编码之前，**必须先读取开发规范**：
 
-1. 读取 `.stdd/config.yaml` → 获取 `project.language`
+1. 读取 `.stdd/config.d/project.yaml` → 获取 `project.language`
 2. 读取 `.stdd/standards/<language>.md`（如 `python.md`）
 3. 学习：命名规范、类型注解要求、异步规则、错误处理模式、测试规范
 
@@ -82,7 +84,7 @@ description: "STDD Phase 4: BUILD — 按切片执行 RED→GREEN→REFACTOR TDD
 
 *普通模式*：
 - 记录到 `pending-adjustments.md`
-- **暂停自动迭代，使用 AskUserQuestion 向用户报告**：
+- **暂停自动迭代，向用户报告**：
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -107,7 +109,7 @@ description: "STDD Phase 4: BUILD — 按切片执行 RED→GREEN→REFACTOR TDD
 **技术阻塞**：
 
 *普通模式*：
-- 暂停，使用 AskUserQuestion 向用户报告阻塞情况，询问处理方案
+- 暂停，向用户报告阻塞情况，询问处理方案
 
 *长程模式*：
 - 按预授权 A2 策略处理：

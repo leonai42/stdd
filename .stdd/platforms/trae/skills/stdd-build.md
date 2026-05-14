@@ -24,7 +24,7 @@
 
 在开始编码之前，**必须先读取开发规范**：
 
-1. 读取 `.stdd/config.yaml` → 获取 `project.language`
+1. 读取 `.stdd/config.d/project.yaml` → 获取 `project.language`
 2. 读取 `.stdd/standards/<language>.md`（如 `python.md`）
 3. 学习：命名规范、类型注解要求、异步规则、错误处理模式、测试规范
 

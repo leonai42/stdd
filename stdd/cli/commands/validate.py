@@ -29,7 +29,7 @@ def cmd_validate(args: argparse.Namespace) -> None:
     state_file = change_dir / ".stdd.yaml"
     if state_file.exists():
         with open(state_file, "r", encoding="utf-8") as f:
-            state = yaml.safe_load(f)
+            state = yaml.safe_load(f) or {}
         valid_phases = ["understand", "spec", "slice", "build", "verify", "deliver"]
         for phase in state.get("phases", {}):
             if phase not in valid_phases:

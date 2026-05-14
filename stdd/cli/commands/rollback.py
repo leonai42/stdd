@@ -20,15 +20,23 @@ def cmd_rollback(args: argparse.Namespace) -> None:
         print(f" archive/ 目录不存在")
         sys.exit(1)
 
-    # 在 archive 中查找匹配的目录
+    # 在 archive 和 archive/aborted/ 中查找匹配的目录
+    search_dirs = [archive_dir]
+    aborted_dir = archive_dir / "aborted"
+    if aborted_dir.is_dir():
+        search_dirs.append(aborted_dir)
+
     target = None
-    for d in sorted(archive_dir.iterdir(), reverse=True):
-        if d.is_dir() and d.name.endswith(name) and (d / ".stdd.yaml").exists():
-            target = d
+    for search_dir in search_dirs:
+        for d in sorted(search_dir.iterdir(), reverse=True):
+            if d.is_dir() and d.name.endswith(name) and (d / ".stdd.yaml").exists():
+                target = d
+                break
+        if target:
             break
 
     if target is None:
-        # 精确匹配
+        # 精确匹配（仅在 archive/ 一级）
         exact = archive_dir / name
         if exact.exists() and exact.is_dir():
             target = exact
@@ -59,7 +67,7 @@ def cmd_rollback(args: argparse.Namespace) -> None:
     state_file = target / ".stdd.yaml"
     if state_file.exists():
         with open(state_file, "r", encoding="utf-8") as f:
-            state = yaml.safe_load(f)
+            state = yaml.safe_load(f) or {}
         state["status"] = "active"
         state["current_phase"] = "understand"
         with open(state_file, "w", encoding="utf-8") as f:

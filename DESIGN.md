@@ -1,6 +1,6 @@
 # STDD — 系统设计文档 | System Design
 
-> 版本 / Version：V1.2
+> 版本 / Version：V2.0
 > 日期 / Date：2026-05-09
 >
 > STDD (Spec+Test Driven Development) 是一套 AI 辅助的 Spec 先行 + TDD 执行的研发流程系统。
@@ -273,7 +273,7 @@ STDD uses a **hybrid model**: 6 core Skills (flow control) + Python CLI scripts 
 | 组件 / Component | 职责 / Responsibility | 实现 / Implementation |
 |-----------------|----------------------|----------------------|
 | Skill Engine | 6 个 Phase Skill 的调度和执行 / Schedule & execute 6 phase skills | Markdown Skill 文件 + AI 平台调用 |
-| Config Loader | 读取 .stdd/config.yaml，加载项目配置 / Load project config | Python CLI + Skill Read |
+| Config Loader | 读取 .stdd/config.d/，加载项目配置 / Load project config | Python CLI + Skill Read |
 | Change Manager | 管理 changes/specs/archive 目录结构 / Manage directory structure | 文件系统 + 模板生成 |
 | Gate Manager | 强制执行三道确认门 / Enforce three confirmation gates | Skill 内嵌确认逻辑 |
 | Trace Engine | 维护 spec↔TC↔test↔code 映射 / Maintain traceability | test-plan.md TC-ID 体系 |
@@ -285,7 +285,7 @@ STDD uses a **hybrid model**: 6 core Skills (flow control) + Python CLI scripts 
 项目根目录 / Project Root
 │
 ├── .stdd/                          # STDD 系统目录 / System directory
-│   ├── config.yaml                 # 项目配置 / Project config
+│   ├── config.d/                   # 项目配置目录 / Project config directory
 │   ├── skills/                     # 6 个阶段 Skill 定义 / 6 phase skill definitions
 │   │   ├── understand.md           # Phase 1
 │   │   ├── spec.md                 # Phase 2
@@ -293,9 +293,10 @@ STDD uses a **hybrid model**: 6 core Skills (flow control) + Python CLI scripts 
 │   │   ├── build.md                # Phase 4
 │   │   ├── verify.md               # Phase 5
 │   │   └── deliver.md              # Phase 6
-│   ├── templates/                  # 8 个文档模板 / 8 document templates
+│   ├── templates/                  # 9 个文档模板 / 9 document templates
 │   │   ├── proposal.md             # 变更提案
 │   │   ├── design.md               # 技术设计
+│   │   ├── long-range-auth.md      # 长程模式预授权
 │   │   ├── spec.md                 # 行为规格
 │   │   ├── test-plan.md            # 测试方案
 │   │   ├── tasks.md                # 任务清单
@@ -308,6 +309,15 @@ STDD uses a **hybrid model**: 6 core Skills (flow control) + Python CLI scripts 
 │       ├── claude-code/skills/
 │       ├── workbuddy/skills/
 │       └── trae/skills/
+│
+├── _shared/                        # 共享数据 / Shared data
+│   └── ...
+│
+├── stdd/                           # CLI 源码包 / CLI source package
+│   └── cli/                        # CLI 子命令 / CLI subcommands
+│
+├── bin/                            # 可执行入口 / Executable entry points
+│   └── stdd                        # CLI 入口 / CLI entry point
 │
 ├── specs/                          # 主规范（canonical）/ Master specs (merged)
 │   └── <capability>/spec.md
@@ -392,6 +402,7 @@ traceability:
 | slices.md | Phase 3 | 依赖无循环；P0 优先 |
 | design-adjustments.md | Phase 5 | 原始设计引用 + 调整原因 + 影响范围 |
 | test-report.md | Phase 5 | 失败项有根因；通过率计算正确 |
+| long-range-auth.md | Gate 2 后 | 长程模式预授权确认 / Long-range mode pre-auth confirmation |
 
 ---
 
@@ -427,7 +438,7 @@ Platform-agnostic core               Minimal platform adapter
 ├── skills/         ←──────┬──→     ├── claude-code/skills/   # YAML frontmatter
 ├── templates/              ├──→    ├── workbuddy/skills/     # YAML frontmatter + trigger_keywords
 ├── standards/              ├──→    ├── trae/skills/
-├── config.yaml             │       └── cursor/               # 单文件规则 / Single rule file
+├── config.d/              │       └── cursor/               # 单文件规则 / Single rule file
 │                           │
 STDD.md (通用 fallback) ────┘       # 无 Skill 系统的平台用 / For platforms without skill systems
 ```
@@ -473,6 +484,9 @@ The Python CLI handles programmatic operations. Skills handle "how to think", CL
 | `stdd status [name]` | 显示当前变更的阶段和状态 |
 | `stdd archive <name>` | 归档 change 到 archive/ + 合并 specs 到 specs/ |
 | `stdd trace <tc-id>` | 追溯 TC-ID 的 spec↔test↔code 映射链 |
+| `stdd rollback <name>` | 回滚变更到前一阶段 / Rollback change to previous phase |
+| `stdd diff <name>` | 显示变更差异 / Show change diff |
+| `stdd abort <name>` | 中止变更 / Abort change |
 
 ### 依赖 / Dependencies
 
@@ -586,6 +600,9 @@ At each mandatory gate, the Skill presents a standardized confirmation message.
 
 | 版本 | 日期 | 变更内容 |
 |------|------|---------|
+| **V2.0.1** | 2026-05-14 | Review fixes: 代码审查调整、文档修复、配置路径统一 |
+| **V2.0** | 2026-05-13 | 架构升级：config.d/ 目录替代 config.yaml、新增 _shared/ 共享数据目录、CLI 重构为 stdd/ 包 + bin/stdd 入口、新增 rollback/diff/abort 命令、新增 long-range-auth.md 模板（9 类文档模板） |
+| **V1.4** | 2026-05-11 | Skill 同步增强：多平台 Skill 自动同步机制、Skill 版本一致性检查 |
 | **V1.2** | 2026-05-09 | Phase 5 增强：新增 E2E 测试（可配置）、覆盖率诊断、多 Python 版本测试；失败模式从 9 类扩展至 11 类，新增 (j) 覆盖真空、(k) 契约断层。基于 FPPT 验收测试回溯的 16 个实测问题改进 |
 | **V1.1** | 2026-05-07 | 长程开发模式支持；失败模式从 5 类扩展至 9 类，新增 (f) 运行时行为偏差、(g) 管线断链、(h) 内容质量偏差、(i) 指令衰减。基于 FPPT 项目 Phase 2-5 实测中发现的 4 个 TDD 系统性盲区 |
 | **V1.0** | 2026-05-06 | 初始发布：6 阶段流程 + 3 道强制确认门 + 5 类失败模式检查。支持 Claude Code / WorkBuddy / Trae / Cursor 平台 |

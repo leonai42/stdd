@@ -1,6 +1,6 @@
 # STDD 部署与使用指南 | Deployment & Usage Guide
 
-> STDD (Spec+Test Driven Development) V1.2
+> STDD (Spec+Test Driven Development) V2.0
 > 适用平台 / Supported Platforms：Claude Code / WorkBuddy / Trae / Cursor / Windsurf / GitHub Copilot
 
 ---
@@ -42,7 +42,7 @@ mkdir -p .stdd/platforms/trae/skills
 mkdir -p changes specs archive
 
 # 2. 复制 STDD 核心文件到 .stdd/ / Copy STDD core files to .stdd/
-cp /path/to/stdd-project/.stdd/config.yaml .stdd/
+cp -r /path/to/stdd-project/.stdd/config.d/ .stdd/
 cp /path/to/stdd-project/.stdd/skills/*.md .stdd/skills/
 cp /path/to/stdd-project/.stdd/templates/*.md .stdd/templates/
 cp /path/to/stdd-project/.stdd/standards/*.md .stdd/standards/
@@ -132,6 +132,15 @@ stdd archive feature-rate-limit
 
 # 追溯 spec↔test↔code / Trace spec↔test↔code
 stdd trace TC-RATE-001
+
+# 回滚变更 / Rollback change
+stdd rollback feature-rate-limit
+
+# 查看变更差异 / View change diff
+stdd diff feature-rate-limit
+
+# 中止变更 / Abort change
+stdd abort feature-rate-limit
 ```
 
 ---
@@ -141,9 +150,9 @@ stdd trace TC-RATE-001
 ```
 你的项目 / Your Project/
 ├── .stdd/                          # STDD 系统目录 / System directory
-│   ├── config.yaml                 # 项目配置 / Project config
+│   ├── config.d/                  # 项目配置 / Project config
 │   ├── skills/                     # 6 个阶段 Skill / 6 phase skills
-│   ├── templates/                  # 8 个文档模板 / 8 document templates
+│   ├── templates/                  # 9 个文档模板 / 9 document templates
 │   ├── standards/                  # 开发规范 / Dev standards
 │   │   └── python.md               # Python 开发规范 / Python standard
 │   └── platforms/                  # 多平台适配 / Platform adapters
@@ -222,7 +231,7 @@ cp .stdd/STDD.md .github/copilot-instructions.md
 
 ## 七、配置说明 / Configuration
 
-`.stdd/config.yaml` 中的关键配置项 / Key configuration items in `.stdd/config.yaml`：
+`.stdd/config.d/` 中的关键配置项 / Key configuration items in `.stdd/config.d/`：
 
 ```yaml
 # 项目信息 / Project info
@@ -300,8 +309,8 @@ Copy `openspec/specs/` to `specs/`, copy active changes from `openspec/changes/`
 
 ### Q: 如何切换开发语言？/ How to switch the development language?
 
-修改 `.stdd/config.yaml` 中的 `project.language`，然后创建对应的 `.stdd/standards/<language>.md`。
-Modify `project.language` in `.stdd/config.yaml`, then create the corresponding `.stdd/standards/<language>.md`.
+修改 `.stdd/config.d/` 中的 `project.language`，然后创建对应的 `.stdd/standards/<language>.md`。
+Modify `project.language` in `.stdd/config.d/`, then create the corresponding `.stdd/standards/<language>.md`.
 
 ### Q: CLI 脚本报 Unicode 错误（Windows）？/ CLI script reports Unicode errors on Windows?
 

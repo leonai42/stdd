@@ -42,6 +42,18 @@ def test_new_duplicate_name(sample_change: Path, monkeypatch):
         cmd_new(args)
 
 
+def test_new_dry_run(temp_project: Path, monkeypatch, capsys):
+    """--dry-run 预览但不创建目录。"""
+    monkeypatch.chdir(temp_project)
+    args = argparse.Namespace(name="test-dry", dry_run=True, verbose=0)
+    cmd_new(args)
+    captured = capsys.readouterr()
+    assert "[DRY-RUN]" in captured.out
+    # 未创建 change 目录
+    changes = list((temp_project / "changes").iterdir())
+    assert len(changes) == 0
+
+
 def test_new_version_field(sample_change: Path):
     """.stdd.yaml 包含 version: 2.0 字段。"""
     import yaml

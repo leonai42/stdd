@@ -4,10 +4,25 @@ verify:
   max_iterations: 5
   auto_fix: true
 
+review:
+  enabled: true
+  max_rounds: 3
+  agents:
+    - name: code
+      scope: "代码质量：Bug风险、死代码、一致性、错误处理、安全"
+    - name: test_config
+      scope: "测试/配置：测试覆盖、Fixture质量、配置完整性、测试隔离"
+    - name: docs_skills
+      scope: "文档/Skills：版本一致性、引用正确性、模板完整性、Skill正确性"
+  severity_thresholds:
+    critical: 0
+    high: 3
+    medium: 10
+
 test:
   framework: pytest
-  unit_dir: tests/unit
-  integration_dir: tests/integration
+  unit_dir: tests/
+  integration_dir: tests/
   coverage_target: 80
 
 quality:
@@ -25,7 +40,7 @@ quality:
     tool: pytest-cov
     fail_under: 0
     scope: changed_files_only
-  python_versions: []
+  python_versions: ["3.10", "3.11", "3.12"]
 
 tc_id:
   pattern: "TC-{CAPABILITY}-{NNN}"

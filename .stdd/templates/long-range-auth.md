@@ -47,7 +47,7 @@
 → [ ] 授权：`pip install` 依赖安装、外部 API 调用（如有）
 
 ### B6. 文件读取
-→ [ ] 授权：读取 `.stdd/templates/`、`.stdd/config.yaml`、`.stdd/standards/`、已有源码
+→ [ ] 授权：读取 `.stdd/templates/`、`.stdd/config.d/`、`.stdd/standards/`、已有源码
 
 ### B7. Git 只读操作
 → [ ] 授权：`git diff`、`git log`、`git status` 等只读 git 操作

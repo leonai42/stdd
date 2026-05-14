@@ -72,6 +72,7 @@ def cmd_install(args: argparse.Namespace) -> None:
     project_root = Path.cwd()
     stdd_source = get_stdd_source()
     platform = args.platform
+    dry_run = getattr(args, "dry_run", False)
 
     platform_map = {
         "claude-code": {
@@ -112,6 +113,29 @@ def cmd_install(args: argparse.Namespace) -> None:
         sys.exit(1)
 
     cfg = platform_map[platform]
+
+    if dry_run:
+        print(" [DRY-RUN] 将执行以下操作:")
+        print(f"   平台: {cfg['description']}")
+        if cfg.get("single_file"):
+            target_dir = Path.home() / cfg["target_base"] if cfg.get("target_is_home") else project_root / cfg["target_base"]
+            print(f"   复制文件: {cfg.get('source')} -> {target_dir / cfg.get('target_name', cfg['source'])}")
+        else:
+            core_skills_dir = stdd_source / ".stdd" / "skills"
+            if cfg.get("target_is_home"):
+                target_base = Path.home() / cfg["home_subdir"]
+            else:
+                target_base = project_root / cfg["target_base"]
+            print(f"   目标目录: {target_base}")
+            for skill_file in sorted(core_skills_dir.glob("*.md")):
+                skill_key = skill_file.stem
+                meta = SKILL_META.get(skill_key, {"name": f"stdd-{skill_key}"})
+                if cfg.get("is_dir_per_skill"):
+                    print(f"   安装: {meta['name']}/SKILL.md")
+                else:
+                    print(f"   安装: {meta['name']}.md")
+        print(" [DRY-RUN] 文件系统未发生变化")
+        return
 
     if cfg.get("single_file"):
         source_file = stdd_source / cfg["source"]

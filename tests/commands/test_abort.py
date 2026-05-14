@@ -47,3 +47,14 @@ def test_abort_duplicate_dest(sample_change: Path, monkeypatch):
 
     # 原始 change 仍存在
     assert sample_change.exists()
+
+
+def test_abort_dry_run(sample_change: Path, monkeypatch):
+    """--dry-run 预览但不移动文件。"""
+    monkeypatch.chdir(sample_change.parent.parent)
+    args = argparse.Namespace(name=None, yes=True, dry_run=True, verbose=0)
+    cmd_abort(args)
+    # 文件系统未变化
+    assert sample_change.exists()
+    aborted = sample_change.parent.parent / "archive" / "aborted" / sample_change.name
+    assert not aborted.exists()

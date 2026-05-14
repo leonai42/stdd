@@ -62,6 +62,23 @@ def test_read_config_legacy_fallback(tmp_path: Path):
     assert config["stdd_version"] == "1.0"
 
 
+def test_read_config_non_dict_yaml(temp_project: Path, monkeypatch):
+    """config.d/ 中非 dict 文件被跳过并警告。"""
+    from stdd.cli.utils import read_config, setup_logging
+    setup_logging(0)
+    (temp_project / ".stdd" / "config.d").mkdir(parents=True, exist_ok=True)
+    # 创建一个包含 YAML 列表的配置文件
+    (temp_project / ".stdd" / "config.d" / "list.yaml").write_text("- item1\n- item2\n", encoding="utf-8")
+    # 同时创建一个有效的 dict 配置
+    (temp_project / ".stdd" / "config.d" / "valid.yaml").write_text("key: value\n", encoding="utf-8")
+
+    config = read_config(temp_project)
+    # 有效配置应该被加载
+    assert config.get("key") == "value"
+    # 列表文件被跳过
+    assert "item1" not in config
+
+
 def test_fix_windows_encoding():
     """编码修复函数可正常调用。"""
     fix_windows_encoding()  # 不应抛出异常

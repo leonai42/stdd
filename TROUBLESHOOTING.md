@@ -69,19 +69,6 @@ python -m pytest tests/ -v
 
 ---
 
-## 6. config.yaml 与 config.d/ 同时存在
-
-**症状**：系统提示"检测到旧 config.yaml，建议删除"。
-
-**原因**：V2.0 配置拆分为 config.d/，旧 config.yaml 已不再需要。
-
-**解决方案**：
-1. 确认 config.d/ 中配置完整
-2. 删除 `.stdd/config.yaml`
-3. 或保留作为备份（系统优先使用 config.d/）
-
----
-
 ## 7. Skill 安装后不生效
 
 **症状**：`stdd install claude-code` 后 `/stdd-understand` 无响应。

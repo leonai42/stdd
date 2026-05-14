@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
-from typing import Optional
 
 
 def _init_parent_parser() -> argparse.ArgumentParser:
@@ -25,8 +24,6 @@ def main() -> None:
     # 初始化 STDD_SOURCE（bin/stdd 所在的项目根目录）
     from .utils import STDD_SOURCE as _src
     if _src is None:
-        import os
-        # 从 sys.argv[0] 推断
         bin_path = Path(sys.argv[0]).resolve()
         if bin_path.parent.name == "bin" and (bin_path.parent.parent / "STDD.md").exists():
             from . import utils

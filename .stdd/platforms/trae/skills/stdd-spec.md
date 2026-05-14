@@ -119,7 +119,7 @@ AND: <附加结果>      →   额外的 Assert
 
 Phase 2 文档已锁定。在进入 Phase 3 之前，选择 Phase 3-5 的执行模式：
 
-读取 `.stdd/config.yaml` 中的 `long_range` 配置，向用户展示模式选择：
+读取 `.stdd/config.d/long_range.yaml` 中的 `long_range` 配置，向用户展示模式选择：
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

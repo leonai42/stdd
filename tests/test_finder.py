@@ -53,3 +53,12 @@ def test_directory_without_state_file(temp_project: Path):
     d.mkdir(parents=True)
     result = find_change_dir("no-state", temp_project)
     assert result is None
+
+
+def test_exact_match_no_state_file(temp_project: Path):
+    """精确匹配但无 .stdd.yaml 返回 None。"""
+    # 创建无状态文件的目录
+    d = temp_project / "changes" / "2026-01-01-no-state"
+    d.mkdir(parents=True)
+    result = find_change_dir("2026-01-01-no-state", temp_project)
+    assert result is None

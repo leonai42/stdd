@@ -88,8 +88,6 @@ def cmd_trace(args: argparse.Namespace) -> None:
 
     changes_dir = project_root / "changes"
     _search_test_plans(changes_dir, "changes")
-    specs_dir = project_root / "specs"
-    _search_test_plans(specs_dir, "specs")
 
     print()
     tests_dir = project_root / "tests"
