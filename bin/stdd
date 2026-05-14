@@ -12,19 +12,22 @@ STDD CLI — Spec+Test Driven Development 命令行工具
   stdd init                初始化 STDD 到当前项目
 """
 
+from __future__ import annotations
+
 import argparse
 import sys
 import os
 import io
+from pathlib import Path
+from typing import Optional
 
 # 修复 Windows GBK 终端 Unicode 显示问题
 if sys.stdout.encoding != "utf-8":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 
-def _find_change_dir(name=None):
+def _find_change_dir(name: Optional[str] = None) -> Optional[Path]:
     """查找 change 目录。支持短名称或完整目录名。"""
-    from pathlib import Path
     project_root = Path.cwd()
     changes_dir = project_root / "changes"
 
@@ -49,10 +52,9 @@ def _find_change_dir(name=None):
         return sorted(changes, key=lambda d: d.stat().st_mtime, reverse=True)[0]
 
 
-def cmd_init(args):
+def cmd_init(args: argparse.Namespace) -> None:
     """初始化 STDD 到当前项目"""
     import shutil
-    from pathlib import Path
 
     project_root = Path.cwd()
     stdd_source = Path(__file__).resolve().parent.parent
@@ -93,11 +95,18 @@ def cmd_init(args):
         "STDD.md",
         "AGENTS.md",
     ]
+    force = getattr(args, 'force', False)
+    copied = 0
+    skipped = 0
     for f in files_to_copy:
         src = stdd_source / f
         dst = project_root / f
-        if src.exists() and not dst.exists():
-            shutil.copy2(src, dst)
+        if src.exists():
+            if force or not dst.exists():
+                shutil.copy2(src, dst)
+                copied += 1
+            else:
+                skipped += 1
 
     # 复制平台 skills
     for platform in ["claude-code", "workbuddy", "trae"]:
@@ -105,12 +114,17 @@ def cmd_init(args):
         if platform_skills.exists():
             for skill_file in platform_skills.iterdir():
                 dst = project_root / ".stdd" / "platforms" / platform / "skills" / skill_file.name
-                if not dst.exists():
+                if force or not dst.exists():
                     shutil.copy2(skill_file, dst)
+                    copied += 1
+                else:
+                    skipped += 1
 
     print("✅ STDD 初始化完成")
     print(f"   项目根目录: {project_root}")
     print(f"   已创建 .stdd/ 目录、changes/、specs/、archive/")
+    if force and skipped > 0:
+        print(f"   已复制 {copied} 个文件, 跳过 {skipped} 个已存在文件（使用 --force 覆盖）")
     print()
     print("🚀 开始使用:")
     print("   /stdd-understand  <需求描述>    启动新变更的需求理解阶段")
@@ -118,14 +132,23 @@ def cmd_init(args):
     print("   /stdd-continue                  继续执行当前变更")
 
 
-def cmd_new(args):
+def cmd_new(args: argparse.Namespace) -> None:
     """创建新的 change 目录骨架"""
     from datetime import date
-    from pathlib import Path
     import yaml
 
     project_root = Path.cwd()
     change_name = args.name
+
+    # 验证 change_name 格式
+    import re
+    if not re.match(r'^[a-zA-Z0-9][-a-zA-Z0-9_.]{1,49}\Z', change_name):
+        print(f"❌ 无效的 change 名称: {change_name}")
+        print(f"   名称必须以字母或数字开头，可包含连字符(-)、下划线(_)、点(.)")
+        print(f"   长度 2-50 字符，不能包含空格或特殊字符")
+        print(f"   示例: fix-login-bug, feature_rate_limit, v1.2.1")
+        sys.exit(1)
+
     today = date.today().isoformat()
     dir_name = f"{today}-{change_name}"
     change_dir = project_root / "changes" / dir_name
@@ -147,6 +170,7 @@ def cmd_new(args):
 
     # 创建 .stdd.yaml
     state = {
+        "version": "1.2",
         "change_id": dir_name,
         "status": "active",
         "current_phase": "understand",
@@ -172,9 +196,8 @@ def cmd_new(args):
     print(f"   /stdd-understand  开始需求理解阶段")
 
 
-def cmd_validate(args):
+def cmd_validate(args: argparse.Namespace) -> None:
     """验证 change 目录结构和规格"""
-    from pathlib import Path
     import yaml
     import re
 
@@ -216,10 +239,10 @@ def cmd_validate(args):
 
             if len(scenarios) == 0:
                 warnings.append(f"{spec_file.name}: 未找到 Scenario")
-            if given_count != len(scenarios):
-                warnings.append(f"{spec_file.name}: GIVEN 数量 ({given_count}) 与 Scenario 数量 ({len(scenarios)}) 不匹配")
-            if when_count != len(scenarios):
-                warnings.append(f"{spec_file.name}: WHEN 数量 ({when_count}) 与 Scenario 数量 ({len(scenarios)}) 不匹配")
+            if given_count < len(scenarios):
+                warnings.append(f"{spec_file.name}: GIVEN 数量 ({given_count}) 少于 Scenario 数量 ({len(scenarios)})")
+            if when_count < len(scenarios):
+                warnings.append(f"{spec_file.name}: WHEN 数量 ({when_count}) 少于 Scenario 数量 ({len(scenarios)})")
             if then_count < len(scenarios):
                 errors.append(f"{spec_file.name}: THEN 数量 ({then_count}) 少于 Scenario 数量 ({len(scenarios)})")
 
@@ -270,9 +293,8 @@ def cmd_validate(args):
         sys.exit(1)
 
 
-def cmd_status(args):
+def cmd_status(args: argparse.Namespace) -> None:
     """显示 artifact 完成状态"""
-    from pathlib import Path
     import yaml
 
     project_root = Path.cwd()
@@ -293,6 +315,15 @@ def cmd_status(args):
     print(f"\n📋 Change: {state.get('change_id', change_dir.name)}")
     print(f"   状态: {state.get('status', 'unknown')}")
     print(f"   当前阶段: {state.get('current_phase', 'unknown')}")
+    # 显示执行模式
+    long_range = state.get("long_range", {})
+    mode = long_range.get("mode", None)
+    if mode == "full_auto":
+        print(f"   执行模式: 🚀 全自动长程模式")
+    elif mode == "normal" or mode is None:
+        print(f"   执行模式: 📋 普通交互模式（默认）")
+    else:
+        print(f"   执行模式: {mode}")
     print()
 
     phase_order = ["understand", "spec", "slice", "build", "verify", "deliver"]
@@ -338,9 +369,8 @@ def cmd_status(args):
             print(f"      - {sf.relative_to(change_dir)}")
 
 
-def cmd_archive(args):
+def cmd_archive(args: argparse.Namespace) -> None:
     """归档已完成的 change"""
-    from pathlib import Path
     import shutil
     import yaml
 
@@ -364,17 +394,14 @@ def cmd_archive(args):
                     print("已取消")
                     sys.exit(0)
 
-    # 创建归档目录
-    archive_dir = project_root / "archive" / args.name
+    # 归档目录名使用 change_dir.name（含日期前缀），而非用户输入的 args.name
+    archive_dir = project_root / "archive" / change_dir.name
     if archive_dir.exists():
-        print(f"❌ 归档目录已存在: archive/{args.name}")
+        print(f"❌ 归档目录已存在: archive/{change_dir.name}")
         sys.exit(1)
 
-    # 移动
-    shutil.move(str(change_dir), str(archive_dir))
-
-    # 合并 specs
-    archive_specs = archive_dir / "specs"
+    # 合并 specs（在移动目录之前，确保失败时源目录不受影响）
+    archive_specs = change_dir / "specs"
     main_specs = project_root / "specs"
     if archive_specs.exists() and not args.skip_specs:
         for spec_file in archive_specs.rglob("*.md"):
@@ -386,8 +413,7 @@ def cmd_archive(args):
                 # 合并：追加 MODIFIED requirements
                 existing = dest.read_text(encoding="utf-8")
                 new_content = spec_file.read_text(encoding="utf-8")
-                # 简单合并：追加新内容，标注来源
-                merge_note = f"\n\n<!-- 合并自 {args.name} -->\n"
+                merge_note = f"\n\n<!-- 合并自 {change_dir.name} -->\n"
                 combined = existing + merge_note + new_content
                 dest.write_text(combined, encoding="utf-8")
                 print(f"   合并: {rel_path}")
@@ -403,14 +429,16 @@ def cmd_archive(args):
         with open(state_file, "w", encoding="utf-8") as f:
             yaml.dump(state, f, allow_unicode=True, default_flow_style=False)
 
-    print(f"✅ 归档完成: archive/{args.name}")
+    # 最后移动目录到 archive/
+    shutil.move(str(change_dir), str(archive_dir))
+
+    print(f"✅ 归档完成: archive/{change_dir.name}")
     if not args.skip_specs:
         print(f"✅ Specs 已合并到 specs/")
 
 
-def cmd_trace(args):
+def cmd_trace(args: argparse.Namespace) -> None:
     """查看 spec↔test↔code 追溯链"""
-    from pathlib import Path
     import re
 
     project_root = Path.cwd()
@@ -424,17 +452,22 @@ def cmd_trace(args):
     print(f"\n🔍 追溯链: {tc_id}")
     print("=" * 60)
 
-    # 1. 在 test-plan.md 中查找
+    # 1. 在 test-plan.md 中查找（changes/ 和 specs/ 两个目录）
     found_in_test_plan = False
-    changes_dir = project_root / "changes"
-    if changes_dir.exists():
-        for change_dir in changes_dir.iterdir():
-            test_plan = change_dir / "test-plan.md"
+
+    def _search_test_plans(base_dir: Path, label: str):
+        """在指定目录下搜索 test-plan.md，返回是否找到 tc_id"""
+        nonlocal found_in_test_plan
+        if not base_dir.exists():
+            return False
+        found = False
+        for d in base_dir.iterdir():
+            test_plan = d / "test-plan.md"
             if test_plan.exists():
                 content = test_plan.read_text(encoding="utf-8")
                 if tc_id in content:
+                    found = True
                     found_in_test_plan = True
-                    # 提取对应的 case 信息
                     block_pattern = re.compile(
                         rf'####\s+案例\s+[\d.]+\s*—\s*(.+?)\n'
                         rf'.*?\*\*ID\*\*\s*\|\s*{re.escape(tc_id)}.*?'
@@ -443,12 +476,18 @@ def cmd_trace(args):
                     )
                     match = block_pattern.search(content)
                     if match:
-                        print(f"📋 Test Plan: {change_dir.name}/test-plan.md")
+                        print(f"📋 Test Plan ({label}): {d.name}/test-plan.md")
                         print(f"   案例标题: {match.group(1).strip()}")
                         print(f"   预期结果: {match.group(2).strip()[:80]}...")
                     else:
-                        print(f"📋 Test Plan: {change_dir.name}/test-plan.md")
+                        print(f"📋 Test Plan ({label}): {d.name}/test-plan.md")
                         print(f"   状态: 已引用")
+        return found
+
+    changes_dir = project_root / "changes"
+    _search_test_plans(changes_dir, "changes")
+    specs_dir = project_root / "specs"
+    _search_test_plans(specs_dir, "specs")
 
     # 2. 在测试文件中查找
     print()
@@ -478,9 +517,8 @@ def cmd_trace(args):
         print("⚠️  未在 test-plan.md 中找到此 TC-ID")
 
 
-def cmd_install(args):
+def cmd_install(args: argparse.Namespace) -> None:
     """安装 STDD skills 到指定平台"""
-    from pathlib import Path
     import shutil
 
     project_root = Path.cwd()
@@ -523,12 +561,20 @@ def cmd_install(args):
 
     if cfg.get("single_file"):
         source_file = stdd_source / cfg["source"]
+        if not source_file.exists():
+            print(f"❌ 源文件不存在: {source_file}")
+            print(f"   平台 '{platform}' 的安装源缺失，请检查 STDD 项目完整性")
+            sys.exit(1)
         target_dir = Path.home() / cfg["target_base"] if cfg.get("target_is_home") else project_root / cfg["target_base"]
         target_dir.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source_file, target_dir / cfg.get("target_name", cfg["source"]))
         print(f"✅ 已安装 STDD 到 {cfg['description']}: {target_dir / cfg.get('target_name', cfg['source'])}")
     else:
         source_dir = stdd_source / cfg["source"]
+        if not source_dir.exists() or not any(source_dir.iterdir()):
+            print(f"❌ 源目录不存在或为空: {source_dir}")
+            print(f"   平台 '{platform}' 的 skills 源文件缺失，请检查 STDD 项目完整性")
+            sys.exit(1)
         if cfg.get("target_is_home"):
             target_base = Path.home() / cfg["home_subdir"]
         else:
@@ -566,7 +612,7 @@ def cmd_install(args):
         print("   在 Cursor 中自动生效")
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="STDD CLI — Spec+Test Driven Development",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -585,6 +631,7 @@ def main():
 
     # init
     p_init = subparsers.add_parser("init", help="初始化 STDD 到当前项目")
+    p_init.add_argument("--force", "-f", action="store_true", help="覆盖已存在的文件")
 
     # new
     p_new = subparsers.add_parser("new", help="创建新的 change 目录骨架")
@@ -628,7 +675,11 @@ def main():
         "install": cmd_install,
     }
 
-    commands[args.command](args)
+    try:
+        commands[args.command](args)
+    except Exception as e:
+        print(f"❌ 执行错误: {e}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -8,22 +8,6 @@
 
 ## 核心理念 / Core Philosophy
 
-```
-Spec 先行（先定义行为 GIVEN/WHEN/THEN）  +  TDD 执行（RED → GREEN → REFACTOR）
-Spec-first (define behavior first)        +  TDD execution (RED → GREEN → REFACTOR)
-         ↓                                           ↓
-    规格驱动开发                                 测试驱动开发
-    Spec-driven development                     Test-driven development
-```
-
-**三道强制确认门 / Three Mandatory Gates**：
-1. Phase 1 结束 → 用户确认 proposal.md | User confirms proposal.md
-2. Phase 2 结束 → 用户确认 design + specs + test-plan | User confirms design + specs + test-plan
-3. Phase 5 结束 → 用户确认 test-report + design-adjustments | User confirms test report
-
-**设计调整可追溯 / Design Adjustment Traceability**：实现中对设计的任何偏离必须记录到 `design-adjustments.md`。
-Any deviation from design during implementation must be recorded.
-
 ---
 
 ## 快速开始 / Quick Start
@@ -57,32 +41,10 @@ python /path/to/stdd-project/bin/stdd install claude-code
 |                |            | + 十一类失败模式检查 |                           |
 | **P6: DELIVER** | `/stdd-continue` | archive + merge specs + git tag | 无 / None |
 
-```
-Phase 1                Phase 2                Phase 3-5               Phase 6
-UNDERSTAND             SPEC                   BUILD LOOP             DELIVER
-─────────              ────                   ──────────             ───────
-  需求输入           design.md              ┌── SLICE ──┐            归档 + 合并
-  Input              specs/*.md             │ 切片规划    │           Archive + Merge
-    │                test-plan.md           └────┬───────┘              │
-    ▼                    │                      ▼                     ▼
-  proposal.md ←── 用户确认(必须)         ┌── BUILD ──┐           specs 更新
-    │              User confirm           │ RED→GREEN  │           git tag
-    ▼                                    │ →REFACTOR  │              │
-  用户确认(必须)                          └────┬───────┘           完成
-  User confirm                               │                    Done
-                                              ▼
-                                        ┌── VERIFY ──┐
-                                        │ 质量验证    │
-                                        └────┬───────┘
-                                             │
-                                       用户确认产出(必须)
-                                       User confirm
-                                        ├── 有异议→回到P2
-                                        └── 确认→P6 DELIVER
-```
+> 完整流程详解、关键规则、目录结构见 [STDD.md](STDD.md) — 可作为 AI 平台项目规则加载。
+> See [STDD.md](STDD.md) for full flow details, key rules, and directory structure.
 
 ---
-
 ## 项目结构 / Project Structure
 
 ```
