@@ -60,6 +60,20 @@
 
 ---
 
+## D. 权限配置（Claude Code 平台）
+
+授权确认后，系统将自动配置 Claude Code 项目级权限（`.claude/settings.local.json`），添加以下规则以确保 Phase 3-5 无需逐项手动确认：
+
+- **Bash 规则**：`pytest`, `ruff`, `python`, `pip`, `git`, `mkdir`, `cp`, `ls`
+- **文件写入规则**：`Write` / `Edit` 操作覆盖 `changes/`, `app/`, `tests/`, `.stdd/`, `.claude/skills/` 目录
+- **文件读取规则**：`Read` `.stdd/` 下配置、`*.md`、`*.yaml`、`*.py`、`*.json`
+- **搜索规则**：`Glob`、`Grep`
+- **Skill 调用规则**：`stdd-slice`, `stdd-build`, `stdd-verify`, `stdd-deliver`
+
+> 权限配置仅修改项目级 `settings.local.json`，不涉及全局 `~/.claude/settings.json`。Phase 5 完成后可选择恢复原始权限配置。
+
+---
+
 ## 授权确认
 
 ```

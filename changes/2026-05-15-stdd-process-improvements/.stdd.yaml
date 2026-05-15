@@ -1,0 +1,19 @@
+phases:
+  understand:
+    status: completed
+    confirmed_at: "2026-05-15"
+  spec:
+    status: completed
+    confirmed_at: "2026-05-15"
+  slice:
+    status: completed
+  build:
+    status: completed
+  verify:
+    status: completed
+    confirmed_at: "2026-05-15"
+long_range:
+  enabled: true
+  mode: "full_auto"
+  pre_auth_completed: true
+  pre_auth_timestamp: "2026-05-15"

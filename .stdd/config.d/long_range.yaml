@@ -1,7 +1,7 @@
 # 长程模式配置（Gate 2 之后可选，默认启用，使 Phase 3-5 连续自动执行）
 
 long_range:
-  default: true
+  recommended: true
   pre_auth:
     design_deviation:
       minor: "auto_record"
