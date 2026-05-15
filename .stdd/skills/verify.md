@@ -1,3 +1,7 @@
+---
+name: stdd-verify
+description: "STDD Phase 5: 质量验证 — 全量检查 + 11类失败模式 + E2E + 覆盖率诊断"
+---
 # STDD Phase 5: VERIFY — 质量验证
 
 ## ⚠️ 强制步骤清单

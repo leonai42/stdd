@@ -1,0 +1,27 @@
+# Aider configuration for STDD projects
+# Copy this file to the project root and customize as needed.
+
+# Read conventions file for coding standards
+read:
+  - CONVENTIONS.md
+  - .stdd/standards/python.md
+
+# Model settings (uncomment and customize)
+# model: claude-sonnet-4-6
+
+# Git settings
+git: true
+auto-commits: false
+
+# Linting
+lint-cmd: "ruff check app/ tests/"
+test-cmd: "pytest tests/ -v"
+
+# Map file patterns to languages for targeted edits
+file-exts:
+  ".py": python
+  ".java": java
+  ".go": go
+  ".rs": rust
+  ".ts": typescript
+  ".tsx": typescript

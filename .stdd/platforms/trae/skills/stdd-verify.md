@@ -1,4 +1,24 @@
+---
+name: stdd-verify
+description: STDD Phase 5: 质量验证 — 全量检查 + 11类失败模式 + E2E + 覆盖率诊断
+---
 # STDD Phase 5: VERIFY — 质量验证
+
+## ⚠️ 强制步骤清单
+
+Verify 阶段的以下 6 个 Step 全部是强制步骤，**不可跳过任何一步**。
+进入 Gate 3 前必须确认所有步骤已完成：
+
+| Step | 名称 | 完成标志 |
+|------|------|---------|
+| Step 0 | 多路并行技术评审（3 代理） | 3 个代理均返回审查结果 |
+| Step 1 | 全量质量检查 | pytest + coverage + lint 全部执行 |
+| Step 2 | Diff 审查 | 逐文件检查所有变更 |
+| Step 3 | 十一类失败模式检查 (a-k) | 11 项全部检查完成 |
+| Step 4 | 汇总设计调整 | design-adjustments.md 已生成（或确认无需调整） |
+| Step 5 | 生成测试报告 | test-report.md 已写入 |
+
+**Gate 3 前置条件**：上述 6 步全部完成后，才能进入 Gate 3 用户确认。
 
 ## 阶段目标
 
@@ -19,26 +39,62 @@
 进入本阶段时，先读取 `.stdd.yaml` 中的 `long_range.mode` 确定当前模式。
 从 `.stdd/config.d/long_range.yaml` 的 `long_range.pre_auth.iteration.max_rounds` 读取长程模式迭代上限。
 
+## 长程模式运行协议（仅在 `long_range.mode == "full_auto"` 时适用）
+
+1. **无交互原则**：Steps 0-5 全部自动执行，不使用 AskUserQuestion，不等待用户回复
+2. **强制步骤**：Step 0-5 共 6 个步骤必须全部执行，不可跳过任何一步
+3. **自动降级检测**：每步操作后检查是否触发降级条件（连续3次修复失败/通过率<95%/安全问题/预授权范围外）
+4. **进度汇报**：每个 Step 完成后输出简短结果（1行），但不等待回复
+5. **Gate 3 强制确认**：仅 Gate 3 使用 AskUserQuestion 等待用户确认
+6. **仅降级时暂停**：仅在触发降级条件时才暂停，向用户报告
+
 ## 执行流程
 
 ### 迭代循环（普通模式最多 5 轮，长程模式最多 N 轮可配置）
 
 每轮执行以下步骤，有失败则修复后重新开始：
 
-> 长程模式下，Steps 1-5 全部自动执行，不做交互暂停。仅在触发降级条件时暂停。
+> 长程模式下，Steps 0-5 全部按协议自动执行，不做交互暂停。仅在触发降级条件时暂停。
 
 ---
 
 #### Step 1: 运行全量质量检查
 
-读取 `.stdd/config.d/quality.yaml` 中的 `quality` 配置，执行：
+读取 `.stdd/config.d/quality.yaml` 中的 `quality` 配置，按以下顺序执行：
 
-1. **全量测试**：`pytest tests/ -v`
-2. **Lint 检查**：`ruff check app/ tests/`
-3. **类型检查**（如配置了 mypy/pyright）
+**1a. 全量测试**：`pytest tests/ -v`
 
-→ 有失败：修复 → 重新运行直到全部通过
-→ 全部通过：进入 Step 2
+**1b. 覆盖率诊断**（配置 `quality.coverage.enabled: true`，默认开启）：
+- 工具选择：根据 `quality.coverage.tool` 配置，执行对应的覆盖率命令
+  - `pytest-cov`：`pytest tests/ --cov=<source> --cov-report=term-missing --cov-fail-under=0`
+  - `coverage.py`：`coverage run -m pytest tests/ && coverage report -m`
+- 范围限定：根据 `quality.coverage.scope` 决定统计范围
+  - `changed_files_only`（默认）：通过 `git diff --name-only HEAD` 获取变更文件，仅统计这些文件的覆盖率
+  - `full`：全量统计
+- 关键原则：`--cov-fail-under=0`，覆盖率仅作为诊断信号，**不作为阻断条件**。结果记录到 test-report 1.1 节
+
+**1c. Lint 检查**：`ruff check app/ tests/`
+
+**1d. 类型检查**（如配置了 mypy/pyright）
+
+**1e. 多 Python 版本测试**（配置 `quality.python_versions` 非空时执行）：
+- 对 `quality.python_versions` 中列出的每个 Python 版本，使用 Bash 运行 `pytest tests/ -v`（如通过 `py -3.10 -m pytest tests/` 或 tox）
+- 如果某个版本测试失败，记录失败内容但不触发自动修复循环（修复由开发者决定）
+- 失败结果记录到 test-report
+
+**1f. E2E 测试**（配置 `quality.e2e.enabled: true` 时执行）：
+- **执行时机**：仅在 Step 1a-1d 全部通过后执行，且每轮只执行一次。E2E 不参与迭代修复循环
+- **范围选择**：根据 `quality.e2e.scope`：
+  - `critical_only`（默认）：只执行 `critical_paths` 中定义的测试用例
+  - `full`：执行全量 E2E 套件
+- **运行命令**：从 `quality.e2e.command` 读取。常见示例：
+  - `npx playwright test` — Playwright 浏览器测试
+  - `npx cypress run` — Cypress E2E
+  - `pytest tests/e2e/ -v` — Python-based E2E
+- **E2E 失败处理**：不触发自动修复循环（修复成本过高）。记录所有失败到 test-report 第三节，由用户在 Gate 3 决策是否继续
+
+→ Step 1a-1d 有失败：修复 → 重新运行直到全部通过
+→ 全部通过（1e 多版本和 1f E2E 结果单独评估，不参与自动修复循环）：进入 Step 2
 
 ---
 
@@ -62,7 +118,7 @@
 
 ---
 
-#### Step 3: 九类失败模式检查
+#### Step 3: 十一类失败模式检查
 
 对 diff 进行以下专项检查：
 
@@ -85,11 +141,11 @@
 - 如果不一致：是有意调整（应记录在 pending-adjustments），还是无意偏离？
 
 **(e) 工具误用** — 错误的工具选择或参数
-- 检查：文件操作是否用了专用工具而不是 shell 命令？
+- 检查：文件操作是否用了专用工具（Read/Write/Edit）而不是 Bash？
 
 ---
 
-> 以下 (f)-(i) 为 V1.1 新增项，基于 FPPT 项目实测中发现的 TDD 系统性盲区。
+> 以下 (f)-(i) 为 V1.1 新增项，基于 FPPT 项目实测中发现的 TDD 系统性盲区。(j)-(k) 为 V1.2 新增项，基于 FPPT 验收测试回溯。
 
 **(f) 运行时行为偏差** — 静态结构正确但动态行为异常
 - 来源：FPPT 盲区A "静态结构 vs 动态行为"
@@ -103,6 +159,7 @@
   - 声明了快捷键（ESC/T/←/→）→ 对应 handler 函数是否存在且被绑定？
   - 声明了 CSS 过渡/动画 → 配套 JS 初始化代码是否存在？
   - 声明了数据属性标记 → 是否有处理该标记的逻辑？
+- 对前端项目，推荐使用 Playwright 做关键交互路径的浏览器验证
 
 **(g) 管线断链** — 多步骤转换/构建链路不完整
 - 来源：FPPT 盲区B "单元测试 vs 集成链路"
@@ -139,11 +196,51 @@
   - 分批/心跳/进度反馈等运行时行为被忽略
   - 多阶段生成中后期产出偏离前期约束
 - 检查方法：
-  - 搜索 Prompt 中的强制指令关键词（"必须""严禁""强制""不可"）
+  - Grep 搜索 Prompt 中的强制指令关键词（"必须""严禁""强制""不可"）
   - 对比每个强制指令与实际产出是否一致
-  - 搜索 Prompt 中的建议指令关键词（"建议""可以"），判断是否被误跳
+  - Grep 搜索 Prompt 中的建议指令关键词（"建议""可以"），判断是否被误跳
   - 对关键行为约束进行执行结果审计
 - 修复原则：将确实需要执行的"建议"升级为"强制"措辞
+
+---
+
+> 以下 (j)-(k) 为 V1.2 新增项，基于 FPPT 项目验收测试回溯中发现的 STDD 流程盲区。
+
+**(j) 覆盖真空** — 某 capability 零自动化测试覆盖
+
+- 来源：FPPT 验收测试回溯 "类别A：Desktop App 零自动化测试"（16 个问题中占 8 个）
+- 检查：test-plan.md 中是否存在测试用例数 > 0 但自动化覆盖数 = 0 的 capability？
+- 典型信号：
+  - test-plan.md 某个 capability 所有 TC 标记为 🔴 或标注"手动验证"
+  - tasks.md 中某切片 test 文件数为 0，以"需特殊环境运行"作为豁免理由
+  - 一个面向用户的 capability 完全依赖手动验收作为交付标准
+  - "手动验证"被当作可接受的交付标准，Phase 5 不再追究
+- 检查方法：
+  - 使用 Read 工具读取 test-plan.md，逐 capability 统计 TC 总数 vs 自动化覆盖数
+  - 任一 capability 的自动化覆盖数 = 0 → **标记为阻塞**
+  - 任一 capability 的自动化覆盖率 < 50% → 标记为警告
+- 原则：零自动化覆盖不可作为交付标准。如果一个 capability 的所有测试都依赖手动验证，要么补充自动化测试，要么在 Gate 3 中由用户明确豁免（需说明理由）
+- 修复方向：
+  - 前端 UI：使用 Playwright 或 Flask test client 直接请求页面，模拟操作
+  - 桌面端：不需要 PyWebView 也能测 HTML/JS/CSS——直接对静态文件做集成测试
+  - 管理后台：对模板渲染 + 表单提交做 test client 级别的自动化
+
+**(k) 契约断层** — 跨 capability 的接口字段名/格式不一致
+
+- 来源：FPPT 验收测试回溯 "类别B：前后端API契约不一致（token_balance vs balance, X-Device-Id header 缺失）"
+- 检查：API 端点返回的 JSON 字段名、header 名与消费方代码中读取的名称是否一致？
+- 典型信号：
+  - 后端返回 `data.token_balance`，前端读取 `data.balance`
+  - 后端要求 `X-Device-Id` header，前端 fetch 调用中未发送该 header
+  - 后端返回 `{result: {...}}`，前端读取 `data.result`（多层或少层包装）
+  - 两个 capability 的 spec 用了相同的"概念名"但实际字段名不同
+- 检查方法：
+  - 使用 Grep 搜索后端代码中的 JSON 序列化/响应构造（jsonify、json.dumps、Response 构造），提取每个端点的返回字段名清单
+  - 使用 Grep 搜索前端代码中的字段访问（`data.xxx`、`response.data.xxx`、解构赋值），提取消费字段名清单
+  - 对每个 API 端点，比对其"后端输出字段名"和"前端消费字段名"是否一致
+  - 搜索后端要求的 header 名（`request.headers.get('X-...')`），对比前端是否发送了对应 header
+  - 不一致 → 标记为 bug 或契约变更，需在 test-report 中记录
+- 原则：API 契约不能靠两个 capability 的 spec 各自定义了相同的"概念字段名"就认为一致。必须做静态交叉验证
 
 ---
 
@@ -167,12 +264,14 @@
 
 生成 `test-report.md`，包含：
 1. **总体概况**：总数/通过/失败/跳过/通过率/耗时
+   - 1.1 覆盖率诊断（仅变更文件，如配置启用）
 2. **按模块统计**：每个测试文件的详细统计
-3. **失败项详细分析**（如有）：根因 + 影响 + 结论
-4. **功能/测试覆盖对照**：功能-实现-测试三方对照
-5. **设计调整说明**：引用 design-adjustments.md（如有）
-6. **修复确认记录**：Phase 5 迭代中发现并修复的问题
-7. **结论**：总体评估和部署建议
+3. **E2E 测试结果**（如配置启用）：总体概况 + 关键路径结果 + 结论
+4. **失败项详细分析**（如有）：根因 + 影响 + 结论
+5. **功能/测试覆盖对照**：功能-实现-测试三方对照
+6. **设计调整说明**：引用 design-adjustments.md（如有）
+7. **修复确认记录**：Phase 5 迭代中发现并修复的问题
+8. **结论**：总体评估 + 质量信号汇总表 + 部署建议
 
 ---
 
@@ -182,7 +281,7 @@
 - 全量测试通过（排除已知环境问题）
 - Lint 通过
 - Diff 审查无新问题
-- 九类失败模式无命中
+- 十一类失败模式无命中
 - design-adjustments.md 已生成（如有调整）
 - test-report.md 已生成
 
@@ -212,7 +311,7 @@
 
 ### Step 6: 用户确认（强制门 — 两种模式均必须）
 
-向用户展示测试结果和设计调整后，**必须等待用户明确确认**。Gate 3 在普通模式和长程模式下均为强制确认门，不可自动跳过。
+向用户展示测试结果和设计调整后，使用 AskUserQuestion **必须等待用户明确确认**。Gate 3 在普通模式和长程模式下均为强制确认门，不可自动跳过。
 
 > 长程模式下，Phase 3-5 内部交互点已被预授权覆盖，但 Gate 3 确认仍然需要用户介入。
 
@@ -225,14 +324,33 @@
   ✅ test-report.md — 测试报告
 
 📊 测试结果：
-  - 总数: N / 通过: N / 失败: N / 跳过: N
-  - 通过率: N%
+  - 单元/集成: 总数 N / 通过 N / 失败 N / 跳过 N (通过率 N%)
+  - E2E: 总数 N / 通过 N / 失败 N (通过率 N%) [如配置]
+  - Lint: ✅ / ❌
+  - 覆盖率: <变更文件数>文件, <低覆盖文件数>文件需关注
+
+🔍 多路并行技术评审结果（Step 0）：
+  代码质量审查：C:N H:N M:N L:N
+  测试/配置审查：C:N H:N M:N L:N
+  文档/Skills审查：C:N H:N M:N L:N
+  自动修复：N 项 C/H 问题已修复
+  审查结论：✅ 通过 / ⚠️ 有 N 项 M 级问题记录在 test-report
+
+📋 步骤完成确认：
+  ✅ Step 0: 多路并行技术评审 — 已完成
+  ✅ Step 1: 全量质量检查 — 已完成
+  ✅ Step 2: Diff 审查 — 已完成
+  ✅ Step 3: 十一类失败模式检查 (a-k) — 已完成
+  ✅ Step 4: 汇总设计调整 — 已完成 / N/A（无需调整）
+  ✅ Step 5: 生成测试报告 — 已完成
 
 📝 设计调整（如有）：
   <design-adjustments.md 摘要>
 
 ⚠️ 请确认：
   - 测试结果是否满意？
+  - E2E 失败项（如有）是否可以接受？
+  - 覆盖率低覆盖文件是否需要补测？
   - 设计调整是否合理？
   - 是否可以进入交付阶段？
 
@@ -254,9 +372,11 @@
 完成前确认：
 - 通过率计算正确（通过 / (总数 - 跳过) × 100%）
 - 失败项都有根因分析和结论（区分代码 bug vs 环境问题）
+- E2E 失败项（如有）已记录并评估影响
+- 覆盖率诊断已生成，低覆盖文件已标注
 - 功能覆盖表与 test-plan.md 的执行矩阵一致
 - 设计调整（如有）已完整记录
-- 九类失败模式检查全部完成（含新增 f/g/h/i 四项）
+- 十一类失败模式检查全部完成（含新增 f/g/h/i 四项）
 
 ## 下一阶段
 

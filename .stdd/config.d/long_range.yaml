@@ -20,3 +20,7 @@ long_range:
       file_read: "allow"
       git_readonly: "allow"
     gate3: "mandatory"
+  degradation:
+    max_consecutive_failures: 3
+    pass_rate_threshold: 0.95
+    safety_check: true

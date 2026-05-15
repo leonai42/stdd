@@ -1,3 +1,7 @@
+---
+name: stdd-slice
+description: STDD Phase 3: 切片规划 — 将测试方案拆分为可独立实现的垂直切片
+---
 # STDD Phase 3: SLICE — 切片规划
 
 ## 阶段目标

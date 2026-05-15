@@ -44,7 +44,18 @@
       "Read(**/*.json)",
       "Read(**/*.py)",
       "Glob(**)",
-      "Grep(**)"
+      "Grep(**)",
+      "Bash(git tag *)",
+      "Bash(cp D:/mycode/stdd/.claude/skills/stdd-understand/SKILL.md __TRACKED_VAR__/.claude/skills/stdd-understand/SKILL.md)",
+      "Bash(cp D:/mycode/stdd/.claude/skills/stdd-spec/SKILL.md __TRACKED_VAR__/.claude/skills/stdd-spec/SKILL.md)",
+      "Bash(cp D:/mycode/stdd/.claude/skills/stdd-build/SKILL.md __TRACKED_VAR__/.claude/skills/stdd-build/SKILL.md)",
+      "Bash(cp D:/mycode/stdd/.claude/skills/stdd-verify/SKILL.md __TRACKED_VAR__/.claude/skills/stdd-verify/SKILL.md)",
+      "Bash(pytest *)",
+      "Bash(ruff *)",
+      "Bash(pip *)",
+      "Bash(rm *)",
+      "Bash(yamllint *)",
+      "Bash(python -c *)"
     ]
   }
 }

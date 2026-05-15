@@ -1,3 +1,7 @@
+---
+name: stdd-understand
+description: STDD Phase 1: 需求理解与确认 — 将模糊需求转化为清晰可验证的变更提案
+---
 # STDD Phase 1: UNDERSTAND — 需求理解与确认
 
 ## 阶段目标
@@ -57,6 +61,11 @@
   【Capabilities】...
   【Impact】...
   【Success Criteria】...
+
+🔍 自动审查结果（Step 3.5 提案审查）：
+  审查维度：完整性 / 清晰度 / 范围
+  发现问题：N 项 | 已自动修复：N 项
+  审查结论：✅ 全部通过 / ⚠️ N 项已修复 / ❌ N 项待处理
 
 ⚠️ 请确认以上内容：
   - 范围和边界是否准确？

@@ -1,7 +1,7 @@
 ---
 name: stdd-build
-description: STDD Phase 4: TDD实现
-version: "1.0"
+description: STDD Phase 4: TDD实现 — 按切片执行 RED→GREEN→REFACTOR 循环
+version: "2.2"
 trigger_keywords: ["stdd-build", "stdd build", "spec-driven", "tdd"]
 ---
 # STDD Phase 4: BUILD — TDD 实现
@@ -23,6 +23,15 @@ trigger_keywords: ["stdd-build", "stdd build", "spec-driven", "tdd"]
 - **长程模式**：所有偏离和阻塞自动处理并记录，全程不中断。仅在触发降级条件时暂停。
 
 进入本阶段时，先读取 `.stdd.yaml` 中的 `long_range.mode` 确定当前模式。
+
+## 长程模式运行协议（仅在 `long_range.mode == "full_auto"` 时适用）
+
+1. **无交互原则**：整个阶段内不使用 AskUserQuestion，不等待用户回复
+2. **批量执行**：将同一切片的 RED+GREEN+REFACTOR 合并在一轮内完成
+3. **自动降级检测**：每步操作后检查是否触发降级条件（连续3次修复失败/通过率<95%/安全问题）
+4. **进度汇报**：每个切片完成后输出简短进度（1行），但不等待回复
+5. **阶段衔接**：完成后立即自动调用下一阶段 Skill（stdd-verify）
+6. **仅降级时暂停**：仅在触发降级条件时才使用 AskUserQuestion 暂停
 
 ## 执行流程
 
@@ -84,7 +93,7 @@ trigger_keywords: ["stdd-build", "stdd build", "spec-driven", "tdd"]
 
 *普通模式*：
 - 记录到 `pending-adjustments.md`
-- **暂停自动迭代，向用户报告**：
+- **暂停自动迭代，使用 AskUserQuestion 向用户报告**：
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -109,7 +118,7 @@ trigger_keywords: ["stdd-build", "stdd build", "spec-driven", "tdd"]
 **技术阻塞**：
 
 *普通模式*：
-- 暂停，向用户报告阻塞情况，询问处理方案
+- 暂停，使用 AskUserQuestion 向用户报告阻塞情况，询问处理方案
 
 *长程模式*：
 - 按预授权 A2 策略处理：
@@ -122,7 +131,9 @@ trigger_keywords: ["stdd-build", "stdd build", "spec-driven", "tdd"]
 每个切片完成后：
 - 标记 tasks.md 中对应任务为 `[x]`
 - 进入下一个切片
-- 所有切片完成后 → 自动进入 Phase 5: VERIFY
+- **所有切片完成后**：
+  - 长程模式（`long_range.mode == "full_auto"`）：**立即在同一轮次内自动调用 `stdd-verify` skill，不等待用户输入**
+  - 普通模式：提示用户可进入 Phase 5: VERIFY
 
 ## 产出物
 

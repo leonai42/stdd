@@ -1,7 +1,7 @@
 ---
 name: stdd-slice
-description: STDD Phase 3: 切片规划
-version: "1.0"
+description: STDD Phase 3: 切片规划 — 将测试方案拆分为可独立实现的垂直切片
+version: "2.2"
 trigger_keywords: ["stdd-slice", "stdd slice", "spec-driven", "tdd"]
 ---
 # STDD Phase 3: SLICE — 切片规划

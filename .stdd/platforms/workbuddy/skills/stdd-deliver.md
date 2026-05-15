@@ -1,7 +1,7 @@
 ---
 name: stdd-deliver
-description: STDD Phase 6: 交付
-version: "1.0"
+description: STDD Phase 6: 交付 — 归档变更、合并规范、创建版本标签
+version: "2.2"
 trigger_keywords: ["stdd-deliver", "stdd deliver", "spec-driven", "tdd"]
 ---
 # STDD Phase 6: DELIVER — 交付

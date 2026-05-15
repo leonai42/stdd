@@ -1,3 +1,7 @@
+---
+name: stdd-build
+description: "STDD Phase 4: TDD 实现 — 按切片执行 RED→GREEN→REFACTOR 循环"
+---
 # STDD Phase 4: BUILD — TDD 实现
 
 ## 阶段目标

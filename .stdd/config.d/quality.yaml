@@ -28,13 +28,13 @@ test:
 quality:
   test: "pytest tests/ -v"
   lint: "ruff check app/ tests/"
-  typecheck: null
+  typecheck: "mypy app/"
   e2e:
     enabled: false
     runner: playwright
     command: null
     scope: critical_only
-    critical_paths: []
+    critical_paths: ["tests/e2e/test_critical_flow.py"]
   coverage:
     enabled: true
     tool: pytest-cov
