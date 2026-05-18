@@ -1,7 +1,7 @@
 # STDD 部署与使用指南 | Deployment & Usage Guide
 
-> STDD (Spec+Test Driven Development) V2.0
-> 适用平台 / Supported Platforms：Claude Code / WorkBuddy / Trae / Cursor / Windsurf / GitHub Copilot
+> STDD (Spec+Test Driven Development) V2.3
+> 适用平台 / Supported Platforms：Claude Code / Cursor / Copilot / Aider / WorkBuddy / Trae / Windsurf
 
 ---
 
@@ -191,10 +191,37 @@ Skills installed to `.claude/skills/<name>/SKILL.md`, invoked via `/stdd-xxx` sl
 python /path/to/stdd-project/bin/stdd install claude-code
 ```
 
-### 6.2 WorkBuddy
+### 6.2 Cursor
 
-Skills 安装到 `~/.workbuddy/skills/`，通过关键词匹配触发。每个 Skill 包含 YAML frontmatter 和 `trigger_keywords`。
-Skills installed to `~/.workbuddy/skills/`, triggered by keyword matching. Each Skill includes YAML frontmatter and `trigger_keywords`.
+STDD 作为项目规则安装，自动加载。
+Installed as project rules, auto-loaded.
+
+```bash
+python /path/to/stdd-project/bin/stdd install cursor
+```
+
+### 6.3 GitHub Copilot
+
+安装为 `.github/copilot-instructions.md`。
+Installed as `.github/copilot-instructions.md`.
+
+```bash
+python /path/to/stdd-project/bin/stdd install copilot
+```
+
+### 6.4 Aider
+
+安装为 `.aider.conf.yml` 配置文件。
+Installed as `.aider.conf.yml` config.
+
+```bash
+python /path/to/stdd-project/bin/stdd install aider
+```
+
+### 6.5 WorkBuddy
+
+Skills 安装到 `~/.workbuddy/skills/`，通过关键词匹配触发。
+Skills installed to `~/.workbuddy/skills/`, triggered by keyword matching.
 
 ```bash
 python /path/to/stdd-project/bin/stdd install workbuddy
@@ -202,7 +229,7 @@ python /path/to/stdd-project/bin/stdd install workbuddy
 # Restart WorkBuddy or type /reload stdd in the dialog
 ```
 
-### 6.3 Trae
+### 6.6 Trae
 
 Skills 安装到 `.trae/skills/`，通过 `/stdd-xxx` 调用。
 Skills installed to `.trae/skills/`, invoked via `/stdd-xxx`.
@@ -211,20 +238,11 @@ Skills installed to `.trae/skills/`, invoked via `/stdd-xxx`.
 python /path/to/stdd-project/bin/stdd install trae
 ```
 
-### 6.4 Cursor / Windsurf / Copilot
-
-这些平台没有 Skill 系统，STDD 作为项目规则安装：
-These platforms lack a skill system; STDD is installed as project rules:
+### 6.7 Windsurf（手动 / Manual）
 
 ```bash
-# Cursor: 规则文件 / Rule file
-python /path/to/stdd-project/bin/stdd install cursor
-
-# Windsurf: 手动复制 / Manual copy
-cp .stdd/STDD.md .windsurfrules
-
-# GitHub Copilot: 手动复制 / Manual copy
-cp .stdd/STDD.md .github/copilot-instructions.md
+# 手动复制 STDD.md 为项目规则 / Manually copy as project rules
+cp STDD.md .windsurfrules
 ```
 
 ---
@@ -284,12 +302,11 @@ Phase 4 (BUILD) 开始前，Skill 会自动读取 `.stdd/standards/<language>.md
 Before Phase 4 (BUILD) begins, the Skill automatically reads `.stdd/standards/<language>.md`.
 
 当前支持的开发规范 / Currently supported standards：
-- `python.md` — Python 3.10+ 开发规范 / Python dev standard
-
-后续计划 / Planned：
-- `java.md` — Java / Spring Boot
-- `rust.md` — Rust / Cargo
-- `go.md` — Go 标准布局 / Go standard layout
+- `python.md` — Python 3.10+ 开发规范（V1.0 起）/ Python dev standard
+- `java.md` — Java / Spring Boot（V2.3 新增）
+- `go.md` — Go 标准布局（V2.3 新增）
+- `rust.md` — Rust / Cargo（V2.3 新增）
+- `typescript.md` — TypeScript / Node.js（V2.3 新增）
 
 ---
 

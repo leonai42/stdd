@@ -1,7 +1,7 @@
 # STDD (Spec+Test Driven Development) — 通用流程指引 | Universal Guide
 
-> 此文件可作为项目规则加载到任何 AI 编程平台（Cursor, Copilot, Windsurf 等）。
-> This file can be loaded as project rules on any AI coding platform (Cursor, Copilot, Windsurf, etc.).
+> 此文件可作为项目规则加载到任何 AI 编程平台（Cursor, Copilot, Windsurf, Aider 等）。
+> This file can be loaded as project rules on any AI coding platform (Cursor, Copilot, Windsurf, Aider, etc.).
 >
 > 完整设计文档见 / Full design document: [DESIGN.md](DESIGN.md)
 
@@ -108,7 +108,11 @@ archive/            # 已完成变更 / Completed changes
 ## 开发规范 / Development Standards
 
 位于 / Located at `.stdd/standards/`：
-- `python.md` — Python 开发规范 / Python dev standard
+- `python.md` — Python 开发规范 / Python dev standard（V1.0 起）
+- `java.md` — Java / Spring Boot 规范（V2.3 新增）
+- `go.md` — Go 标准布局规范（V2.3 新增）
+- `rust.md` — Rust / Cargo 规范（V2.3 新增）
+- `typescript.md` — TypeScript / Node.js 规范（V2.3 新增）
 
 ---
 

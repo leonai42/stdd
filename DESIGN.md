@@ -1,7 +1,7 @@
 # STDD — 系统设计文档 | System Design
 
-> 版本 / Version：V2.0
-> 日期 / Date：2026-05-09
+> 版本 / Version：V2.3
+> 日期 / Date：2026-05-18
 >
 > STDD (Spec+Test Driven Development) 是一套 AI 辅助的 Spec 先行 + TDD 执行的研发流程系统。
 > STDD is an AI-assisted, spec-first + TDD execution methodology for software development.
@@ -600,9 +600,12 @@ At each mandatory gate, the Skill presents a standardized confirmation message.
 
 | 版本 | 日期 | 变更内容 |
 |------|------|---------|
-| **V2.0.1** | 2026-05-14 | Review fixes: 代码审查调整、文档修复、配置路径统一 |
-| **V2.0** | 2026-05-13 | 架构升级：config.d/ 目录替代 config.yaml、新增 _shared/ 共享数据目录、CLI 重构为 stdd/ 包 + bin/stdd 入口、新增 rollback/diff/abort 命令、新增 long-range-auth.md 模板（9 类文档模板） |
+| **V2.3** | 2026-05-18 | 基础配套完善：5 语言规范（Java/Go/Rust/TS）+ 6 平台扩展（Cursor/Copilot/Aider）+ 配置模块化补完 + Skill 标准化 |
+| **V2.2** | 2026-05-15 | 流程体验优化：Gate 交互信息完善 + 长程模式可靠性提升 + 降级触发条件优化 |
+| **V2.1** | 2026-05-14 | 方法论增强：全面修复 80 项评审问题 + 内置 Review 能力 + 质量体系强化 |
+| **V2.0.1** | 2026-05-14 | Review fixes: 17 项代码/文档/配置改进 + 配置路径统一 |
+| **V2.0** | 2026-05-13 | 架构升级：config.d/ 目录替代 config.yaml、CLI 重构为 stdd/ 包 + bin/stdd 入口、新增 rollback/diff/abort 命令、新增 long-range-auth.md 模板、pytest 测试框架 |
 | **V1.4** | 2026-05-11 | Skill 同步增强：多平台 Skill 自动同步机制、Skill 版本一致性检查 |
-| **V1.2** | 2026-05-09 | Phase 5 增强：新增 E2E 测试（可配置）、覆盖率诊断、多 Python 版本测试；失败模式从 9 类扩展至 11 类，新增 (j) 覆盖真空、(k) 契约断层。基于 FPPT 验收测试回溯的 16 个实测问题改进 |
-| **V1.1** | 2026-05-07 | 长程开发模式支持；失败模式从 5 类扩展至 9 类，新增 (f) 运行时行为偏差、(g) 管线断链、(h) 内容质量偏差、(i) 指令衰减。基于 FPPT 项目 Phase 2-5 实测中发现的 4 个 TDD 系统性盲区 |
+| **V1.2** | 2026-05-09 | Phase 5 增强：新增 E2E 测试（可配置）、覆盖率诊断、多 Python 版本测试；失败模式从 9 类扩展至 11 类，新增 (j) 覆盖真空、(k) 契约断层 |
+| **V1.1** | 2026-05-07 | 长程开发模式支持；失败模式从 5 类扩展至 9 类，新增 (f) 运行时行为偏差、(g) 管线断链、(h) 内容质量偏差、(i) 指令衰减 |
 | **V1.0** | 2026-05-06 | 初始发布：6 阶段流程 + 3 道强制确认门 + 5 类失败模式检查。支持 Claude Code / WorkBuddy / Trae / Cursor 平台 |
