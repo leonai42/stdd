@@ -49,12 +49,16 @@ description: "STDD Phase 4: TDD 实现 — 按切片执行 RED→GREEN→REFACTO
 
 1. 执行 `python bin/stdd experience list --language <project.language> --format json`
 2. 从输出中筛选 `lifecycle_state` 为 `verified` 或 `settled` 的经验（已充分验证的经验更可靠）
-3. 根据当前 change 的 capabilities 和 spec，选出模式文本（pattern/root_cause/detection_trigger）与当前工作最相关的经验（默认加载最多 10 条，可从 `.stdd/config.d/experience.yaml` 的 `auto_load.max_experiences` 读取）
-4. 将匹配的经验内容（pattern + root_cause + fix_template）主动注入编码上下文
-5. 编码时对照经验库检查：
+3. **project_type 过滤（V2.5）**：按当前 change 的 `project_type` 过滤经验：
+   - 匹配同类型或 `project_type: null`（通配，V2.4 兼容）的经验 → 加载
+   - `project_type` 不匹配的经验 → 跳过
+   - 输出摘要：`已加载 <N> 条匹配经验（<project_type>），过滤 <M> 条不匹配`
+4. 根据当前 change 的 capabilities 和 spec，选出模式文本（pattern/root_cause/detection_trigger）与当前工作最相关的经验（默认加载最多 10 条，可从 `.stdd/config.d/experience.yaml` 的 `auto_load.max_experiences` 读取）
+5. 将匹配的经验内容（pattern + root_cause + fix_template）主动注入编码上下文
+6. 编码时对照经验库检查：
    - 模式匹配 → 参考 fix_template 预防已知错误
    - 不匹配 → 正常编码
-6. 经验库加载结果输出一行摘要：`经验库加载: <N> 条匹配经验已注入上下文`
+7. 经验库加载结果输出一行摘要：`经验库加载: <N> 条匹配经验已注入上下文`
 
 ### Step 1: 按切片顺序执行
 
@@ -174,6 +178,39 @@ description: "STDD Phase 4: TDD 实现 — 按切片执行 RED→GREEN→REFACTO
 | 大设计偏离 | 暂停，报告用户 | 自动记录并继续（test-report 汇总） |
 | 技术阻塞 | 暂停，询问用户 | 尝试绕过/跳过；无法处理时降级暂停 |
 | 所有切片完成 | 自动进入 Phase 5 | 自动进入 Phase 5 |
+
+## 并行执行策略（V2.5 parallel-slice-guide）
+
+当 `slices.md` 中存在标记为 `parallel_group: N` 的切片时，可采用并行执行策略：
+
+### 条件检测
+
+1. 读取 `slices.md`，检查是否有切片标记了 `parallel_group`
+2. 检查当前执行环境是否支持子任务派发（delegation / sub-agent）
+3. **有 delegation 能力** → 并行派发
+4. **无 delegation 能力** → 串行 fallback（按拓扑顺序逐个执行）
+
+### 并行派发流程
+
+1. 同 `parallel_group` 的切片可同时派发给多个子 agent
+2. 每个子 agent 独立执行 RED → GREEN → REFACTOR 循环
+3. 父 agent 等待所有子 agent 完成后收集结果
+4. 验证：合并所有切片的变更，运行全量回归测试
+
+### 串行 Fallback
+
+若无 delegation 能力或并行派发失败：
+- 按 `slices.md` 的依赖拓扑顺序串行执行
+- 无依赖的切片优先
+- P0 优先于 P1
+
+### 结果合并
+
+并行执行完成后：
+1. 检查各切片是否有代码冲突（同一文件被多个切片修改）
+2. 冲突文件 → 合并变更（优先顺序：Slice A → B → C → D）
+3. 运行全量 pytest 确认无回归
+4. 输出合并摘要：`并行执行完成: <N> 个切片，<M> 个冲突已合并`
 
 ## 下一阶段
 

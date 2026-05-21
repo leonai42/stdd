@@ -37,6 +37,29 @@
 **基础设施**：
 - <基础设施变更>
 
+## Constraints
+
+<!-- STDD-MARKER: constraints — 技术/资源/时间约束 -->
+- <约束项 1>
+- <约束项 2>
+
+## Stakeholders
+
+<!-- STDD-MARKER: stakeholders — 受影响方或相关角色 -->
+- <利益相关者 1>
+- <利益相关者 2>
+
+## Risk Areas
+
+<!-- STDD-MARKER: risk_areas — 格式: - capability: <name> — <风险描述> -->
+- capability: <capability-name> — <风险描述>
+
+## NonGoals
+
+<!-- STDD-MARKER: non_goals — 明确不在此变更范围内的事项 -->
+- <非目标项 1>
+- <非目标项 2>
+
 ## Success Criteria
 
 <!-- STDD-MARKER: success_criteria — 可验证的完成条件 -->

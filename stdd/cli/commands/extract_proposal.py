@@ -78,6 +78,30 @@ def _parse_impact(content: str) -> dict:
     return result
 
 
+def _parse_risk_areas(content: str) -> list[dict]:
+    """Parse Risk Areas section with structured capability mapping.
+
+    Expected format:
+    ## Risk Areas
+    - capability: <name> — <risk description>
+    """
+    items = _parse_section(content, "Risk Areas")
+    result = []
+    for item in items:
+        # Try "capability: <name> — <risk>" format
+        m = re.match(r"capability:\s*(\S+)\s*[—\-]\s*(.+)", item)
+        if m:
+            result.append({"capability": m.group(1), "risk": m.group(2)})
+        elif item.startswith("capability:"):
+            parts = item.split(":", 1)
+            cap_name = parts[1].strip().split("—")[0].strip() if "—" in parts[1] else parts[1].strip().split("-")[0].strip()
+            risk = parts[1].split("—", 1)[-1].strip() if "—" in parts[1] else parts[1].split("-", 1)[-1].strip()
+            result.append({"capability": cap_name, "risk": risk})
+        else:
+            result.append({"capability": "", "risk": item})
+    return result
+
+
 def cmd_extract_proposal(args: argparse.Namespace) -> None:
     from ..finder import find_change_dir
     from ..utils import get_logger
@@ -106,6 +130,11 @@ def cmd_extract_proposal(args: argparse.Namespace) -> None:
         "what_changes": _parse_section(content, "What Changes"),
         "success_criteria": _parse_section(content, "Success Criteria"),
         "impact": _parse_impact(content),
+        # V2.5 new fields — backward compatible (empty if not present)
+        "constraints": _parse_section(content, "Constraints"),
+        "stakeholders": _parse_section(content, "Stakeholders"),
+        "risk_areas": _parse_risk_areas(content),
+        "non_goals": _parse_section(content, "NonGoals"),
     }
 
     fmt = getattr(args, "format", "json") or "json"

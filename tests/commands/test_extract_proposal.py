@@ -269,3 +269,166 @@ stdd_version: '2.0'
         assert len(data["impact"]["code"]) == 1
         assert data["impact"]["config"] == []
         assert data["impact"]["infrastructure"] == []
+
+
+class TestExtractProposalExtended:
+    """TC-EPE-001 ~ 007: V2.5 extended fields."""
+
+    PROPOSAL_WITH_NEW_FIELDS = """\
+# Extended Feature Proposal
+
+## What Changes
+- Something
+
+## Capabilities
+### New Capabilities
+- **TestCap**：Test description
+
+## Success Criteria
+
+## Impact
+
+## Constraints
+- Must work on Python 3.10+
+- Max memory usage < 512MB
+
+## Stakeholders
+- Backend team
+- Frontend team
+
+## Risk Areas
+- capability: TestCap — API breaking changes risk
+- capability: TestCap — Performance degradation under load
+
+## NonGoals
+- Not supporting Python 3.9
+- No WebSocket support in v1
+"""
+
+    def test_extract_constraints(self, tmp_path, monkeypatch):
+        """TC-EPE-001: Extract Constraints field."""
+        _setup_change(tmp_path, self.PROPOSAL_WITH_NEW_FIELDS)
+        monkeypatch.chdir(tmp_path)
+
+        from stdd.cli.commands.extract_proposal import cmd_extract_proposal
+
+        import sys
+        from io import StringIO
+        args = _make_args(name="2026-01-01-test-feature", format="json")
+        old_stdout = sys.stdout
+        sys.stdout = StringIO()
+        cmd_extract_proposal(args)
+        output = sys.stdout.getvalue()
+        sys.stdout = old_stdout
+
+        data = json.loads(output)
+        assert "constraints" in data
+        assert len(data["constraints"]) == 2
+        assert "Python 3.10+" in data["constraints"][0]
+
+    def test_extract_stakeholders(self, tmp_path, monkeypatch):
+        """TC-EPE-002: Extract Stakeholders field."""
+        _setup_change(tmp_path, self.PROPOSAL_WITH_NEW_FIELDS)
+        monkeypatch.chdir(tmp_path)
+
+        from stdd.cli.commands.extract_proposal import cmd_extract_proposal
+
+        import sys
+        from io import StringIO
+        args = _make_args(name="2026-01-01-test-feature", format="json")
+        old_stdout = sys.stdout
+        sys.stdout = StringIO()
+        cmd_extract_proposal(args)
+        output = sys.stdout.getvalue()
+        sys.stdout = old_stdout
+
+        data = json.loads(output)
+        assert "stakeholders" in data
+        assert "Backend team" in data["stakeholders"]
+        assert "Frontend team" in data["stakeholders"]
+
+    def test_extract_risk_areas_structured(self, tmp_path, monkeypatch):
+        """TC-EPE-003: Extract RiskAreas with structured capability mapping."""
+        _setup_change(tmp_path, self.PROPOSAL_WITH_NEW_FIELDS)
+        monkeypatch.chdir(tmp_path)
+
+        from stdd.cli.commands.extract_proposal import cmd_extract_proposal
+
+        import sys
+        from io import StringIO
+        args = _make_args(name="2026-01-01-test-feature", format="json")
+        old_stdout = sys.stdout
+        sys.stdout = StringIO()
+        cmd_extract_proposal(args)
+        output = sys.stdout.getvalue()
+        sys.stdout = old_stdout
+
+        data = json.loads(output)
+        assert "risk_areas" in data
+        assert len(data["risk_areas"]) == 2
+        assert data["risk_areas"][0]["capability"] == "TestCap"
+        assert "API breaking" in data["risk_areas"][0]["risk"]
+
+    def test_extract_non_goals(self, tmp_path, monkeypatch):
+        """TC-EPE-004: Extract NonGoals field."""
+        _setup_change(tmp_path, self.PROPOSAL_WITH_NEW_FIELDS)
+        monkeypatch.chdir(tmp_path)
+
+        from stdd.cli.commands.extract_proposal import cmd_extract_proposal
+
+        import sys
+        from io import StringIO
+        args = _make_args(name="2026-01-01-test-feature", format="json")
+        old_stdout = sys.stdout
+        sys.stdout = StringIO()
+        cmd_extract_proposal(args)
+        output = sys.stdout.getvalue()
+        sys.stdout = old_stdout
+
+        data = json.loads(output)
+        assert "non_goals" in data
+        assert len(data["non_goals"]) == 2
+        assert "Python 3.9" in data["non_goals"][0]
+
+    def test_old_proposal_new_fields_empty(self, tmp_path, monkeypatch):
+        """TC-EPE-005: V2.4 format proposal returns empty arrays for new fields."""
+        _setup_change(tmp_path, SAMPLE_PROPOSAL)
+        monkeypatch.chdir(tmp_path)
+
+        from stdd.cli.commands.extract_proposal import cmd_extract_proposal
+
+        import sys
+        from io import StringIO
+        args = _make_args(name="2026-01-01-test-feature", format="json")
+        old_stdout = sys.stdout
+        sys.stdout = StringIO()
+        cmd_extract_proposal(args)
+        output = sys.stdout.getvalue()
+        sys.stdout = old_stdout
+
+        data = json.loads(output)
+        assert data.get("constraints") == []
+        assert data.get("stakeholders") == []
+        assert data.get("risk_areas") == []
+        assert data.get("non_goals") == []
+
+    def test_old_fields_unchanged(self, tmp_path, monkeypatch):
+        """TC-EPE-006: Old fields (what_changes, capabilities, etc.) unchanged."""
+        _setup_change(tmp_path, SAMPLE_PROPOSAL)
+        monkeypatch.chdir(tmp_path)
+
+        from stdd.cli.commands.extract_proposal import cmd_extract_proposal
+
+        import sys
+        from io import StringIO
+        args = _make_args(name="2026-01-01-test-feature", format="json")
+        old_stdout = sys.stdout
+        sys.stdout = StringIO()
+        cmd_extract_proposal(args)
+        output = sys.stdout.getvalue()
+        sys.stdout = old_stdout
+
+        data = json.loads(output)
+        assert len(data["what_changes"]) == 3
+        assert len(data["capabilities"]["new"]) == 2
+        assert len(data["success_criteria"]) == 3

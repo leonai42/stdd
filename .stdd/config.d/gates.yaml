@@ -10,3 +10,10 @@ gates:
   phase5_verify:
     required: true
     description: "用户确认 test-report.md + design-adjustments.md 后才能进入 Phase 6"
+
+confirmation:
+  channels:
+    - dialog        # 对话确认（现有）
+    - file_token    # 文件 token（新增）：创建 GATE<N>_APPROVED 文件
+    - cli           # CLI 命令（新增）：stdd gate approve --gate <N>
+  file_token_dir: "{change_dir}"  # GATE<N>_APPROVED 文件存放位置

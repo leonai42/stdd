@@ -1,5 +1,64 @@
 # STDD 变更日志 / Changelog
 
+## V2.5 (2026-05-21) — 经验生命周期闭环 + 社区经验池 + 多Agent适配 / Experience Lifecycle + Community Pool + Multi-Agent Support
+
+### 经验生命周期状态机 / Experience Lifecycle FSM
+- 5 状态有限状态机：discovered → verified → deposited → shared → merged/retired
+- 新增 `experience verify/deposit/retire` 子命令
+- 自动提升逻辑：occurrences>=2 + confidence>=0.7 → verified; occurrences>=3 + confidence>=0.8 → deposited
+- `experience list` 默认隐藏 retired，`--all` 显示全部
+
+### CI 检查增强 / CI Check Enhanced
+- 检查注册表模式：`CHECKS` 列表驱动聚合，7 项检查
+- 新增 `check-scope`：proposal capability 声明 vs git diff 范围交叉验证
+- 新增 `check-coverage`：pytest JSON 覆盖率 vs quality.yaml 阈值（默认 80%）
+- 新增 `check-contracts`：跨 capability 契约字段一致性检查
+- 新增子命令：`ci check-scope/check-coverage/check-contracts`
+- Graceful degradation：无数据时 SKIP 而非 FAIL
+
+### 跨 Session 状态恢复 / Session Resume
+- 新增 `state.py`：`.stdd.yaml` 读写 resume_context/active_slice/last_action/last_modified
+- 向后兼容：V2.4 .stdd.yaml 新字段为 null
+
+### Gate 文件确认 / Gate File Confirmation
+- 新增 `gate.py` CLI：`stdd gate approve <change> --gate <N>`
+- 文件 token 机制：`GATE<N>_APPROVED` 空文件等效于确认
+- `gates.yaml` 新增 `confirmation.channels` 配置段（dialog/file_token/cli）
+
+### 社区经验共享池 / Community Experience Pool
+- 零后端设计：GitHub Releases (CDN) + Gitee 镜像 + Issues (投票 UI)
+- 双源下载 fallback：主源 5 秒超时自动切换镜像
+- `experience pull`：全量下载 + 去重 + 投票元数据同步
+- `experience export --publish`：脱敏 + 打包 tar.gz + lifecycle→shared
+- 新增投票字段：community_votes_useful/unuseful + adoption_count
+- 新增 `curate.py`：官方维护者工具链 pull/deduplicate/review/pack
+- `experience.yaml` 新增 `community` 配置段
+
+### Proposal 扩展提取 / Extract Proposal Extended
+- 新增 4 字段提取：Constraints / Stakeholders / RiskAreas (结构化) / NonGoals
+- 向后兼容：V2.4 proposal 缺失字段 → 空数组
+- `proposal.md` 模板增加新字段段落
+
+### 非代码 Change 支持 / Non-Code Change Support
+- `project_type` 字段：经验创建时自动检测（python/go/static_site/docs/config）
+- `build.md` Step 0.5：按 project_type 过滤经验加载
+- `verify.md`：非代码 change 替代检查清单（5 项：链接有效/范围一致/内部引用/内容完整/TC 覆盖）
+- 向后兼容：project_type=null → 通配加载
+
+### 并行切片指南 / Parallel Slice Guide
+- `build.md` 新增并行执行策略：parallel_group 识别 → 子 agent 派发 → 结果合并
+- 串行 fallback：无 delegation 能力时按拓扑顺序执行
+
+### 技能系统 / Skill System
+- `build.md`：Step 0.5 +project_type 过滤 + 并行执行策略
+- `verify.md`：Step 3 后 + 非代码检查清单分支
+
+### 测试 / Tests
+- 新增 46 个测试用例
+- 全量回归 155/155 通过（零回归）
+
+---
+
 ## V2.4 (2026-05-21) — AI 辅助增强 + 自学习经验库 + CI/CD 集成 / AI-Assisted Enhancement + Self-Learning Experience Library + CI/CD Integration
 
 ### 自学习经验库 / Self-Learning Experience Library
@@ -39,6 +98,45 @@
 ### 测试 / Tests
 - 新增 45 个测试用例（test_experience: 13, test_extract_proposal: 7, test_dependency_graph: 10, test_ci: 14 + 1）
 - 全量回归 109/109 通过（0 回归，现有 11 个命令不受影响）
+
+---
+
+## V2.5 (计划中) — 跨平台适配与工具化增强 / Cross-Platform Adaptation & Tooling Enhancement
+
+> **来源**：Hermes Agent 集成反馈（10 维度对比）+ STDD Playground 首次实战复盘。
+> **预估工时**：9.2 人天。详见 VISION.md 第九章。
+
+### P5 工具化：11 类失败模式 CLI 预检扩展（P0）
+- 新增 `stdd ci check-scope`：(b) 范围蔓延 — `git diff --stat` 对比 proposal 声明范围
+- 新增 `stdd ci check-coverage`：(j) 覆盖真空 — 解析 `pytest --cov` 识别 spec 无覆盖模块
+- 新增 `stdd ci check-contracts`：(k) 契约断层 — 校验相邻 capability 字段类型/命名一致性
+- 总覆盖率目标：从 ~60% 提升到 ~80%
+
+### 跨 Session 状态恢复（P0）
+- `.stdd.yaml` 新增 `resume_context` / `active_slice` / `last_action` / `last_modified` 字段
+- 任意 AI session 读取后无歧义恢复，无需翻找 change 目录
+
+### 并行切片执行指南（P1）
+- `build.md` skill 增加并行执行策略：同 `parallel_group` 切片可并行派发
+- 主 Agent 协调 + 并行切片独立执行 + 统一 REFACTOR
+
+### Gate 确认通道多样化（P1）
+- 新增文件式 Gate 确认：创建 `GATE<N>_APPROVED` token 文件即可确认
+- CLI：`stdd gate approve <change-name> --gate <N>`
+- 与对话确认等价，底层写入 `.stdd.yaml` 时间戳
+
+### 模板填充工具化（P1）
+- `extract-proposal` 扩展提取字段：Constraints / Stakeholders / Risk Areas / NonGoals
+- 提取结果作为模板变量填充，减少 AI "理解偏差"
+
+### 文件驱动阶段切换（P2）
+- 标准化文件信号：`.stdd.yaml` 的 `next_phase` 字段替代斜杠命令
+- 任何能读写文件的 AI Agent 都能参与 STDD 流程（去平台依赖）
+
+### 非代码类 Change 支持（P1 · 来自 Playground 实战）
+- `verify.md` 增加非代码检查清单：纯前端/文档/Skill 类 change 的 5 项替代检查维度
+- 经验库 YAML 增加 `project_type` 字段（python/go/static_site/docs/config），防止跨类型经验污染
+- 覆盖 ~30-40% 的非代码长尾 change，让经验库从此类 change 也能正常积累经验
 
 ---
 

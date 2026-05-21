@@ -109,8 +109,27 @@ def main() -> None:
     ci_subs.add_parser("init", help="生成所有 CI 配置文件", parents=[parent])
     p_ci_gen = ci_subs.add_parser("generate", help="生成单个 CI 配置文件", parents=[parent])
     p_ci_gen.add_argument("target", choices=["workflow", "pre-commit", "pr-template"], help="生成目标")
-    p_ci_check = ci_subs.add_parser("check-failures", help="确定性失败模式检查", parents=[parent])
+    p_ci_check = ci_subs.add_parser("check-failures", help="确定性失败模式检查（全量聚合）", parents=[parent])
     p_ci_check.add_argument("name", nargs="?", help="change 目录名（默认使用最近的）")
+    p_ci_scope = ci_subs.add_parser("check-scope", help="范围蔓延检查 (b)", parents=[parent])
+    p_ci_scope.add_argument("name", nargs="?", help="change 目录名（默认使用最近的）")
+    p_ci_cov = ci_subs.add_parser("check-coverage", help="覆盖真空检查 (j)", parents=[parent])
+    p_ci_cov.add_argument("name", nargs="?", help="change 目录名（默认使用最近的）")
+    p_ci_ctr = ci_subs.add_parser("check-contracts", help="契约断层检查 (k)", parents=[parent])
+    p_ci_ctr.add_argument("name", nargs="?", help="change 目录名（默认使用最近的）")
+
+    # state (V2.5 新增)
+    p_state = subparsers.add_parser("state", help="查看/恢复跨 Session 状态", parents=[parent])
+    p_state.add_argument("name", nargs="?", help="change 目录名（默认使用最近的）")
+    p_state.add_argument("--resume", action="store_true", help="显示恢复上下文")
+    p_state.add_argument("--set", help="设置恢复字段（格式：KEY=VALUE）")
+
+    # gate (V2.5 新增)
+    p_gate = subparsers.add_parser("gate", help="Gate 确认管理", parents=[parent])
+    gate_subs = p_gate.add_subparsers(dest="subcommand", help="子命令")
+    p_gate_approve = gate_subs.add_parser("approve", help="确认 Gate", parents=[parent])
+    p_gate_approve.add_argument("name", nargs="?", help="change 目录名（默认使用最近的）")
+    p_gate_approve.add_argument("--gate", type=int, required=True, choices=[1, 2, 3], help="Gate 编号 (1/2/3)")
 
     # experience (V2.4 新增)
     p_exp = subparsers.add_parser("experience", help="管理项目级 AI 经验库", parents=[parent])
@@ -121,6 +140,7 @@ def main() -> None:
     p_exp_list.add_argument("--lifecycle", help="按生命周期过滤")
     p_exp_list.add_argument("--severity", help="按严重程度过滤")
     p_exp_list.add_argument("--format", choices=["table", "json", "yaml"], default="table", help="输出格式")
+    p_exp_list.add_argument("--all", action="store_true", help="显示所有经验（含 retired）")
     p_exp_add = exp_subs.add_parser("add", help="添加经验条目", parents=[parent])
     p_exp_add.add_argument("--category", required=True, help="失败模式类别")
     p_exp_add.add_argument("--pattern", required=True, help="错误模式描述")
@@ -132,15 +152,32 @@ def main() -> None:
     p_exp_add.add_argument("--tags", help="逗号分隔的标签")
     p_exp_add.add_argument("--source-change", help="来源 change")
     p_exp_add.add_argument("--body", help="Markdown body 内容")
+    p_exp_add.add_argument("--project-type", help="项目类型（python/go/static_site/docs/config 等）")
     p_exp_stats = exp_subs.add_parser("stats", help="经验库统计", parents=[parent])
     p_exp_stats.add_argument("--format", choices=["table", "json"], default="table", help="输出格式")
     p_exp_export = exp_subs.add_parser("export", help="导出经验", parents=[parent])
     p_exp_export.add_argument("--output", "-o", help="输出文件路径")
     p_exp_export.add_argument("--format", choices=["json", "yaml"], default="json", help="导出格式")
     p_exp_export.add_argument("--no-sanitize", action="store_true", help="不脱敏")
+    p_exp_export.add_argument("--publish", action="store_true", help="发布到社区（脱敏 + 打包 tar.gz + lifecycle→shared）")
     p_exp_pull = exp_subs.add_parser("pull", help="从社区拉取经验包", parents=[parent])
     p_exp_pull.add_argument("pack_name", help="经验包名称")
     p_exp_pull.add_argument("--source", help="社区源 URL")
+    p_exp_verify = exp_subs.add_parser("verify", help="验证经验（discovered → verified）", parents=[parent])
+    p_exp_verify.add_argument("experience_id", help="经验 ID（如 EXP-2026-0001）")
+    p_exp_deposit = exp_subs.add_parser("deposit", help="沉淀经验（verified → deposited）", parents=[parent])
+    p_exp_deposit.add_argument("experience_id", help="经验 ID（如 EXP-2026-0001）")
+    p_exp_retire = exp_subs.add_parser("retire", help="废弃经验（任意状态 → retired）", parents=[parent])
+    p_exp_retire.add_argument("experience_id", help="经验 ID（如 EXP-2026-0001）")
+    p_exp_retire.add_argument("--reason", help="废弃原因")
+    # curate subcommand under experience
+    p_curate = exp_subs.add_parser("curate", help="官方维护者整理工具", parents=[parent])
+    curate_subs = p_curate.add_subparsers(dest="curate_subcommand", help="子命令")
+    curate_subs.add_parser("pull", help="拉取全量经验包到 inbox", parents=[parent])
+    curate_subs.add_parser("deduplicate", help="自动去重合并", parents=[parent])
+    curate_subs.add_parser("review", help="逐条审核经验", parents=[parent])
+    p_curate_pack = curate_subs.add_parser("pack", help="打包官方经验包", parents=[parent])
+    p_curate_pack.add_argument("language", help="目标语言（如 python）")
 
     args = parser.parse_args()
 
@@ -166,6 +203,8 @@ def main() -> None:
         "dependency-graph": "stdd.cli.commands.dependency_graph.cmd_dependency_graph",
         "ci": "stdd.cli.commands.ci.cmd_ci",
         "experience": "stdd.cli.commands.experience.cmd_experience",
+        "state": "stdd.cli.commands.state.cmd_state",
+        "gate": "stdd.cli.commands.gate.cmd_gate",
     }
 
     if args.command in commands:

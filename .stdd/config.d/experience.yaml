@@ -20,3 +20,18 @@ experience:
     sanitize_domains: true
   index:
     auto_generate: true
+
+community:
+  registries:
+    - name: github
+      url: "https://github.com/leonai42/stdd-experiences/releases/latest/download"
+      priority: 1
+    - name: gitee
+      url: "https://gitee.com/leonai42/stdd-experiences/releases/latest/download"
+      priority: 2
+  fallback_timeout: 5
+  packs:
+    - name: python
+      version: "v1.0.0"
+    - name: go
+      version: "v1.0.0"

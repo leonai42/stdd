@@ -2,8 +2,20 @@
 import argparse
 import sys
 import re
+import json
+import os
 from pathlib import Path
 from datetime import datetime
+
+
+# Registry of check functions: each returns (status, message)
+# status: "PASS" | "FAIL" | "WARN" | "SKIP"
+CHECKS = []
+
+
+def _register_check(fn):
+    CHECKS.append(fn)
+    return fn
 
 
 
@@ -232,65 +244,22 @@ def _cmd_check_failures(args: argparse.Namespace, project_root: Path) -> None:
         print(f" 找不到 change: {getattr(args, 'name', None) or '(无)'}")
         sys.exit(1)
 
-    errors = []
-    warnings = []
-    passed = []
+    results = []
+    for check_fn in CHECKS:
+        status, message = check_fn(change_dir, project_root)
+        results.append((status, message))
 
-    # Check files exist
-    for f in ["proposal.md", "design.md", "test-plan.md", ".stdd.yaml"]:
-        if (change_dir / f).exists():
-            passed.append(f"(a) 文件存在: {f}")
-        else:
-            errors.append(f"(a) 缺失文件: {f}")
-
-    # Check spec format
-    specs_dir = change_dir / "specs"
-    if specs_dir.exists():
-        has_spec = any(specs_dir.rglob("*.md"))
-        if has_spec:
-            passed.append("(a) Spec 文件存在")
-        else:
-            warnings.append("(a) specs 目录为空")
-
-        for spec_file in specs_dir.rglob("*.md"):
-            content = spec_file.read_text(encoding="utf-8")
-            scenarios = re.findall(r"####\s+Scenario:", content)
-            then_lines = re.findall(r"\*\*THEN\*\*\s*(.+?)(?:\n|$)", content)
-            and_count = len(re.findall(r"\*\*AND\*\*", content))
-
-            if len(scenarios) > 0:
-                no_shall = [t for t in then_lines if "SHALL" not in t]
-                if no_shall:
-                    warnings.append(f"(f) {spec_file.name}: {len(no_shall)} 个 THEN 缺少 SHALL")
-                else:
-                    passed.append(f"(f) {spec_file.name}: 所有 THEN 含 SHALL")
-
-                if and_count > 5:
-                    warnings.append(f"(g) {spec_file.name}: AND 数量 ({and_count}) 超限")
-                else:
-                    passed.append(f"(g) {spec_file.name}: AND 数量正常 ({and_count})")
-
-    # Check TC-ID uniqueness
-    test_plan = change_dir / "test-plan.md"
-    if test_plan.exists():
-        content = test_plan.read_text(encoding="utf-8")
-        tc_ids = re.findall(r"(TC-[A-Z]+-\d{3})", content)
-        if tc_ids:
-            duplicates = [tc for tc in tc_ids if tc_ids.count(tc) > 1]
-            if duplicates:
-                errors.append(f"(d) 重复 TC-ID: {set(duplicates)}")
-            else:
-                passed.append(f"(d) TC-ID 唯一性: {len(set(tc_ids))} 个唯一")
-            passed.append(f"(j) TC 数量: {len(set(tc_ids))}")
-
-    # Check scope creep (files in change match proposal expectations)
-    passed.append("(b) 范围检查: 请使用 /stdd-verify 进行 AI 全量检查")
+    passed = [m for s, m in results if s == "PASS"]
+    warnings = [m for s, m in results if s == "WARN"]
+    skipped = [m for s, m in results if s == "SKIP"]
+    errors = [m for s, m in results if s == "FAIL"]
 
     print()
     print("  STDD 失败模式检查结果 (CLI 确定性子集)")
     print(f"  {'─' * 50}")
     print(f"  ✅ 通过: {len(passed)}")
     print(f"  ⚠ 警告: {len(warnings)}")
+    print(f"  ⏭ 跳过: {len(skipped)}")
     print(f"  ❌ 错误: {len(errors)}")
 
     if passed:
@@ -301,19 +270,218 @@ def _cmd_check_failures(args: argparse.Namespace, project_root: Path) -> None:
         print("\n  警告项:")
         for w in warnings:
             print(f"    ⚠ {w}")
+    if skipped:
+        print("\n  跳过项:")
+        for s in skipped:
+            print(f"    → {s}")
     if errors:
         print("\n  错误项:")
         for e in errors:
             print(f"    ✗ {e}")
 
-    print("\n  ──────────────────────────────────────")
-    print("  确定性检查覆盖约 60% 的失败模式。")
-    print("  未覆盖: (c)级联错误, (e)工具误用, (h)内容质量偏差, (i)指令衰减, (k)契约断层")
-    print("  完整 11 类检查（含语义分析）请使用 /stdd-verify")
+    total = len(results)
+    automated = len([s for s, _, in results if s != "SKIP"])
+    print(f"\n  ──────────────────────────────────────")
+    print(f"  自动化检查覆盖: {automated}/{total} 项")
+    print(f"  完整 11 类检查（含语义分析）请使用 /stdd-verify")
     print()
 
     if errors:
         sys.exit(1)
+
+
+# ── Registered check functions ────────────────────────────
+
+@_register_check
+def check_files_exist(change_dir: Path, _project_root: Path) -> tuple[str, str]:
+    """(a) Check required files exist."""
+    missing = []
+    for f in ["proposal.md", "design.md", "test-plan.md", ".stdd.yaml"]:
+        if not (change_dir / f).exists():
+            missing.append(f)
+    if missing:
+        return ("FAIL", f"(a) 缺失文件: {', '.join(missing)}")
+    specs_dir = change_dir / "specs"
+    if specs_dir.exists() and any(specs_dir.rglob("*.md")):
+        return ("PASS", "(a) 所有必需文件存在 + Spec 文件存在")
+    return ("WARN", "(a) 必需文件存在，但 specs 目录为空")
+
+
+@_register_check
+def check_tcid_unique(change_dir: Path, _project_root: Path) -> tuple[str, str]:
+    """(d) Check TC-ID uniqueness in test-plan.md."""
+    test_plan = change_dir / "test-plan.md"
+    if not test_plan.exists():
+        return ("SKIP", "(d) test-plan.md 不存在，跳过 TC-ID 检查")
+    content = test_plan.read_text(encoding="utf-8")
+    tc_ids = re.findall(r"(TC-[A-Z]+-\d{3})", content)
+    if not tc_ids:
+        return ("WARN", "(d) 未找到 TC-ID")
+    unique = set(tc_ids)
+    duplicates = [tc for tc in unique if tc_ids.count(tc) > 1]
+    if duplicates:
+        return ("FAIL", f"(d) 重复 TC-ID: {duplicates}")
+    return ("PASS", f"(d) TC-ID 唯一 ({len(unique)} 个)")
+
+
+@_register_check
+def check_shall_keyword(change_dir: Path, _project_root: Path) -> tuple[str, str]:
+    """(f) Check THEN statements contain SHALL keyword."""
+    specs_dir = change_dir / "specs"
+    if not specs_dir.exists():
+        return ("SKIP", "(f) specs 目录不存在，跳过 SHALL 检查")
+    spec_files = list(specs_dir.rglob("*.md"))
+    if not spec_files:
+        return ("SKIP", "(f) 无 spec 文件")
+    issues = []
+    for sf in spec_files:
+        content = sf.read_text(encoding="utf-8")
+        then_lines = re.findall(r"\*\*THEN\*\*\s*(.+?)(?:\n|$)", content)
+        no_shall = [t for t in then_lines if "SHALL" not in t]
+        if no_shall:
+            issues.append(f"{sf.name}: {len(no_shall)} 处缺少 SHALL")
+    if issues:
+        return ("WARN", f"(f) SHALL 缺失: {', '.join(issues)}")
+    return ("PASS", "(f) 所有 THEN 含 SHALL")
+
+
+@_register_check
+def check_and_count(change_dir: Path, _project_root: Path) -> tuple[str, str]:
+    """(g) Check AND count per scenario."""
+    specs_dir = change_dir / "specs"
+    if not specs_dir.exists():
+        return ("SKIP", "(g) specs 目录不存在")
+    spec_files = list(specs_dir.rglob("*.md"))
+    if not spec_files:
+        return ("SKIP", "(g) 无 spec 文件")
+    issues = []
+    for sf in spec_files:
+        content = sf.read_text(encoding="utf-8")
+        and_count = len(re.findall(r"\*\*AND\*\*", content))
+        if and_count > 5:
+            issues.append(f"{sf.name}: AND 数量 {and_count}")
+    if issues:
+        return ("WARN", f"(g) AND 超限: {', '.join(issues)}")
+    return ("PASS", "(g) AND 数量正常")
+
+
+@_register_check
+def check_scope_creep(change_dir: Path, _project_root: Path) -> tuple[str, str]:
+    """(b) Check files changed match declared capabilities in proposal."""
+    proposal_path = change_dir / "proposal.md"
+    if not proposal_path.exists():
+        return ("SKIP", "(b) proposal.md 不存在")
+
+    content = proposal_path.read_text(encoding="utf-8")
+    caps = re.findall(r"-\s*(?:STDD-MARKER:\s*)?capability:\s*(\S+)", content)
+    if not caps:
+        return ("SKIP", "(b) proposal 未声明 capability 列表")
+
+    # Get changed files via git diff --stat
+    import subprocess
+    try:
+        result = subprocess.run(
+            ["git", "diff", "--stat", "HEAD~1"],
+            capture_output=True, text=True, timeout=10,
+            cwd=str(change_dir.parent.parent)
+        )
+        changed_files = result.stdout.strip()
+    except Exception:
+        return ("SKIP", "(b) 无法运行 git diff，跳过范围检查")
+
+    if not changed_files:
+        return ("PASS", "(b) 无文件变更")
+
+    # Simple heuristic: check if changed files are in expected directories
+    changed_paths = re.findall(r"^\s*([^\s|]+)", changed_files, re.MULTILINE)
+    out_of_scope = []
+    for fp in changed_paths:
+        fp = fp.strip()
+        # A file is in-scope if it's under one of the capability spec dirs
+        # or in common dirs like .stdd/, tests/, etc.
+        common_dirs = {".stdd/", "tests/", "docs/", ".github/"}
+        is_common = any(fp.startswith(d) for d in common_dirs)
+        is_cap = any(f"specs/{c}/" in fp or f"commands/{c}" in fp for c in caps)
+        if not is_common and not is_cap:
+            out_of_scope.append(fp)
+
+    if out_of_scope:
+        return ("WARN", f"(b) 范围蔓延: {len(out_of_scope)} 个文件可能超出声明范围 ({', '.join(out_of_scope[:3])}...)")
+    return ("PASS", f"(b) 文件变更在声明范围内 ({len(caps)} capabilities)")
+
+
+@_register_check
+def check_coverage_vacuum(change_dir: Path, project_root: Path) -> tuple[str, str]:
+    """(j) Check test coverage against threshold."""
+    cov_path = project_root / "coverage.json"
+    if not cov_path.exists():
+        return ("SKIP", "(j) 无 coverage.json，跳过覆盖检查")
+
+    try:
+        cov_data = json.loads(cov_path.read_text(encoding="utf-8"))
+        pct = cov_data.get("summary", {}).get("percent_covered", cov_data.get("totals", {}).get("percent_covered"))
+        if pct is None:
+            return ("SKIP", "(j) coverage.json 无 percent_covered 字段")
+    except Exception:
+        return ("SKIP", "(j) coverage.json 解析失败")
+
+    # Read threshold from quality.yaml
+    from ..utils import read_config
+    config = read_config(project_root)
+    threshold = config.get("quality", {}).get("coverage_threshold", 80)
+
+    if pct >= threshold:
+        return ("PASS", f"(j) 覆盖率 {pct:.1f}% >= {threshold}%")
+    return ("FAIL", f"(j) 覆盖率不足: {pct:.1f}% < {threshold}%")
+
+
+@_register_check
+def check_contract_gap(change_dir: Path, project_root: Path) -> tuple[str, str]:
+    """(k) Check contract consistency across capabilities."""
+    specs_dir = change_dir / "specs"
+    if not specs_dir.exists() or len(list(specs_dir.iterdir())) < 2:
+        return ("SKIP", "(k) 少于 2 个 capability，跳过契约检查")
+
+    # Build a map: capability_name -> set of defined fields/entities
+    cap_fields = {}
+    for cap_dir in specs_dir.iterdir():
+        if not cap_dir.is_dir():
+            continue
+        spec_file = cap_dir / "spec.md"
+        if not spec_file.exists():
+            continue
+        content = spec_file.read_text(encoding="utf-8")
+        cap_name = cap_dir.name
+        # Extract field definitions: words after "SHALL" patterns, Requirement names
+        fields = set(re.findall(r"SHALL\s+(\w+)", content))
+        # Also capture Requirement names
+        reqs = set(re.findall(r"## Requirement:\s*(.+)", content))
+        cap_fields[cap_name] = fields | reqs
+
+    if len(cap_fields) < 2:
+        return ("SKIP", "(k) 有效的 capability spec 不足，跳过契约检查")
+
+    # Check cross-references: "GIVEN.*from <capability>" pattern
+    gaps = []
+    for cap_name, defined_fields in cap_fields.items():
+        spec_file = specs_dir / cap_name / "spec.md"
+        content = spec_file.read_text(encoding="utf-8")
+        refs = re.findall(r"GIVEN.*from\s+(\S+)", content)
+        for ref_cap in refs:
+            ref_cap_clean = ref_cap.rstrip(".")
+            if ref_cap_clean in cap_fields:
+                # Check if referenced fields exist in the target capability
+                ref_content = (specs_dir / ref_cap_clean / "spec.md").read_text(encoding="utf-8")
+                # Extract field names referenced from target
+                ref_fields = set(re.findall(r"GIVEN.*from\s+" + re.escape(ref_cap_clean) + r".*?(\w+)", content))
+                target_fields = cap_fields[ref_cap_clean]
+                missing = ref_fields - target_fields
+                if missing and ref_fields:
+                    gaps.append(f"{cap_name} -> {ref_cap_clean}: 引用未定义字段")
+
+    if gaps:
+        return ("FAIL", f"(k) 契约断层: {'; '.join(gaps[:3])}")
+    return ("PASS", f"(k) 契约一致 ({len(cap_fields)} capabilities)")
 
 
 def cmd_ci(args: argparse.Namespace) -> None:
@@ -332,7 +500,31 @@ def cmd_ci(args: argparse.Namespace) -> None:
         _cmd_generate(args, project_root, config)
     elif subcommand == "check-failures":
         _cmd_check_failures(args, project_root)
+    elif subcommand in ("check-scope", "check-coverage", "check-contracts"):
+        _run_single_check(args, project_root, subcommand)
     else:
         print(f" 未知子命令: {subcommand}")
-        print(" 可用: init, generate, check-failures")
+        print(" 可用: init, generate, check-failures, check-scope, check-coverage, check-contracts")
+        sys.exit(1)
+
+
+def _run_single_check(args: argparse.Namespace, project_root: Path, subcommand: str) -> None:
+    """Run a single named check and report result."""
+    from ..finder import find_change_dir
+
+    change_dir = find_change_dir(getattr(args, "name", None), project_root)
+    if change_dir is None:
+        print(f" 找不到 change: {getattr(args, 'name', None) or '(无)'}")
+        sys.exit(1)
+
+    check_map = {
+        "check-scope": check_scope_creep,
+        "check-coverage": check_coverage_vacuum,
+        "check-contracts": check_contract_gap,
+    }
+    fn = check_map[subcommand]
+    status, message = fn(change_dir, project_root)
+    symbol = {"PASS": "✓", "FAIL": "✗", "WARN": "⚠", "SKIP": "→"}
+    print(f"  {symbol.get(status, '?')} [{status}] {message}")
+    if status == "FAIL":
         sys.exit(1)
