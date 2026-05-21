@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STDD Playground — 5 分钟体验 Spec+Test 双驱动研发流程</title>
+    <meta name="description" content="无需安装，5 分钟直观感受 STDD 如何将模糊需求转化为高质量交付。双场景演示：API 限流（技术型）+ 用户购买升级Pro（业务型）。">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+            color: #515a6e;
+            background: #fff;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        /* Nav — reused from main site */
+        .nav {
+            width: 100%; height: 72px; background: #001036;
+            display: flex; align-items: center; justify-content: center;
+            position: fixed; top: 0; z-index: 100;
+        }
+        .nav-inner {
+            width: 1320px; max-width: 100%; padding: 0 24px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .nav-logo { font-size: 24px; font-weight: 700; color: #fff; letter-spacing: 2px; }
+        .nav-logo span { color: #78f8ff; }
+        .nav-links { display: flex; gap: 36px; }
+        .nav-links a { font-size: 16px; color: rgba(255,255,255,0.85); text-decoration: none; transition: color 0.2s; }
+        .nav-links a:hover { color: #78f8ff; }
+        .nav-links a.active { color: #78f8ff; }
+
+        .content { margin-top: 72px; }
+
+        /* Hero */
+        .hero {
+            background: linear-gradient(135deg, #001036 0%, #02226b 50%, #001036 100%);
+            padding: 100px 0 80px; text-align: center; color: #fff;
+        }
+        .hero h1 { font-size: 44px; font-weight: 700; letter-spacing: 3px; }
+        .hero h1 span { color: #78f8ff; }
+        .hero p { font-size: 18px; color: rgba(255,255,255,0.55); margin-top: 16px; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .hero .tag-row { margin-top: 24px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .hero .tag {
+            padding: 6px 18px; border-radius: 20px; font-size: 14px;
+            background: rgba(120,248,255,0.12); color: #78f8ff;
+        }
+
+        /* Scenario cards */
+        .scenarios {
+            max-width: 1100px; margin: -40px auto 80px; padding: 0 24px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+            position: relative; z-index: 1;
+        }
+        .scenario-card {
+            background: #fff; border-radius: 12px; padding: 40px 32px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none; color: inherit; display: block;
+            border-top: 4px solid #009573;
+        }
+        .scenario-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+        }
+        .scenario-card .sc-type {
+            display: inline-block; padding: 4px 14px; border-radius: 20px;
+            font-size: 13px; margin-bottom: 16px;
+            background: #e6f4f1; color: #009573; font-weight: 500;
+        }
+        .scenario-card .sc-type.tech { background: #dbeafe; color: #1e40af; }
+        .scenario-card h2 { font-size: 24px; color: #1a1a2e; margin-bottom: 8px; }
+        .scenario-card .sc-time { font-size: 14px; color: #919598; margin-bottom: 16px; }
+        .scenario-card .sc-desc { font-size: 15px; color: #515a6e; line-height: 1.8; }
+        .scenario-card .sc-highlights {
+            margin-top: 20px; display: flex; flex-wrap: wrap; gap: 8px;
+        }
+        .scenario-card .sc-highlights span {
+            padding: 4px 12px; border-radius: 4px; font-size: 13px;
+            background: #f3f4f6; color: #6b7280;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center; padding: 48px 24px; background: #f8f9fb;
+            color: #919598; font-size: 14px;
+        }
+        .footer a { color: #009573; text-decoration: none; }
+
+        @media (max-width: 768px) {
+            .scenarios { grid-template-columns: 1fr; margin-top: -20px; }
+            .hero { padding: 60px 0 50px; }
+            .hero h1 { font-size: 28px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo">STDD<span>·Playground</span></a>
+            <div class="nav-links">
+                <a href="../index.html">官网</a>
+                <a href="index.html" class="active">Playground</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="content">
+        <section class="hero">
+            <h1>体验 <span>STDD</span></h1>
+            <p>一个模糊需求，如何变成高质量交付物？选择一个场景，5 分钟走完完整 6 阶段流程。</p>
+            <div class="tag-row">
+                <span class="tag">无需安装</span>
+                <span class="tag">纯前端模拟</span>
+                <span class="tag">基于真实流程</span>
+            </div>
+        </section>
+
+        <section class="scenarios">
+            <a href="api-rate-limit/index.html" class="scenario-card">
+                <span class="sc-type tech">🐍 技术后端型</span>
+                <h2>API 限流</h2>
+                <p class="sc-time">预计体验时间：5 分钟</p>
+                <p class="sc-desc">为 API 增加基于 IP + Token 的速率限制功能。展示令牌桶算法选型、中间件架构设计、边界条件处理。</p>
+                <div class="sc-highlights">
+                    <span>令牌桶算法</span>
+                    <span>中间件架构</span>
+                    <span>Redis 存储</span>
+                    <span>6 Scenario</span>
+                    <span>22 TC</span>
+                </div>
+            </a>
+
+            <a href="user-pro-upgrade/index.html" class="scenario-card">
+                <span class="sc-type">💎 业务功能型</span>
+                <h2>用户购买升级 Pro</h2>
+                <p class="sc-time">预计体验时间：5 分钟</p>
+                <p class="sc-desc">用户在 SaaS 平台购买 Pro 服务，完成支付后自动升级会员。展示支付流程、状态机设计、多 capability 协作。</p>
+                <div class="sc-highlights">
+                    <span>支付流程</span>
+                    <span>状态机</span>
+                    <span>4 Capabilities</span>
+                    <span>契约设计</span>
+                    <span>24 TC</span>
+                </div>
+            </a>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <p>STDD — Spec+Test Driven Development · <a href="https://github.com/leonai42/stdd">GitHub</a></p>
+    </footer>
+</body>
+</html>

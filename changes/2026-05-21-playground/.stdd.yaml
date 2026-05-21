@@ -1,0 +1,27 @@
+change_id: 2026-05-21-playground
+current_phase: deliver
+design_adjustments:
+  count: 0
+phases:
+  build:
+    status: completed
+  deliver:
+    status: completed
+    confirmed_at: "2026-05-21"
+  slice:
+    status: completed
+  spec:
+    status: completed
+    confirmed_at: "2026-05-21"
+  understand:
+    status: completed
+    confirmed_at: "2026-05-21"
+  verify:
+    status: completed
+    confirmed_at: "2026-05-21"
+status: active
+traceability:
+  spec_scenarios: 23
+  tc_cases: 18
+  test_functions: 0
+version: '2.0'

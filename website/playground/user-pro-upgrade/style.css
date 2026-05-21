@@ -1,0 +1,14 @@
+/* STDD Playground — Scenario 2: User Pro Upgrade specific styles */
+
+/* Dependency chain visualization */
+.dep-chain {
+    display: flex; align-items: center; gap: 12px; padding: 16px 0;
+    flex-wrap: wrap; justify-content: center;
+}
+.dep-chain .dep-node {
+    padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 500;
+    background: #e6f4f1; color: #009573;
+}
+.dep-chain .dep-arrow {
+    font-size: 18px; color: #919598;
+}

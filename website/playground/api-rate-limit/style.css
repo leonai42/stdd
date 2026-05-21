@@ -1,0 +1,10 @@
+/* STDD Playground — Scenario 1: API Rate Limit specific styles */
+/* Most styling is in shared/ and inline. This file covers scenario-specific overrides. */
+
+/* Token bucket visualization */
+.token-bucket {
+    display: flex; gap: 6px; align-items: flex-end; height: 60px; padding: 8px 0;
+}
+.token-bucket .token {
+    width: 8px; background: #78f8ff; border-radius: 2px; transition: height 0.3s;
+}

@@ -1,0 +1,83 @@
+/* STDD Playground — Terminal simulation styles */
+/* Shared component: dark terminal with cursor animation */
+
+.terminal {
+    background: #1e1e2e;
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin: 16px 0;
+    font-family: 'Courier New', Courier, 'Noto Sans SC', monospace;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #cdd6f4;
+    overflow-x: auto;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.terminal::before {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 28px;
+    margin: -12px 0 12px -12px;
+    padding: 0 28px;
+    width: calc(100% + 24px);
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px 8px 0 0;
+}
+
+.terminal .prompt {
+    color: #a6e3a1;
+    user-select: none;
+}
+
+.terminal .prompt.dollar::before {
+    content: "$ ";
+}
+
+.terminal .prompt.arrow::before {
+    content: "> ";
+}
+
+.terminal .command {
+    color: #cdd6f4;
+}
+
+.terminal .output {
+    color: #bac2de;
+    white-space: pre-wrap;
+}
+
+.terminal .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 16px;
+    background: #a6e3a1;
+    vertical-align: text-bottom;
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* Terminal status bar dots (macOS style) */
+.terminal-dots {
+    position: absolute;
+    top: 10px;
+    left: 16px;
+    display: flex;
+    gap: 6px;
+}
+
+.terminal-dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.terminal-dots .dot-red    { background: #f38ba8; }
+.terminal-dots .dot-yellow { background: #fab387; }
+.terminal-dots .dot-green  { background: #a6e3a1; }

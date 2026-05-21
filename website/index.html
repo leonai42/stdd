@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit">
+    <meta name="applicable-device" content="pc">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>STDD V2.3 — Spec+Test Driven Development | 道以科技</title>
+    <meta name="keywords" content="STDD,Spec+Test,AI编程,TDD,研发流程,规范驱动,测试驱动,多语言,多平台">
+    <meta name="description" content="STDD V2.3（Spec+Test Driven Development）是一套AI辅助的研发流程系统，通过6个有序阶段+3道强制确认门，将模糊需求转化为高质量交付。支持Java/Go/Python/Rust/TypeScript，适配Claude Code/Cursor/Copilot/Aider/WorkBuddy/Trae六大AI平台。">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        ul, ol { list-style: none; }
+        a { text-decoration: none; color: inherit; }
+        img { -webkit-user-drag: none; image-rendering: smooth; }
+
+        html, body {
+            width: 100%;
+            font-family: 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+            color: #515a6e;
+            background: #fff;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        /* ===== Header ===== */
+        .nav-container {
+            width: 100%; text-align: center; display: flex; position: fixed; top: 0; z-index: 999;
+            justify-content: center; font-family: 'Source Han Sans CN', 'Noto Sans SC', 'PingFang SC', sans-serif;
+            background-color: rgba(0, 16, 54, 1); height: 72px;
+        }
+        .nav-wrapper {
+            width: 1320px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
+        }
+        .nav-logo { font-size: 28px; font-weight: 700; color: #fff; letter-spacing: 2px; }
+        .nav-logo span { color: #78f8ff; }
+        .nav-links { display: flex; gap: 48px; }
+        .nav-links a { font-size: 18px; color: rgba(255,255,255,0.85); transition: color 0.2s; }
+        .nav-links a:hover { color: rgba(120, 248, 255, 1); }
+        .nav-links a.active { color: rgba(120, 248, 255, 1); }
+
+        .content-wrapper { margin-top: 72px; }
+
+        /* ===== Section Common ===== */
+        .section { width: 100%; min-width: 1200px; display: flex; justify-content: center; padding: 80px 0; }
+        .section-inner { width: 1320px; padding: 0 20px; }
+        .section h2 { font-size: 32px; font-weight: 600; color: #1a1a2e; text-align: center; margin-bottom: 12px; }
+        .section .subtitle { text-align: center; color: #919598; font-size: 16px; margin-bottom: 48px; }
+
+        /* ===== Hero ===== */
+        .hero {
+            width: 100%; min-width: 1200px; position: relative;
+            background: linear-gradient(135deg, #001036 0%, #02226b 50%, #001036 100%);
+            padding: 120px 0 100px; text-align: center; color: #fff;
+        }
+        .hero h1 { font-size: 56px; font-weight: 700; letter-spacing: 4px; }
+        .hero h1 span { color: #78f8ff; }
+        .hero .hero-sub { font-size: 22px; color: rgba(255,255,255,0.6); margin-top: 16px; letter-spacing: 2px; }
+        .hero .hero-desc { font-size: 16px; color: rgba(255,255,255,0.45); max-width: 740px; margin: 24px auto 0; line-height: 1.8; }
+        .hero .hero-btns { margin-top: 40px; display: flex; gap: 20px; justify-content: center; }
+        .hero .version-badge {
+            display: inline-block; padding: 6px 16px; border-radius: 20px;
+            background: rgba(120,248,255,0.15); color: #78f8ff; font-size: 14px;
+            margin-bottom: 16px; letter-spacing: 2px;
+        }
+        .btn { display: inline-block; padding: 14px 40px; border-radius: 4px; font-size: 18px; cursor: pointer; transition: all 0.2s; font-weight: 500; }
+        .btn-primary { background: #009573; color: #fff; border: none; }
+        .btn-primary:hover { background: #00b388; }
+        .btn-outline { background: transparent; color: #78f8ff; border: 1.5px solid #78f8ff; }
+        .btn-outline:hover { background: rgba(120,248,255,0.08); }
+
+        /* ===== Phase Grid ===== */
+        .phase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .phase-card {
+            background: #fff; border-radius: 6px; padding: 32px 28px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06); transition: box-shadow 0.2s;
+            border-top: 3px solid #009573;
+        }
+        .phase-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.10); }
+        .phase-card .num { font-size: 13px; color: #009573; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; }
+        .phase-card h3 { font-size: 18px; color: #1a1a2e; margin: 8px 0 10px; }
+        .phase-card .produces { font-size: 13px; color: #919598; margin-bottom: 12px; }
+        .phase-card .gate {
+            display: inline-block; padding: 3px 12px; border-radius: 20px;
+            font-size: 12px; background: #e6f4f1; color: #009573;
+        }
+        .phase-card .gate.forced { background: #fef3c7; color: #92400e; }
+
+        /* ===== Features ===== */
+        .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .feature-item { display: flex; gap: 16px; background: #f8f9fb; padding: 24px; border-radius: 6px; transition: background 0.2s; }
+        .feature-item:hover { background: #e6f4f1; }
+        .feature-item .f-icon { width: 40px; height: 40px; flex-shrink: 0; background: #009573; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; }
+        .feature-item .f-text strong { display: block; color: #1a1a2e; margin-bottom: 4px; font-size: 16px; }
+        .feature-item .f-text span { color: #919598; font-size: 14px; }
+
+        /* ===== Tech Tags ===== */
+        .tech-tags { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
+        .tech-tags .tag {
+            padding: 8px 24px; border-radius: 4px; background: #e6f4f1;
+            color: #009573; font-size: 15px; font-weight: 500;
+        }
+
+        /* ===== Language Cards ===== */
+        .lang-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; }
+        .lang-card {
+            background: #fff; border-radius: 6px; padding: 28px 20px;
+            text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .lang-card:hover { transform: translateY(-4px); box-shadow: 0 6px 24px rgba(0,0,0,0.10); }
+        .lang-card .lang-icon { font-size: 36px; margin-bottom: 12px; }
+        .lang-card h4 { font-size: 18px; color: #1a1a2e; margin-bottom: 6px; }
+        .lang-card p { font-size: 13px; color: #919598; }
+
+        /* ===== Platform Cards ===== */
+        .platform-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+        .platform-card {
+            background: #fff; border-radius: 6px; padding: 24px 16px;
+            text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .platform-card:hover { transform: translateY(-4px); box-shadow: 0 6px 24px rgba(0,0,0,0.10); }
+        .platform-card .pf-icon { font-size: 32px; margin-bottom: 10px; }
+        .platform-card h4 { font-size: 15px; color: #1a1a2e; margin-bottom: 4px; }
+        .platform-card p { font-size: 12px; color: #919598; }
+
+        /* ===== Case Study ===== */
+        .case-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 36px; }
+        .case-metric {
+            background: linear-gradient(135deg, #001036 0%, #02226b 100%);
+            border-radius: 8px; padding: 28px 20px; text-align: center; color: #fff;
+        }
+        .case-metric .value { font-size: 36px; font-weight: 700; color: #78f8ff; }
+        .case-metric .label { font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 8px; }
+        .case-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 16px; }
+        .case-table th { background: #001036; color: #78f8ff; padding: 12px 16px; text-align: left; font-weight: 500; }
+        .case-table td { padding: 10px 16px; border-bottom: 1px solid #e8e8e8; }
+        .case-table tr:nth-child(even) td { background: #f8f9fb; }
+
+        /* ===== Download Box ===== */
+        .download-box {
+            max-width: 480px; margin: 0 auto; background: #fff; border-radius: 8px;
+            padding: 44px; text-align: center; box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        }
+        .download-box .ver { font-size: 28px; font-weight: 700; color: #1a1a2e; }
+        .download-box .ver span { color: #009573; font-size: 16px; display: block; margin-top: 4px; }
+        .download-box .date { font-size: 14px; color: #919598; margin: 8px 0 24px; }
+        .download-box .btn { width: 100%; }
+
+        /* ===== Quick Start ===== */
+        .qs-bg { background: linear-gradient(135deg, #001036 0%, #02226b 100%); }
+        .qs-bg h2 { color: #fff; }
+        .qs-bg .subtitle { color: rgba(255,255,255,0.5); }
+        .code-block {
+            max-width: 700px; margin: 0 auto; background: rgba(0,0,0,0.35); border-radius: 8px;
+            padding: 32px 36px; font-family: 'Courier New', Courier, monospace; font-size: 14px; line-height: 2.2; color: #c7d2fe;
+        }
+        .code-block .comment { color: #64748b; }
+
+        /* ===== Version Timeline ===== */
+        .timeline { max-width: 800px; margin: 0 auto; }
+        .timeline-item { display: flex; gap: 20px; margin-bottom: 24px; }
+        .timeline-item .tl-ver {
+            min-width: 80px; padding: 6px 16px; background: #009573; color: #fff;
+            border-radius: 4px; text-align: center; font-weight: 600; font-size: 14px; height: fit-content;
+        }
+        .timeline-item .tl-content { padding-top: 4px; }
+        .timeline-item .tl-content strong { display: block; color: #1a1a2e; margin-bottom: 4px; font-size: 16px; }
+        .timeline-item .tl-content span { color: #919598; font-size: 14px; }
+
+        /* ===== Footer ===== */
+        .footer-container {
+            width: 100%; min-width: 1200px; display: flex; flex-direction: column; align-items: center;
+            height: 200px; background: linear-gradient(180deg, #02226b 0%, #000b33 100%);
+            font-family: 'Source Han Sans CN', 'Noto Sans SC', 'PingFang SC', sans-serif;
+        }
+        .footer-content { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: rgba(255,255,255,0.7); font-size: 14px; gap: 8px; }
+        .footer-content a { color: #78f8ff; }
+
+        /* ===== Section Nav ===== */
+        .section-nav {
+            display: flex; justify-content: center; gap: 32px; margin-bottom: 56px;
+            font-size: 15px; color: #919598;
+        }
+        .section-nav a { padding: 6px 0; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .section-nav a:hover { color: #009573; border-bottom-color: #009573; }
+    </style>
+    <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?0ba7177c8ed66cb3ce480dd70af41855";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+</head>
+<body>
+
+<!-- Header -->
+<header class="nav-container">
+    <div class="nav-wrapper">
+        <a href="/" class="nav-logo">道以<span>科技</span></a>
+        <ul class="nav-links">
+            <li><a href="https://www.hzddyy.com/home">首页</a></li>
+            <li><a href="https://www.hzddyy.com/products">产品与服务</a></li>
+            <li><a href="/stdd/" class="active" onclick="_hmt.push(['_trackEvent','nav','click','stdd']);">STDD</a></li>
+            <li><a href="playground/index.html" onclick="_hmt.push(['_trackEvent','nav','click','playground']);">Playground</a></li>
+            <li><a href="https://www.hzddyy.com/aboutUs">关于我们</a></li>
+        </ul>
+    </div>
+</header>
+
+<div class="content-wrapper">
+
+<!-- Hero -->
+<section class="hero">
+    <div class="version-badge">V2.3 正式发布</div>
+    <h1>ST<span>DD</span></h1>
+    <p class="hero-sub">为高质量AI编程而生 · Spec + Test Driven Development</p>
+    <p class="hero-desc">
+        AI 编程不只是"写代码"，而是"写出正确的代码"——当全球共识遇见工程实践。<br>
+        6 个有序阶段 + 3 道强制确认门 + 11 类失败模式检查 + 双向可追溯。<br>
+        支持 Java / Go / Python / Rust / TypeScript，适配 6 大 AI 编程平台。
+    </p>
+    <div class="hero-btns">
+        <a href="/download/stdd-master.zip" class="btn btn-primary" onclick="_hmt.push(['_trackEvent','download','click','hero-download']);">下载 V2.3</a>
+        <a href="https://github.com/leonai42/stdd" class="btn btn-outline" onclick="_hmt.push(['_trackEvent','external','click','github-repo']);">GitHub 仓库</a>
+        <a href="#phases" class="btn btn-outline" style="margin-left:0;">了解流程</a>
+    </div>
+</section>
+
+<!-- 版本演进 -->
+<section class="section" style="background:#f8f9fb;">
+    <div class="section-inner">
+        <h2>版本演进</h2>
+        <p class="subtitle">从 V1.0 到 V2.3，每一次迭代都源于真实项目的反馈</p>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="tl-ver">V2.3</div>
+                <div class="tl-content">
+                    <strong>基础配套完善</strong>
+                    <span>多语言规范（Java/Go/Rust/TypeScript）+ 平台扩展至 6 个 + 配置模块化补完 + Skill 标准化</span>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="tl-ver">V2.2</div>
+                <div class="tl-content">
+                    <strong>流程体验优化</strong>
+                    <span>Gate 交互信息完善 + 长程模式可靠性提升</span>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="tl-ver">V2.1</div>
+                <div class="tl-content">
+                    <strong>方法论增强</strong>
+                    <span>全面修复 80 项评审问题 + 内置 Review 能力 + 质量体系强化</span>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="tl-ver">V2.0</div>
+                <div class="tl-content">
+                    <strong>架构升级</strong>
+                    <span>CLI 模块化拆分 + 11 个命令 + pytest 测试框架 + 配置拆分 + Skill 系统重构 + 文档生态</span>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="tl-ver">V1.x</div>
+                <div class="tl-content">
+                    <strong>基础建设</strong>
+                    <span>6 阶段流程 → 长程模式 → 11 类失败模式 → E2E 测试 → 覆盖率诊断</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 六阶段流程 -->
+<section class="section" id="phases">
+    <div class="section-inner">
+        <h2>六阶段流程</h2>
+        <p class="subtitle">从需求到交付，每阶段都有明确产出物与质量门</p>
+        <div class="phase-grid">
+            <div class="phase-card">
+                <div class="num">Phase 1</div>
+                <h3>UNDERSTAND · 需求理解</h3>
+                <p class="produces">产出：proposal.md · 模糊需求 → 可验证提案</p>
+                <span class="gate forced">Gate 1 · 强制确认</span>
+            </div>
+            <div class="phase-card">
+                <div class="num">Phase 2</div>
+                <h3>SPEC · 规格设计</h3>
+                <p class="produces">产出：design.md + specs/*.md + test-plan.md</p>
+                <span class="gate forced">Gate 2 · 强制确认（最关键）</span>
+            </div>
+            <div class="phase-card">
+                <div class="num">Phase 3</div>
+                <h3>SLICE · 切片规划</h3>
+                <p class="produces">产出：tasks.md + slices.md · 垂直切片 + 拓扑排序</p>
+                <span class="gate">Gate 2 后可长程自动</span>
+            </div>
+            <div class="phase-card">
+                <div class="num">Phase 4</div>
+                <h3>BUILD · TDD 实现</h3>
+                <p class="produces">RED → GREEN → REFACTOR 循环，逐切片推进</p>
+                <span class="gate">设计偏离自动记录</span>
+            </div>
+            <div class="phase-card">
+                <div class="num">Phase 5</div>
+                <h3>VERIFY · 质量验证</h3>
+                <p class="produces">全量测试 + 覆盖率 + E2E + 11 类故障检查 + Lint</p>
+                <span class="gate forced">Gate 3 · 强制确认</span>
+            </div>
+            <div class="phase-card">
+                <div class="num">Phase 6</div>
+                <h3>DELIVER · 交付</h3>
+                <p class="produces">归档至 archive/ + 合并 specs + git tag</p>
+                <span class="gate">自动执行</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- V2.3 新增亮点 -->
+<section class="section" style="background:#f8f9fb;">
+    <div class="section-inner">
+        <h2>V2.3 新增亮点</h2>
+        <p class="subtitle">基础配套全面完善，覆盖更多语言与平台</p>
+        <div class="features-grid">
+            <div class="feature-item">
+                <div class="f-icon">&#127760;</div>
+                <div class="f-text">
+                    <strong>多语言规范</strong>
+                    <span>新增 Java / Go / Rust / TypeScript 开发规范，覆盖 5 大主流语言</span>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="f-icon">&#9883;</div>
+                <div class="f-text">
+                    <strong>平台扩展至 6 个</strong>
+                    <span>新增 Cursor、Copilot、Aider 平台支持，覆盖主流 AI 编程工具</span>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="f-icon">&#9878;</div>
+                <div class="f-text">
+                    <strong>配置模块化</strong>
+                    <span>config.yaml 拆分为 config.d/ 多文件配置，按场景灵活组合</span>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="f-icon">&#10003;</div>
+                <div class="f-text">
+                    <strong>Skill 标准化</strong>
+                    <span>6 个阶段 Skill 统一格式，内置 Review 能力，跨平台一致体验</span>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="f-icon">&#9745;</div>
+                <div class="f-text">
+                    <strong>Gate 交互增强</strong>
+                    <span>V2.2 完善确认门信息展示，决策依据更清晰，减少认知负担</span>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="f-icon">&#9889;</div>
+                <div class="f-text">
+                    <strong>长程模式可靠性</strong>
+                    <span>V2.2 提升长程无人值守稳定性，Phase 3-5 自动执行更可靠</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 核心能力 -->
+<section class="section">
+    <div class="section-inner">
+        <h2>核心能力</h2>
+        <p class="subtitle">不只是流程，更是一套完整的内置质量体系</p>
+        <div class="features-grid">
+            <div class="feature-item">
+                <div class="f-icon">&#9998;</div>
+                <div class="f-text">
+                    <strong>Spec 先行</strong>
+                    <span>GIVEN/WHEN/THEN 格式定义行为，杜绝需求歧义。THEN 中 SHALL 标记强制行为</span>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="f-icon">&#9873;</div>
+                <div class="f-text">
+                    <strong>3 道强制确认门</strong>
+                    <span>需求、设计、验证三处用户确认不可跳过。Gate 2 是分水岭，之后可全自动执行</span>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="f-icon">&#9889;</div>
+                <div class="f-text">
+                    <strong>长程无人值守</strong>
+                    <span>Gate 2 后选择长程模式，Phase 3-5 全自动连续执行，90%+ 操作无需人工干预</span>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="f-icon">&#9733;</div>
+                <div class="f-text">
+                    <strong>双向可追溯</strong>
+                    <span>Scenario → TC-ID → 测试函数 → 源码，完整映射链可查询。stdd trace 命令一键追溯</span>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="f-icon">&#9888;</div>
+                <div class="f-text">
+                    <strong>11 类故障检查</strong>
+                    <span>幻觉行为、范围蔓延、级联错误、上下文丢失、工具误用、运行时偏差、管线断链、内容质量偏差、指令衰减、覆盖真空、契约断层</span>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="f-icon">&#9776;</div>
+                <div class="f-text">
+                    <strong>覆盖差异分析</strong>
+                    <span>stdd diff — 输出 spec 与测试之间的覆盖缺口对比表，一目了然</span>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="f-icon">&#9993;</div>
+                <div class="f-text">
+                    <strong>设计调整追溯</strong>
+                    <span>实现过程中的任何设计偏离自动记录到 design-adjustments.md，Gate 3 统一审核</span>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="f-icon">&#8651;</div>
+                <div class="f-text">
+                    <strong>11 命令 CLI 工具</strong>
+                    <span>init / install / new / validate / status / archive / trace / diff / rollback / abort / --dry-run</span>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="f-icon">&#9745;</div>
+                <div class="f-text">
+                    <strong>内置 Review 审查</strong>
+                    <span>V2.1 起内置代码审查能力，AI 实现后自动 Review，确保质量一致性</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 多语言规范 -->
+<section class="section" style="background:#f8f9fb;">
+    <div class="section-inner">
+        <h2>多语言规范</h2>
+        <p class="subtitle">V2.3 新增 4 门语言开发规范，覆盖量化交易常用的 Go / Rust 高性能语言。Phase 4 开始前自动加载对应规范</p>
+        <div class="lang-grid">
+            <div class="lang-card">
+                <div class="lang-icon">&#128013;</div>
+                <h4>Python</h4>
+                <p>V1.0 起支持<br>覆盖 PEP 8 + 类型注解 + pytest</p>
+            </div>
+            <div class="lang-card">
+                <div class="lang-icon">&#9749;</div>
+                <h4>Java</h4>
+                <p>V2.3 新增<br>JUnit 5 + Mockito + Checkstyle</p>
+            </div>
+            <div class="lang-card">
+                <div class="lang-icon">&#128039;</div>
+                <h4>Go</h4>
+                <p>V2.3 新增<br>testing + testify + golangci-lint<br><small style="color:#009573;">量化回测/执行引擎首选</small></p>
+            </div>
+            <div class="lang-card">
+                <div class="lang-icon">&#9881;</div>
+                <h4>Rust</h4>
+                <p>V2.3 新增<br>cargo test + clippy + rustfmt<br><small style="color:#009573;">超低延迟量化场景</small></p>
+            </div>
+            <div class="lang-card">
+                <div class="lang-icon">&#128293;</div>
+                <h4>TypeScript</h4>
+                <p>V2.3 新增<br>Jest + ESLint + Prettier</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 金融量化开发 -->
+<section class="section" style="background:#f8f9fb;">
+    <div class="section-inner">
+        <h2>金融量化开发</h2>
+        <p class="subtitle">STDD 从设计之初就内置金融领域知识，对量化交易场景有天然适配性</p>
+
+        <div class="features-grid" style="grid-template-columns: repeat(2, 1fr);">
+            <div class="feature-item">
+                <div class="f-icon">&#128200;</div>
+                <div class="f-text">
+                    <strong>金融概念深度理解</strong>
+                    <span>内置对夏普比率、最大回撤、VaR、期权定价、ATR 止损、资金费率等金融专有概念的深度理解，Spec 设计阶段自动校验公式正确性</span>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="f-icon">&#9889;</div>
+                <div class="f-text">
+                    <strong>交易精度约束</strong>
+                    <span>自动识别浮点精度风险，强制 Decimal 类型使用，防止 AI "编造"交易指标计算逻辑</span>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="f-icon">&#128274;</div>
+                <div class="f-text">
+                    <strong>风控规则强制校验</strong>
+                    <span>日亏损限制、连亏降仓、挂单数量限制、信号冷却期等风控规则在 Spec 阶段即被植入，AI 无法"跳过"</span>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="f-icon">&#128221;</div>
+                <div class="f-text">
+                    <strong>审计日志全量记录</strong>
+                    <span>API 密钥 AES 加密管理、订单全链路追踪、数据血缘追溯，满足金融监管合规要求</span>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="f-icon">&#128268;</div>
+                <div class="f-text">
+                    <strong>多语言量化技术栈</strong>
+                    <span>Python（策略原型/回测）+ Go（执行引擎/数据管线）+ Rust（超低延迟模块），STDD 均有对应规范</span>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="f-icon">&#128260;</div>
+                <div class="f-text">
+                    <strong>零容错质量保障</strong>
+                    <span>11 类失败模式检查确保 AI 不会"编造"交易逻辑、夸大回测性能、或悄悄修改风控参数</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 平台支持 -->
+<section class="section">
+    <div class="section-inner">
+        <h2>六大 AI 平台支持</h2>
+        <p class="subtitle">一套 Skill 定义，自动生成多平台适配文件。一次安装，多处使用</p>
+        <div class="platform-grid">
+            <div class="platform-card">
+                <div class="pf-icon">&#9642;</div>
+                <h4>Claude Code</h4>
+                <p>/stdd-xxx 斜杠命令</p>
+            </div>
+            <div class="platform-card">
+                <div class="pf-icon">&#9000;</div>
+                <h4>Cursor</h4>
+                <p>项目规则自动加载</p>
+            </div>
+            <div class="platform-card">
+                <div class="pf-icon">&#9741;</div>
+                <h4>GitHub Copilot</h4>
+                <p>copilot-instructions.md</p>
+            </div>
+            <div class="platform-card">
+                <div class="pf-icon">&#9881;</div>
+                <h4>Aider</h4>
+                <p>.aider.conf.yml</p>
+            </div>
+            <div class="platform-card">
+                <div class="pf-icon">&#9776;</div>
+                <h4>WorkBuddy</h4>
+                <p>关键词匹配触发</p>
+            </div>
+            <div class="platform-card">
+                <div class="pf-icon">&#9654;</div>
+                <h4>Trae</h4>
+                <p>/stdd-xxx 斜杠命令</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 实战案例：FPPT 项目 -->
+<section class="section" style="background:#f8f9fb;">
+    <div class="section-inner">
+        <h2>实战案例：FPPT 项目</h2>
+        <p class="subtitle">基于 STDD V1.2 流程，5 天完成从 0 到可发布产品的 AI 驱动 PPT 生成系统</p>
+
+        <div class="case-metrics">
+            <div class="case-metric">
+                <div class="value">27,826</div>
+                <div class="label">代码行数（不含 node_modules）</div>
+            </div>
+            <div class="case-metric">
+                <div class="value">100%</div>
+                <div class="label">测试通过率（326 个可执行用例）</div>
+            </div>
+            <div class="case-metric">
+                <div class="value">90%+</div>
+                <div class="label">AI 自动化率（Phase 3-5 长程模式）</div>
+            </div>
+            <div class="case-metric">
+                <div class="value">1,400</div>
+                <div class="label">人效比（行/人时）</div>
+            </div>
+        </div>
+
+        <table class="case-table">
+            <tr><th>维度</th><th>数据</th></tr>
+            <tr><td><strong>研发周期</strong></td><td>5 个自然日，8 个完整 Change 周期</td></tr>
+            <tr><td><strong>规格文件</strong></td><td>41 份 spec.md，152+ 条 Requirements，319+ 个 Scenarios</td></tr>
+            <tr><td><strong>测试用例</strong></td><td>336+ 条 TC，测试代码 5,227 行，占业务代码 42.2%</td></tr>
+            <tr><td><strong>Spec 驱动比</strong></td><td>81 行代码 / 条 Requirement</td></tr>
+            <tr><td><strong>测试密度</strong></td><td>每 2.4 行业务代码对应 1 行测试代码</td></tr>
+        </table>
+
+        <p style="text-align:center;margin-top:8px;font-size:14px;color:#919598;">
+            * 数据来源：小以AI实验室 FPPT 项目（2026-05-06 ~ 2026-05-10）
+        </p>
+    </div>
+</section>
+
+<!-- 实战案例：TStrategy 量化交易系统 -->
+<section class="section">
+    <div class="section-inner">
+        <h2>实战案例：TStrategy 量化交易系统</h2>
+        <p class="subtitle">基于 STDD 方法论开发的中短线趋势策略系统，已迭代至 V4.2 稳定版。从回测平台到实盘执行，全流程 Spec 约束 + TDD 覆盖</p>
+
+        <div class="case-metrics">
+            <div class="case-metric">
+                <div class="value">V4.2</div>
+                <div class="label">当前稳定版本</div>
+            </div>
+            <div class="case-metric">
+                <div class="value">19,500+</div>
+                <div class="label">测试代码行数</div>
+            </div>
+            <div class="case-metric">
+                <div class="value">多周期</div>
+                <div class="label">多维度策略信号体系</div>
+            </div>
+            <div class="case-metric">
+                <div class="value">全链路</div>
+                <div class="label">回测→执行→风控→报告</div>
+            </div>
+        </div>
+
+        <table class="case-table">
+            <tr><th>维度</th><th>工程实践</th></tr>
+            <tr><td><strong>策略架构</strong></td><td>多层评分决策体系 + 多级置信度 + 多周期协同信号，支持策略参数化配置和热更新</td></tr>
+            <tr><td><strong>回测平台</strong></td><td>内置历史数据回测引擎，支持多品种并行回测、参数网格搜索、绩效归因分析（收益率/夏普/最大回撤）</td></tr>
+            <tr><td><strong>风控体系</strong></td><td>多层风控防护：动态止损止盈 + 仓位缩放 + 日亏损熔断 + 信号冷却期，所有风控规则均为 Spec SHALL 约束</td></tr>
+            <tr><td><strong>数据管线</strong></td><td>实时行情接入 + 本地缓存 + 增量更新 + 数据完整性校验，Parquet 压缩存储</td></tr>
+            <tr><td><strong>状态管理</strong></td><td>服务重启自动恢复完整状态（持仓/订单/信号/资产快照），关键操作即时持久化，API 密钥加密存储</td></tr>
+            <tr><td><strong>部署架构</strong></td><td>服务端独立部署 + 远程管理客户端 + 本地直接运行，支持 headless 无人值守</td></tr>
+        </table>
+
+        <p style="text-align:center;margin-top:16px;font-size:14px;color:#919598;">
+            TStrategy 是 STDD 方法论在<strong style="color:#009573;">量化交易</strong>领域的典型实践 —— <strong>策略细节属于核心机密，但研发流程和工程质量可以充分展示：</strong>19,500+ 行测试代码、完整的 changes/ + specs/ 目录、每次策略迭代走完整六阶段流程
+        </p>
+    </div>
+</section>
+
+<!-- 实战案例：Visio Flowchart Skill（小型项目） -->
+<section class="section" style="background:#f8f9fb;">
+    <div class="section-inner">
+        <h2>实战案例：Visio Flowchart Skill（小型项目）</h2>
+        <p class="subtitle">用自然语言生成规范的 Visio 流程图 —— 1 小时以内，完整 STDD 六阶段流程，7 个 Capability 全量覆盖</p>
+
+        <div class="case-metrics">
+            <div class="case-metric">
+                <div class="value">271 行</div>
+                <div class="label">核心交付件（SKILL.md）</div>
+            </div>
+            <div class="case-metric">
+                <div class="value">29 TC</div>
+                <div class="label">100% 通过率</div>
+            </div>
+            <div class="case-metric">
+                <div class="value">7 个</div>
+                <div class="label">垂直切片 / Capability</div>
+            </div>
+            <div class="case-metric">
+                <div class="value">0 C / 0 H</div>
+                <div class="label">三路并行审查零严重问题</div>
+            </div>
+        </div>
+
+        <table class="case-table">
+            <tr><th>维度</th><th>工程实践</th></tr>
+            <tr><td><strong>项目类型</strong></td><td>Claude Code 自定义 Skill — 自然语言 → ISO 5807 标准 Visio 流程图（.vsdx），支持泳道图</td></tr>
+            <tr><td><strong>STDD 流程</strong></td><td>完整六阶段：proposal（7 Capability + 7 成功标准）→ 7 spec + test-plan（16 Requirements / 29 Scenarios）→ 7 垂直切片 → TDD 实现 → 三路并行审查 → 归档</td></tr>
+            <tr><td><strong>核心特性</strong></td><td>自然语言意图解析 + ISO 5807 形状自动映射 + 公司规范覆盖（standards.md）+ 复杂度自适应（≤5 节点直接生成） + 内置常见流程模板</td></tr>
+            <tr><td><strong>质量验证</strong></td><td>29/29 TC 通过 + 11 类失败模式检查 + 4 项设计调整记录（design-adjustments.md）</td></tr>
+            <tr><td><strong>开发周期</strong></td><td>1 小时以内，单日完成从 proposal 到归档的完整闭环</td></tr>
+        </table>
+
+        <p style="text-align:center;margin-top:16px;font-size:14px;color:#919598;">
+            这个案例证明：<strong style="color:#009573;">STDD 不只适用于中大型项目，小型任务同样能从中获益</strong> —— 271 行交付件依然有 7 个 spec、29 个 TC、11 类检查，质量不因规模而妥协
+        </p>
+    </div>
+</section>
+
+<!-- 技术栈 -->
+<section class="section">
+    <div class="section-inner">
+        <h2>技术栈</h2>
+        <p class="subtitle">轻量可移植，零外部运行时依赖。纯 Markdown 流程驱动 + YAML 模块化配置</p>
+        <div class="tech-tags">
+            <span class="tag">Python 3.10+</span>
+            <span class="tag">pytest 7.0+</span>
+            <span class="tag">PyYAML</span>
+            <span class="tag">纯 Markdown 流程驱动</span>
+            <span class="tag">YAML 模块化配置</span>
+            <span class="tag">多平台适配层</span>
+            <span class="tag">Java 规范</span>
+            <span class="tag">Go 规范</span>
+            <span class="tag">Rust 规范</span>
+            <span class="tag">TypeScript 规范</span>
+        </div>
+    </div>
+</section>
+
+<!-- 下载 -->
+<section class="section" style="background:#f8f9fb;">
+    <div class="section-inner">
+        <h2>获取 STDD</h2>
+        <p class="subtitle">克隆仓库后安装到你的项目，即可在 6 大 AI 平台中使用</p>
+        <div class="download-box">
+            <div class="ver">STDD V2.3<span>Spec+Test Driven Development</span></div>
+            <div class="date">发布于 2026-05-18 · MIT License</div>
+            <a href="/download/stdd-master.zip" class="btn btn-primary" onclick="_hmt.push(['_trackEvent','download','click','box-download']);">下载 stdd-master.zip</a>
+            <p style="margin-top:20px;font-size:14px;color:#919598;">
+                或访问 <a href="https://github.com/leonai42/stdd" style="color:#009573;">GitHub 仓库</a>
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- 快速开始 -->
+<section class="section qs-bg">
+    <div class="section-inner">
+        <h2>快速开始</h2>
+        <p class="subtitle">三步在你的项目中启用 STDD，支持 6 大 AI 平台</p>
+        <div class="code-block">
+            <span class="comment"># 1. 初始化 STDD 目录结构</span><br>
+            python /path/to/stdd/bin/stdd init<br>
+            <span class="comment"># 2. 安装技能到 AI 平台（以 Claude Code 为例）</span><br>
+            python /path/to/stdd/bin/stdd install claude-code<br>
+            <span class="comment"># 3. 开始第一个需求</span><br>
+            /stdd-understand 你的需求描述<br>
+            <br>
+            <span class="comment"># 也支持 Cursor、Copilot、Aider、WorkBuddy、Trae</span><br>
+            python /path/to/stdd/bin/stdd install cursor<br>
+            python /path/to/stdd/bin/stdd install copilot<br>
+            python /path/to/stdd/bin/stdd install aider
+        </div>
+    </div>
+</section>
+
+<!-- 适合谁 -->
+<section class="section">
+    <div class="section-inner">
+        <h2>适合谁</h2>
+        <p class="subtitle">STDD 特别适合以下场景和团队</p>
+        <div class="features-grid" style="grid-template-columns: repeat(2, 1fr);">
+            <div class="feature-item">
+                <div class="f-icon">&#127970;</div>
+                <div class="f-text">
+                    <strong>金融 / 医疗 IT 团队</strong>
+                    <span>需要高可靠性、强合规性、全链路追溯的高风险领域</span>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="f-icon">&#128187;</div>
+                <div class="f-text">
+                    <strong>AI 编程实践者</strong>
+                    <span>想用 AI 写代码，但经常遇到"AI 跑偏"问题的开发者</span>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="f-icon">&#128101;</div>
+                <div class="f-text">
+                    <strong>技术团队 Leader</strong>
+                    <span>想引入 AI 辅助研发，需要保证代码质量和可追溯性</span>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="f-icon">&#128214;</div>
+                <div class="f-text">
+                    <strong>开源项目维护者</strong>
+                    <span>接受 AI 贡献代码，但担心不可追溯、质量不可控</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+</div><!-- /content-wrapper -->
+
+<!-- Footer -->
+<footer class="footer-container">
+    <div class="footer-content">
+        <p>STDD V2.3 · <a href="https://github.com/leonai42/stdd">GitHub</a> · <a href="/download/stdd-master.zip" onclick="_hmt.push(['_trackEvent','download','click','footer-download']);">下载</a> · MIT License</p>
+        <p>Spec 先行，TDD 执行，质量不靠运气，靠系统。</p>
+        <p style="color:rgba(255,255,255,0.4);">杭州大道一以科技有限公司</p>
+    </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STDD Playground — 用户购买升级 Pro（业务型）</title>
+    <meta name="description" content="体验 STDD 如何处理业务功能型需求：用户购买升级 Pro 会员，从需求到交付的 6 阶段完整流程（多 capability 协作）。">
+    <link rel="stylesheet" href="../shared/terminal.css">
+    <link rel="stylesheet" href="../shared/badge.css">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://unpkg.com/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin:0;padding:0;box-sizing:border-box; }
+        body {
+            font-family: 'Noto Sans SC','PingFang SC','Microsoft YaHei',Arial,sans-serif;
+            color:#515a6e; background:#fff; font-size:16px; line-height:1.7;
+        }
+        .nav { width:100%;height:64px;background:#001036;display:flex;align-items:center;justify-content:center;position:fixed;top:0;z-index:100; }
+        .nav-inner { width:1320px;max-width:100%;padding:0 24px;display:flex;justify-content:space-between;align-items:center; }
+        .nav-logo { font-size:20px;font-weight:700;color:#fff;text-decoration:none; }
+        .nav-logo span { color:#78f8ff; }
+        .nav-links { display:flex;gap:24px; }
+        .nav-links a { font-size:14px;color:rgba(255,255,255,0.8);text-decoration:none; }
+        .nav-links a:hover { color:#78f8ff; }
+        .container { margin-top:64px; max-width:900px; margin-left:auto;margin-right:auto;padding:0 24px 80px; }
+
+        .pg-hero { text-align:center;padding:64px 0 40px; }
+        .pg-hero h1 { font-size:36px;font-weight:700;color:#1a1a2e; }
+        .pg-hero-sub { font-size:16px;color:#919598;margin-top:8px; }
+
+        .pg-phase { margin:40px 0;padding:32px;border-radius:12px;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,0.06);transition:opacity 0.4s ease; }
+        .pg-phase--dimmed { opacity:0.3; }
+        .pg-phase-header { display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #e5e7eb; }
+        .pg-phase-num { font-size:13px;font-weight:600;color:#009573;letter-spacing:2px;text-transform:uppercase; }
+        .pg-phase-header h2 { font-size:22px;color:#1a1a2e; }
+
+        .pg-section { margin:16px 0; }
+        .pg-md-content { line-height:1.8; }
+        .pg-md-content h3 { font-size:18px;color:#1a1a2e;margin:16px 0 8px; }
+        .pg-md-content ul { padding-left:20px; }
+        .pg-md-content li { margin:4px 0; }
+        .pg-md-content strong { color:#1a1a2e; }
+
+        .pg-table { width:100%;border-collapse:collapse;font-size:14px;margin:12px 0; }
+        .pg-table th { background:#001036;color:#78f8ff;padding:10px 14px;text-align:left;font-weight:500; }
+        .pg-table td { padding:8px 14px;border-bottom:1px solid #e5e7eb; }
+        .pg-table tr:nth-child(even) td { background:#f8f9fb; }
+
+        .pg-cards-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:16px; }
+        .pg-card { background:#f8f9fb;border-radius:8px;padding:20px;text-align:center; }
+        .pg-card-icon { font-size:28px;display:block;margin-bottom:8px; }
+        .pg-card strong { display:block;color:#1a1a2e;margin-bottom:4px;font-size:14px; }
+        .pg-card p { font-size:13px;color:#919598; }
+
+        .pg-input-block { margin:16px 0; }
+
+        .pg-cta { text-align:center;padding:60px 0; }
+        .pg-cta h2 { font-size:28px;color:#1a1a2e;margin-bottom:24px; }
+        .pg-cta-btns { margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap; }
+
+        @media (max-width:768px) {
+            .container { padding:0 16px 60px; }
+            .pg-phase { padding:20px 16px; }
+            .pg-hero h1 { font-size:24px; }
+            .pg-cards-grid { grid-template-columns:1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo">STDD<span>·Playground</span></a>
+            <div class="nav-links">
+                <a href="../../index.html">官网</a>
+                <a href="../index.html">Playground</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" id="stepper-root"></div>
+
+    <script src="data.js"></script>
+    <script src="../shared/stepper.js"></script>
+    <script src="https://unpkg.com/prismjs@1.29.0/components/prism-core.min.js"></script>
+    <script src="https://unpkg.com/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Stepper.init('stepper-root', SCENARIO_DATA);
+        });
+    </script>
+</body>
+</html>

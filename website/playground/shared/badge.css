@@ -1,0 +1,180 @@
+/* STDD Playground — Gate badge styles */
+/* Three gate levels with distinct visual treatment */
+
+.gate {
+    position: relative;
+    margin: 32px 0;
+    padding: 24px 28px;
+    border-radius: 10px;
+    border: 2px solid;
+    background: #fff;
+    transition: all 0.3s ease;
+}
+
+.gate-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.gate-icon {
+    font-size: 24px;
+}
+
+/* Gate 1 — scope confirmation */
+.gate-1 {
+    border-color: #f59e0b;
+    background: linear-gradient(135deg, #fffbeb 0%, #fff 100%);
+}
+.gate-1 .gate-header { color: #92400e; }
+
+/* Gate 2 — design baseline (most critical) */
+.gate-2 {
+    border-color: #f59e0b;
+    background: linear-gradient(135deg, #fef3c7 0%, #fff 100%);
+    box-shadow: 0 0 0 4px rgba(245,158,11,0.15);
+}
+.gate-2 .gate-header { color: #92400e; }
+
+/* Gate 3 — final quality gate */
+.gate-3 {
+    border-color: #009573;
+    background: linear-gradient(135deg, #e6f4f1 0%, #fff 100%);
+}
+.gate-3 .gate-header { color: #009573; }
+
+/* Passed state */
+.gate.passed {
+    border-color: #009573;
+    background: linear-gradient(135deg, #e6f4f1 0%, #f8f9fb 100%);
+}
+.gate.passed .gate-header { color: #009573; }
+.gate.passed .gate-icon::after {
+    content: " ✓";
+    color: #009573;
+    font-size: 18px;
+}
+
+/* Locked state */
+.gate.locked {
+    border-color: #d1d5db;
+    background: #f9fafb;
+    opacity: 0.7;
+}
+.gate.locked .gate-header { color: #9ca3af; }
+
+/* Gate interaction area */
+.gate-interact {
+    margin-top: 16px;
+}
+
+.gate-checklist {
+    list-style: none;
+    padding: 0;
+}
+
+.gate-checklist li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    margin: 6px 0;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 15px;
+    color: #374151;
+}
+
+.gate-checklist li:hover {
+    border-color: #009573;
+    background: #e6f4f1;
+}
+
+.gate-checklist li.checked {
+    border-color: #009573;
+    background: #e6f4f1;
+    color: #009573;
+}
+
+.gate-checklist li.checked::before {
+    content: "✓";
+    font-weight: 700;
+    color: #009573;
+}
+
+.gate-btn {
+    display: inline-block;
+    padding: 12px 32px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    background: #009573;
+    color: #fff;
+}
+
+.gate-btn:hover {
+    background: #00b388;
+}
+
+.gate-btn:disabled {
+    background: #d1d5db;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* Gate modal overlay */
+.gate-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.gate-modal {
+    width: 100%;
+    max-width: 600px;
+    max-height: 70vh;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 16px 16px 0 0;
+    padding: 32px 28px;
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.15);
+    transform: translateY(100%);
+    animation: slideUp 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+}
+
+/* Mobile: fixed bottom */
+@media (max-width: 768px) {
+    .gate {
+        margin: 20px 0;
+        padding: 16px 18px;
+    }
+    .gate-modal {
+        max-width: 100%;
+        border-radius: 16px 16px 0 0;
+        padding: 24px 18px;
+    }
+}
