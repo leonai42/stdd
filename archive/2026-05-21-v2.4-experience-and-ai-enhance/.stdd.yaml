@@ -1,0 +1,26 @@
+change_id: 2026-05-21-v2.4-experience-and-ai-enhance
+current_phase: verify
+long_range:
+  enabled: true
+  mode: full_auto
+phases:
+  build:
+    status: completed
+  deliver:
+    status: pending
+  slice:
+    status: completed
+  spec:
+    confirmed_at: '2026-05-21'
+    status: completed
+  understand:
+    confirmed_at: '2026-05-21'
+    status: completed
+  verify:
+    status: in_progress
+status: archived
+traceability:
+  spec_scenarios: 43
+  tc_cases: 31
+  test_functions: 32
+version: '2.0'

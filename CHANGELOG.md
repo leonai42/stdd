@@ -1,5 +1,47 @@
 # STDD 变更日志 / Changelog
 
+## V2.4 (2026-05-21) — AI 辅助增强 + 自学习经验库 + CI/CD 集成 / AI-Assisted Enhancement + Self-Learning Experience Library + CI/CD Integration
+
+### 自学习经验库 / Self-Learning Experience Library
+- 新增 `stdd experience` CLI 命令组：list / add / stats / export / pull（5 子命令）
+- 经验数据模型：YAML frontmatter + Markdown body，11 类失败模式分类
+- 自动维护 `.experience-index.yaml` 索引（按 category/language/lifecycle/severity 分组）
+- 经验自动记录（Phase 5 VERIFY）和智能加载（Phase 4 BUILD）
+- 导出脱敏：路径/IP/域名自动替换占位符，支持 `--no-sanitize` 保留原始内容
+- 配置：`.stdd/config.d/experience.yaml`
+
+### Spec 自动补全 / Spec Auto-Complete
+- 新增 `stdd extract-proposal` CLI：从 proposal.md 提取结构化数据（JSON/YAML）
+- `spec.md` 技能增强：自动生成 spec 草稿 + 置信度标签（✓高/⚠低）
+- 新增模板：`.stdd/templates/spec-draft.md`
+- `proposal.md` 模板增加 STDD-MARKER 提取标记
+
+### 智能切片推荐 / Smart Slice Recommendation
+- 新增 `stdd dependency-graph` CLI：构建 spec 依赖图（JSON/DOT/Text 三格式）
+- 环检测 + 零依赖节点识别 + 拓扑排序
+- `slice.md` 技能增强：五步分析（依赖图 → 风险评分 → 工作量预估 → 智能分组 → 并行化建议）
+- `slices.md` 模板增强：增加 risk/effort/parallel_group/rationale 列
+
+### CI/CD 集成 / CI/CD Integration
+- 新增 `stdd ci` CLI 命令组：init / generate / check-failures（3 子命令）
+- GitHub Actions workflow 模板（validate + test + diff + lint + typecheck + failure-check）
+- Pre-commit hook 模板（validate + lint）
+- PR comment 模板（质量门禁结果展示）
+- CLI 确定性子集检查（~60% 失败模式覆盖：文件存在性/TC-ID 唯一性/SHALL 关键字/AND 计数）
+
+### 技能系统 / Skill System
+- `build.md`：新增 Step 0.5 经验加载 + RED/GREEN 经验检查点
+- `verify.md`：新增 Step 3.5 经验自动记录/更新 + 步骤从 6 增至 7
+- `spec.md`：替换 Step 2-3 为自动提取流程，用户角色从"写 spec"变为"审 spec"
+- `slice.md`：替换 Step 2 为五步分析
+- 新增模板：`spec-draft.md`（AI 生成 spec 草稿）
+
+### 测试 / Tests
+- 新增 45 个测试用例（test_experience: 13, test_extract_proposal: 7, test_dependency_graph: 10, test_ci: 14 + 1）
+- 全量回归 109/109 通过（0 回归，现有 11 个命令不受影响）
+
+---
+
 ## V2.3 (2026-05-18) — 基础配套完善 / Foundation Completion
 
 ### 多语言规范 / Multi-Language Standards

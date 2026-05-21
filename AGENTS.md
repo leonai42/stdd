@@ -11,11 +11,12 @@ STDD is an AI-assisted development methodology that ensures quality through Spec
 .stdd/                  # STDD 核心系统 / Core system
   skills/               # 6 个阶段 Skill 文件 / 6 phase skill files
     _shared/            # DRY 共享片段（确认门/模式选择/长程授权）
-  templates/            # 9 个文档模板 / 9 document templates
+  templates/            # 10 个文档模板 / 10 document templates
   standards/            # 5 语言开发规范 / 5 language dev standards
-  config.d/             # 模块化配置 / Modular config (project/gates/long_range/quality)
+  config.d/             # 模块化配置 / Modular config (project/gates/long_range/quality/experience)
   platforms/            # 6 平台适配层 / 6 platform adapters
-stdd/cli/               # CLI 模块 / CLI modules
+  experiences/          # 经验库 / Experience library (V2.4+)
+stdd/cli/               # CLI 模块 / CLI modules (15 命令)
 bin/stdd                # CLI 入口 / CLI entry point
 changes/                # 活跃变更 / Active changes
 specs/                  # 主规范 / Master specs
@@ -43,5 +44,7 @@ archive/                # 已完成变更 / Completed changes
 - STDD 系统独立自建，核心为纯 Markdown Skill 文件，辅以 Python CLI 脚本
 - 混合模式：Skill 负责流程控制（"怎么想"），CLI 负责结构化操作（"做什么"）
 - 跨平台兼容：一套核心 Skill → `stdd install` 生成平台适配文件
+- V2.4 新增：自学习经验库（项目级 AI 经验积累）、Spec 自动补全、智能切片推荐、CI/CD 集成
 - Hybrid mode: Skills control the process ("how to think"), CLI handles structural operations ("what to do")
 - Cross-platform: one set of core skills → `stdd install` generates platform-specific adapters
+- V2.4 new: Self-learning experience library, Spec auto-complete, Smart slice recommendation, CI/CD integration

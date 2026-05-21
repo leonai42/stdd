@@ -16,8 +16,7 @@ def _init_parent_parser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
-    from .utils import setup_logging, fix_windows_encoding, get_stdd_source
-    from pathlib import Path
+    from .utils import setup_logging, fix_windows_encoding
 
     fix_windows_encoding()
 
@@ -94,6 +93,55 @@ def main() -> None:
     p_abort.add_argument("name", help="change 名称")
     p_abort.add_argument("--yes", "-y", action="store_true", help="跳过确认")
 
+    # extract-proposal (V2.4 新增)
+    p_extract = subparsers.add_parser("extract-proposal", help="从 proposal.md 提取结构化数据", parents=[parent])
+    p_extract.add_argument("name", nargs="?", help="change 目录名（默认使用最近的）")
+    p_extract.add_argument("--format", choices=["json", "yaml"], default="json", help="输出格式")
+
+    # dependency-graph (V2.4 新增)
+    p_dep = subparsers.add_parser("dependency-graph", help="构建 spec 依赖图", parents=[parent])
+    p_dep.add_argument("name", nargs="?", help="change 目录名（默认使用最近的）")
+    p_dep.add_argument("--format", choices=["json", "dot", "text"], default="text", help="输出格式")
+
+    # ci (V2.4 新增)
+    p_ci = subparsers.add_parser("ci", help="CI/CD 集成管理", parents=[parent])
+    ci_subs = p_ci.add_subparsers(dest="subcommand", help="子命令")
+    ci_subs.add_parser("init", help="生成所有 CI 配置文件", parents=[parent])
+    p_ci_gen = ci_subs.add_parser("generate", help="生成单个 CI 配置文件", parents=[parent])
+    p_ci_gen.add_argument("target", choices=["workflow", "pre-commit", "pr-template"], help="生成目标")
+    p_ci_check = ci_subs.add_parser("check-failures", help="确定性失败模式检查", parents=[parent])
+    p_ci_check.add_argument("name", nargs="?", help="change 目录名（默认使用最近的）")
+
+    # experience (V2.4 新增)
+    p_exp = subparsers.add_parser("experience", help="管理项目级 AI 经验库", parents=[parent])
+    exp_subs = p_exp.add_subparsers(dest="subcommand", help="子命令")
+    p_exp_list = exp_subs.add_parser("list", help="列出经验", parents=[parent])
+    p_exp_list.add_argument("--category", help="按失败模式过滤")
+    p_exp_list.add_argument("--language", help="按语言过滤")
+    p_exp_list.add_argument("--lifecycle", help="按生命周期过滤")
+    p_exp_list.add_argument("--severity", help="按严重程度过滤")
+    p_exp_list.add_argument("--format", choices=["table", "json", "yaml"], default="table", help="输出格式")
+    p_exp_add = exp_subs.add_parser("add", help="添加经验条目", parents=[parent])
+    p_exp_add.add_argument("--category", required=True, help="失败模式类别")
+    p_exp_add.add_argument("--pattern", required=True, help="错误模式描述")
+    p_exp_add.add_argument("--root-cause", help="根本原因")
+    p_exp_add.add_argument("--detection-trigger", help="检测信号")
+    p_exp_add.add_argument("--fix-template", help="修复模板")
+    p_exp_add.add_argument("--language", help="编程语言")
+    p_exp_add.add_argument("--severity", choices=["critical", "high", "medium", "low"], default="medium")
+    p_exp_add.add_argument("--tags", help="逗号分隔的标签")
+    p_exp_add.add_argument("--source-change", help="来源 change")
+    p_exp_add.add_argument("--body", help="Markdown body 内容")
+    p_exp_stats = exp_subs.add_parser("stats", help="经验库统计", parents=[parent])
+    p_exp_stats.add_argument("--format", choices=["table", "json"], default="table", help="输出格式")
+    p_exp_export = exp_subs.add_parser("export", help="导出经验", parents=[parent])
+    p_exp_export.add_argument("--output", "-o", help="输出文件路径")
+    p_exp_export.add_argument("--format", choices=["json", "yaml"], default="json", help="导出格式")
+    p_exp_export.add_argument("--no-sanitize", action="store_true", help="不脱敏")
+    p_exp_pull = exp_subs.add_parser("pull", help="从社区拉取经验包", parents=[parent])
+    p_exp_pull.add_argument("pack_name", help="经验包名称")
+    p_exp_pull.add_argument("--source", help="社区源 URL")
+
     args = parser.parse_args()
 
     if not args.command:
@@ -114,6 +162,10 @@ def main() -> None:
         "rollback": "stdd.cli.commands.rollback.cmd_rollback",
         "diff": "stdd.cli.commands.diff.cmd_diff",
         "abort": "stdd.cli.commands.abort.cmd_abort",
+        "extract-proposal": "stdd.cli.commands.extract_proposal.cmd_extract_proposal",
+        "dependency-graph": "stdd.cli.commands.dependency_graph.cmd_dependency_graph",
+        "ci": "stdd.cli.commands.ci.cmd_ci",
+        "experience": "stdd.cli.commands.experience.cmd_experience",
     }
 
     if args.command in commands:
@@ -127,7 +179,7 @@ def main() -> None:
 
     try:
         func(args)
-    except Exception as e:
+    except Exception:
         import traceback
         traceback.print_exc()
         sys.exit(1)

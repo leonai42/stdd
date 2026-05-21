@@ -1,0 +1,22 @@
+experience:
+  dir: .stdd/experiences
+  auto_record:
+    enabled: true
+    min_confidence: 0.5
+  auto_load:
+    enabled: true
+    max_experiences: 10
+    match:
+      by_language: true
+      by_category: true
+      by_tags: true
+  lifecycle:
+    verified_threshold: 3
+    settled_threshold: 10
+    retire_after_days: 730
+  export:
+    sanitize_paths: true
+    sanitize_ips: true
+    sanitize_domains: true
+  index:
+    auto_generate: true

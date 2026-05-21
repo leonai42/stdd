@@ -6,9 +6,10 @@ paths:
   specs_dir: specs
   standards_dir: .stdd/standards
   templates_dir: .stdd/templates
+  experiences_dir: .stdd/experiences
 project:
   language: python
   name: stdd
   python_version: '3.10'
   source_dir: "app"
-stdd_version: '2.0'
+stdd_version: '2.4'

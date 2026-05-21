@@ -84,6 +84,7 @@ Archive to archive/ → merge specs to specs/ → Git commit + tag.
 
 ```
 .stdd/              # STDD 系统文件 / System files
+  experiences/      # 经验库 / Experience library (V2.4+)
 changes/            # 活跃变更 / Active changes
 specs/              # 主规范 / Master specs
 archive/            # 已完成变更 / Completed changes
@@ -97,6 +98,7 @@ archive/            # 已完成变更 / Completed changes
 - `proposal.md` — 变更提案 / Change proposal
 - `design.md` — 技术设计 / Technical design
 - `spec.md` — 行为规格 (GIVEN/WHEN/THEN) / Behavior spec
+- `spec-draft.md` — AI 生成 spec 草稿 (V2.4+) / AI-generated spec draft
 - `test-plan.md` — 测试方案 / Test plan
 - `tasks.md` — 任务清单 / Task list
 - `slices.md` — 切片计划 / Slice plan
