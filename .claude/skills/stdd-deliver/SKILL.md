@@ -2,6 +2,10 @@
 name: stdd-deliver
 description: "STDD Phase 6: 交付 — 归档 change、合并 specs、更新文档"
 ---
+---
+name: stdd-deliver
+description: "STDD Phase 6: 交付 — 归档变更、合并规范、创建版本标签"
+---
 # STDD Phase 6: DELIVER — 交付
 
 ## 阶段目标

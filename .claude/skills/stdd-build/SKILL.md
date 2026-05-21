@@ -2,6 +2,10 @@
 name: stdd-build
 description: "STDD Phase 4: TDD 实现 — 逐切片实现并通过测试"
 ---
+---
+name: stdd-build
+description: "STDD Phase 4: TDD 实现 — 按切片执行 RED→GREEN→REFACTOR 循环"
+---
 # STDD Phase 4: BUILD — TDD 实现
 
 ## 阶段目标
@@ -43,6 +47,19 @@ description: "STDD Phase 4: TDD 实现 — 逐切片实现并通过测试"
 2. 读取 `.stdd/standards/<language>.md`（如 `python.md`）
 3. 学习：命名规范、类型注解要求、异步规则、错误处理模式、测试规范
 
+### Step 0.5: 加载匹配经验
+
+在开始编写代码之前，从项目经验库加载与当前变更相关的经验，预防已知失败模式：
+
+1. 执行 `python bin/stdd experience list --language <project.language> --format json`
+2. 从输出中筛选 `lifecycle_state` 为 `verified` 或 `settled` 的经验（已充分验证的经验更可靠）
+3. 根据当前 change 的 capabilities 和 spec，选出模式文本（pattern/root_cause/detection_trigger）与当前工作最相关的经验（默认加载最多 10 条，可从 `.stdd/config.d/experience.yaml` 的 `auto_load.max_experiences` 读取）
+4. 将匹配的经验内容（pattern + root_cause + fix_template）主动注入编码上下文
+5. 编码时对照经验库检查：
+   - 模式匹配 → 参考 fix_template 预防已知错误
+   - 不匹配 → 正常编码
+6. 经验库加载结果输出一行摘要：`经验库加载: <N> 条匹配经验已注入上下文`
+
 ### Step 1: 按切片顺序执行
 
 对 `slices.md` 中的每个切片（或 `tasks.md` 中的每个任务）：
@@ -57,6 +74,7 @@ description: "STDD Phase 4: TDD 实现 — 逐切片实现并通过测试"
 4. 测试函数注释中标注 TC-ID
 5. 运行测试 → **确认失败（RED）**
 6. 如果测试直接通过 → 检查是否已有等价测试，有则跳过 RED 阶段
+7. **经验检查点**：测试是否反映了 Step 0.5 加载的经验模式？如经验提示"异步函数中裸 except 遗漏 CancelledError"，测试是否覆盖了超时/取消场景？
 
 ---
 
@@ -87,6 +105,7 @@ description: "STDD Phase 4: TDD 实现 — 逐切片实现并通过测试"
 
 **小的偏离**（不改变接口和行为语义）：
 - 记录到 `pending-adjustments.md`
+- 检查偏离是否命中经验库中的已知模式 → 如命中，记录到 pending-adjustments 并引用 EXP-ID
 - 继续执行（两种模式行为一致）
 
 **大的偏离**（改变接口或行为语义）：

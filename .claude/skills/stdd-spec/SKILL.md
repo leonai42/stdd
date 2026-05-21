@@ -2,6 +2,10 @@
 name: stdd-spec
 description: "STDD Phase 2: 规格设计 — 将 proposal 转化为可测试的 spec Scenario"
 ---
+---
+name: stdd-spec
+description: "STDD Phase 2: 规格设计与测试方案 — 将 proposal 转化为精确的技术规格和可执行测试方案"
+---
 # STDD Phase 2: SPEC — 规格设计与测试方案
 
 ## 阶段目标
@@ -15,14 +19,25 @@ description: "STDD Phase 2: 规格设计 — 将 proposal 转化为可测试的 
 
 ## 执行流程
 
-### Step 1: 读取 Phase 1 产出
+### Step 1: 读取 Phase 1 产出 + CLI 结构化提取
 
-读取 `proposal.md`，理解：
-- 变更范围和边界
-- 涉及的 Capabilities
-- 成功标准
+1. 读取 `proposal.md`，理解变更范围和边界
+2. **执行 CLI 结构化提取**：`python bin/stdd extract-proposal --format json`
+   - 获取：`title`, `capabilities` (new + modified), `what_changes`, `success_criteria`, `impact`
+   - 后续步骤直接引用提取的结构化数据，不再从 proposal 原文模糊解析
+3. 从输出中识别涉及的 Capabilities 列表和 Impact 范围
 
-### Step 2: 生成技术设计（design.md）
+### Step 2: 加载匹配经验 + 交叉检查
+
+在生成 specs 之前，从经验库加载可能相关的失败模式，用于交叉检查生成的 spec：
+
+1. 执行 `python bin/stdd experience list --language <project.language> --format json`
+2. 从输出中筛选与当前 Capabilities 相关的经验（pattern/root_cause 中包含相似关键词）
+3. 对匹配的经验，提取 `detection_trigger` 和 `fix_template`，在生成 Scenario 时用作检查清单：
+   - 如经验提示"(d) 上下文丢失"→ 确保每个 Scenario 的 GIVEN 与 proposal 明确对应
+   - 如经验提示"(k) 契约断层"→ 确保跨 Capability 的接口字段名一致
+
+### Step 3: 生成技术设计（design.md）
 
 先读取模板：`.stdd/templates/design.md`
 
@@ -35,20 +50,32 @@ description: "STDD Phase 2: 规格设计 — 将 proposal 转化为可测试的 
 - **Architecture**：数据流/组件图/调用链
 - **Risks / Trade-offs**：风险表和缓解措施
 
-### Step 3: 生成行为规格（specs/*.md）
+### Step 4: 生成行为规格草稿（specs/*.md）
 
-先读取模板：`.stdd/templates/spec.md`
+先读取模板：`.stdd/templates/spec-draft.md`
 
-为每个 Capability 生成一个 spec 文件（`specs/<capability>/spec.md`）：
+为每个 Capability 生成一个 spec 草稿文件（`specs/<capability>/spec.md`）：
 
-格式规则：
-- 每个 Requirement 至少 1 个 Scenario
-- 严格使用 GIVEN/WHEN/THEN/AND 格式
-- THEN 中必须包含 SHALL（大写），表示强制行为
-- Scenario 名称描述场景状态，不是动作
-- GIVEN/WHEN/THEN 各一条，AND 可有多条（最多 5 条）
+**自动生成流程**（AI 主导，用户角色从"写 spec"变为"审 spec"）：
 
-### Step 4: 生成测试方案（test-plan.md）
+1. 从 Step 1 的 `extract-proposal` 输出中提取 capability 名称和描述
+2. 按 `spec-draft.md` 模板为每个 capability 生成 spec 草稿
+3. **每个 Requirement 和 Scenario 标注置信度标签**：
+   - `<!-- confidence: high -->` — 所有 GIVEN/WHEN/THEN 要素可从 proposal 中直接找到
+   - `<!-- confidence: medium -->` — 部分要素需从上下文推断
+   - `<!-- confidence: low -->` — 几乎完全由 AI 推断，proposal 只提供了能力名称
+4. 为每个 Scenario 标注"证据来源"：引用 proposal.md 中支撑此 Scenario 的具体段落
+5. 格式规则（不变）：
+   - 每个 Requirement 至少 1 个 Scenario
+   - 严格使用 GIVEN/WHEN/THEN/AND 格式
+   - THEN 中必须包含 SHALL（大写），表示强制行为
+   - GIVEN/WHEN/THEN 各一条，AND 可有多条（最多 5 条）
+
+**置信度原则**：
+- 高置信度的 Scenario 用户可快速确认
+- 低置信度的 Scenario 必须用户详细审核（AI 可能理解有误）
+
+### Step 5: 生成测试方案（test-plan.md）
 
 先读取模板：`.stdd/templates/test-plan.md`
 
@@ -75,7 +102,7 @@ AND: <附加结果>      →   额外的 Assert
 4. 回归风险矩阵（改动区域风险评估）
 5. 建议补充顺序（P0 → P1 → P2）
 
-### Step 4.5: 设计审查（自动化文档 Review）
+### Step 5.5: 设计审查（自动化文档 Review）
 
 在提交用户确认之前，自动审查 design.md 和 specs 的质量：
 
@@ -100,11 +127,11 @@ AND: <附加结果>      →   额外的 Assert
    - specs 中的技术术语与 design.md 是否一致？
    - 版本号引用是否正确？
 
-审查发现问题后**自动修复**，然后进入 Step 5 用户确认。
+审查发现问题后**自动修复**，然后进入 Step 6 用户确认。
 
 ---
 
-### Step 5: 用户确认（强制门 — STDD 最关键的门）
+### Step 6: 用户确认（强制门 — STDD 最关键的门）
 
 向用户展示完整的 Phase 2 产出后，**必须等待用户明确确认**：
 
@@ -115,26 +142,31 @@ AND: <附加结果>      →   额外的 Assert
 
 📋 产出物：
   ✅ design.md — 技术设计
-  ✅ specs/<capability>/spec.md (N 个文件) — 行为规格
+  ✅ specs/<capability>/spec.md (N 个文件) — 行为规格（AI 草稿）
   ✅ test-plan.md — 测试方案
 
 📊 关键指标：
   - Spec Requirements: N
   - Spec Scenarios: N
+  - 置信度分布: ✓高:N ⚠中:N ⚠低:N
   - TC Cases: N
   - P0: N / P1: N / P2: N
-  - 回归风险: 🔴高:N 🟡中:N 🟢低:N
 
-🔍 自动审查结果（Step 4.5 设计审查）：
+🧠 经验库交叉检查（Step 2）：
+  匹配经验: N 条 | 命中相关模式: N 条
+  （如命中经验提示了某个失败模式，对应的 Scenario 已加入预防措施）
+
+🔍 自动审查结果（Step 5.5 设计审查）：
   审查维度：需求覆盖 / Scenario 完备性 / TC-ID 一致性 / 文档一致性
   发现问题：N 项 | 已自动修复：N 项
   审查结论：✅ 全部通过 / ⚠️ N 项已修复 / ❌ N 项待处理
 
-⚠️ 需要你逐一确认：
-  1. 技术方案是否合理？（design.md）
-  2. 每个 Scenario 的描述是否准确？（specs/*.md）
-  3. 测试覆盖是否充分？（test-plan.md）
-  4. TC 案例优先级是否合理？
+⚠️ 你的角色：审 spec，不是写 spec：
+  1. ✓ 高置信度 Scenario（N 个）— 快速过目即可
+  2. ⚠ 低置信度 Scenario（N 个）— **必须详细审核**（AI 可能理解有误）
+  3. 技术方案是否合理？（design.md）
+  4. 测试覆盖是否充分？（test-plan.md）
+  5. TC 案例优先级是否合理？
 
 👉 确认无误请回复，或提出修改意见。
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -147,7 +179,7 @@ AND: <附加结果>      →   额外的 Assert
 
 > 确认门模板参见: `.stdd/skills/_shared/confirm-gate.md`
 
-### Step 6: 写入文件
+### Step 7: 写入文件
 
 用户确认后：
 1. 写入 `design.md`
@@ -155,7 +187,7 @@ AND: <附加结果>      →   额外的 Assert
 3. 写入 `test-plan.md`
 4. 更新 `.stdd.yaml`（phase: spec → completed, confirmed_at 时间戳）
 
-### Step 7: 【强制】执行模式选择（Gate 2 之后）
+### Step 8: 【强制】执行模式选择（Gate 2 之后）
 
 Phase 2 文档已锁定。在进入 Phase 3 之前，**必须**选择 Phase 3-5 的执行模式。此步骤不可跳过。
 
@@ -179,10 +211,10 @@ Phase 2 文档已锁定。在进入 Phase 3 之前，**必须**选择 Phase 3-5 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-→ 用户选择长程模式：进入 Step 7a 一次性预授权流程
-→ 用户选择普通模式：进入 Step 7b，直接启动 Phase 3
+→ 用户选择长程模式：进入 Step 8a 一次性预授权流程
+→ 用户选择普通模式：进入 Step 8b，直接启动 Phase 3
 
-#### Step 7a: 长程模式 — 一次性预授权
+#### Step 8a: 长程模式 — 一次性预授权
 
 1. 读取模板：`.stdd/templates/long-range-auth.md`
 2. **扫描 Phase 3-5 潜在交互点**：
@@ -229,7 +261,7 @@ C. Gate 确认
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-5. **Step 7a.5: 配置 Claude Code 实际权限**（长程模式关键步骤）：
+5. **Step 8a.5: 配置 Claude Code 实际权限**（长程模式关键步骤）：
    - 读取 `.claude/settings.local.json`
    - 使用 Edit 工具在 `permissions.allow` 数组中添加以下规则：
      - Bash 规则：`Bash(pytest *)`, `Bash(ruff *)`, `Bash(python *)`, `Bash(pip *)`, `Bash(git *)`, `Bash(mkdir *)`, `Bash(cp *)`, `Bash(ls *)`
@@ -251,7 +283,7 @@ C. Gate 确认
    - 提示用户："长程模式已启用，Phase 3-5 将全自动连续执行，仅在 Gate 3 等待确认。"
    - 进入 Phase 3: SLICE
 
-#### Step 7b: 普通模式 — 直接启动
+#### Step 8b: 普通模式 — 直接启动
 
 1. 更新 `.stdd.yaml`：
    ```yaml

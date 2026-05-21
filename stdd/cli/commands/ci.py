@@ -23,6 +23,8 @@ on:
 jobs:
   stdd-quality:
     runs-on: ubuntu-latest
+    # For Windows projects, change to: runs-on: windows-latest
+    # and add 'shell: bash' to each step's run block
     steps:
       - uses: actions/checkout@v4
 
@@ -85,17 +87,17 @@ PR_COMMENT_TEMPLATE = """\
 
 | Check | Status | Details |
 |-------|--------|---------|
-| Validate | {{{{ validate }}}} | Structure & spec format check |
-| Tests | {{{{ tests }}}} | {{{{ test_summary }}}} |
-| Coverage | {{{{ coverage }}}}% | Target: {{{{ coverage_target }}}}% |
-| Diff | {{{{ diff }}}} | Spec ↔ Test ↔ Code traceability |
-| Lint | {{{{ lint }}}} | Code style check |
-| Failure Check | {{{{ failures }}}} | 11 failure modes (deterministic subset) |
+| Validate | {{ validate }} | Structure & spec format check |
+| Tests | {{ tests }} | {{ test_summary }} |
+| Coverage | {{ coverage }}% | Target: {{ coverage_target }}% |
+| Diff | {{ diff }} | Spec ↔ Test ↔ Code traceability |
+| Lint | {{ lint }} | Code style check |
+| Failure Check | {{ failures }} | 11 failure modes (deterministic subset) |
 
-{ {{{ failure_details}}} }
+{{ failure_details }}
 
 ---
-📋 [Full Test Report]({{{{ test_report_url }}}}) · 📝 [Design Adjustments]({{{{ adjustments_url }}}})
+📋 [Full Test Report]({{ test_report_url }}) · 📝 [Design Adjustments]({{ adjustments_url }})
 """
 
 

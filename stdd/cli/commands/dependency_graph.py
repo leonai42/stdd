@@ -90,9 +90,8 @@ def _build_graph(specs_dir: Path) -> dict:
 
 
 def _contains_word(text: str, word: str) -> bool:
-    """Check if word appears as a whole word/phrase in text."""
-    # Simple substring match after normalization
-    return word in text
+    """Check if word appears as a whole word/phrase in text using word boundaries."""
+    return bool(re.search(rf"(?<!\w){re.escape(word)}(?!\w)", text))
 
 
 def _detect_cycles(nodes: list, edges: list) -> list[list[str]]:
@@ -148,13 +147,13 @@ def _format_text(graph: dict) -> str:
         for cycle in graph["cycles"]:
             lines.append(f"    {' ↔ '.join(cycle)}")
     if graph.get("zero_dependency"):
-        lines.append(f"\n  零依赖节点（可并行）:")
+        lines.append("\n  零依赖节点（可并行）:")
         for nid in graph["zero_dependency"]:
             node = next((n for n in graph["nodes"] if n["id"] == nid), None)
             label = node["label"] if node else nid
             lines.append(f"    - {label} ({nid})")
     if graph["edges"]:
-        lines.append(f"\n  依赖关系:")
+        lines.append("\n  依赖关系:")
         for edge in graph["edges"]:
             lines.append(f"    {edge['from']} → {edge['to']}  ({edge['reason'][:50]}...)")
     lines.append("")
@@ -164,7 +163,7 @@ def _format_text(graph: dict) -> str:
 def cmd_dependency_graph(args: argparse.Namespace) -> None:
     from ..finder import find_change_dir
     from ..utils import get_logger
-    logger = get_logger()
+    get_logger()
 
     project_root = Path.cwd()
     change_dir = find_change_dir(args.name, project_root)

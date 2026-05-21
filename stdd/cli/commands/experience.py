@@ -3,6 +3,7 @@ import sys
 import os
 import re
 import json
+import time
 from pathlib import Path
 from datetime import datetime
 from typing import Optional
@@ -72,10 +73,41 @@ def _load_index(exp_dir: Path) -> dict:
 
 def _save_index(exp_dir: Path, index: dict) -> None:
     index_path = _get_index_path(exp_dir)
+    lock_path = index_path.with_suffix(".lock")
     tmp_path = index_path.with_suffix(".tmp")
-    with open(tmp_path, "w", encoding="utf-8") as f:
-        yaml.dump(index, f, allow_unicode=True, default_flow_style=False)
-    os.replace(tmp_path, index_path)
+
+    # Acquire lock with retry
+    for attempt in range(5):
+        try:
+            fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            os.close(fd)
+            break
+        except FileExistsError:
+            if attempt < 4:
+                time.sleep(0.05 * (attempt + 1))
+            else:
+                # Last attempt: force overwrite stale lock (> 5s old)
+                try:
+                    lock_age = time.time() - os.path.getmtime(lock_path)
+                    if lock_age > 5:
+                        os.remove(lock_path)
+                        fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                        os.close(fd)
+                        break
+                except OSError:
+                    pass
+                print("  警告: 无法获取经验索引锁，写入可能冲突。")
+                # Fall through to write anyway
+
+    try:
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            yaml.dump(index, f, allow_unicode=True, default_flow_style=False)
+        os.replace(tmp_path, index_path)
+    finally:
+        try:
+            os.remove(lock_path)
+        except OSError:
+            pass
 
 
 def _rebuild_index(exp_dir: Path) -> dict:
