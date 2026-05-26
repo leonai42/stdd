@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <b>V2.3</b> &nbsp;·&nbsp; MIT License &nbsp;·&nbsp; Python 3.10+
+  <b>V2.5</b> &nbsp;·&nbsp; MIT License &nbsp;·&nbsp; Python 3.10+
 </p>
 
 <p align="center">
@@ -16,7 +16,7 @@
 
 > **AI coding isn't just about "writing code" — it's about "writing correct code"** — engineering practices meet AI-assisted development.
 >
-> STDD is an **AI-assisted development methodology** powered by Spec-first + TDD execution. 6 ordered phases + 3 mandatory confirmation gates + 11 failure mode checks + bidirectional traceability — transforming vague requirements into high-quality deliverables. Supports 5 languages (Python / Java / Go / Rust / TypeScript) across 6 AI coding platforms.
+> STDD is an **AI-assisted development methodology** powered by Spec-first + TDD execution. 6 ordered phases + 3 mandatory confirmation gates + 11 failure mode checks + self-learning experience library + bidirectional traceability — transforming vague requirements into high-quality deliverables. Supports 5 languages (Python / Java / Go / Rust / TypeScript) across 6 AI coding platforms.
 
 ---
 
@@ -127,11 +127,16 @@ Archive change to archive/ → merge specs to specs/ → Git commit + tag.
 | **Spec First** | Define behavior in GIVEN/WHEN/THEN format; SHALL keyword marks mandatory behaviors, eliminating ambiguity |
 | **3 Mandatory Gates** | Three non-skippable checkpoints: requirements → design → quality. Gate 2 is the watershed; full-auto long-range mode available after it |
 | **Long-Range Unattended** | One-time pre-auth after Gate 2, Phases 3-5 execute continuously and automatically, 90%+ operations require no human intervention |
+| **Self-Learning Library** ⭐V2.5 | 5-state lifecycle (discovered→verified→deposited→shared→merged/retired), AI continuously learns from past failures |
+| **Community Pool** ⭐V2.5 | GitHub Releases CDN + Gitee mirror + Issues voting, global STDD users share experiences |
+| **Multi-Agent Parallel** ⭐V2.5 | Auto-dispatch parallel slices to subagents, main agent coordinates and merges results |
+| **Cross-Session Resume** ⭐V2.5 | Agent resumes context within 1 round after session restart, no progress lost in long-running tasks |
+| **CI Checks Enhanced** ⭐V2.5 | 3 new checks: scope validation + coverage threshold + cross-capability contract consistency |
 | **Bidirectional Traceability** | Scenario → TC-ID → test function → source code, full mapping chain queryable via `stdd trace` |
 | **11 Failure Mode Checks** | Hallucinated actions, scope creep, cascading errors, context loss, tool misuse, runtime deviation, pipeline chain breaks, content quality issues, instruction decay, coverage vacuums, contract gaps |
 | **Coverage Gap Analysis** | `stdd diff` outputs a spec-to-test coverage gap comparison table at a glance |
 | **Design Adjustment Traceability** | Every design deviation during implementation is auto-recorded to design-adjustments.md, reviewed at Gate 3 |
-| **11-Command CLI** | init / install / new / validate / status / archive / trace / diff / rollback / abort + `--dry-run` |
+| **18-Command CLI** | init / install / new / validate / status / archive / trace / diff / rollback / abort / experience / ci / gate / state / curate / dependency-graph / extract-proposal + `--dry-run` |
 | **Built-in Review** | Code review capability built in since V2.1 — AI auto-reviews after implementation, ensuring quality consistency |
 
 ### Eleven Failure Modes
@@ -202,20 +207,27 @@ The system will guide you through Phase 1 (requirement understanding), generate 
 
 ## CLI Commands
 
-| Command | Description |
-|---------|-------------|
-| `stdd init` | Initialize STDD directory structure |
-| `stdd install <platform>` | Install skills to target AI platform |
-| `stdd new <name>` | Create new change directory scaffold |
-| `stdd validate [name]` | Validate change structure integrity + spec format + TC-ID uniqueness |
-| `stdd status [name]` | View current phase and status of a change |
-| `stdd archive <name>` | Archive completed change and merge specs |
-| `stdd trace <tc-id>` | Trace spec↔test↔code bidirectional mapping chain |
-| `stdd diff [name]` | Show spec↔test coverage gap table |
-| `stdd rollback <name>` | Restore archived change from archive |
-| `stdd abort <name>` | Abort change and archive |
-| `--dry-run` | Global option: preview operations without modifying filesystem |
-| `--verbose` / `-v` | Verbose logging output |
+| Command | Description | Since |
+|---------|-------------|-------|
+| `stdd init` | Initialize STDD directory structure | V1.0 |
+| `stdd install <platform>` | Install skills to target AI platform | V1.0 |
+| `stdd new <name>` | Create new change directory scaffold | V2.0 |
+| `stdd validate [name]` | Validate change structure integrity + spec format + TC-ID uniqueness | V2.0 |
+| `stdd status [name]` | View current phase and status of a change | V2.0 |
+| `stdd archive <name>` | Archive completed change and merge specs | V2.0 |
+| `stdd trace <tc-id>` | Trace spec↔test↔code bidirectional mapping chain | V2.0 |
+| `stdd diff [name]` | Show spec↔test coverage gap table | V2.0 |
+| `stdd rollback <name>` | Restore archived change from archive | V2.0 |
+| `stdd abort <name>` | Abort change and archive | V2.0 |
+| `stdd experience <sub>` | Experience library management (list/add/stats/export/pull/verify/deposit/retire) | V2.4 |
+| `stdd extract-proposal` | Extract structured data from proposal.md (JSON/YAML) | V2.4 |
+| `stdd dependency-graph` | Build spec dependency graph + cycle detection + topological sort | V2.4 |
+| `stdd ci <sub>` | CI checks (7 items: structure/format/scope/coverage/contracts/diff/experience) | V2.5 |
+| `stdd gate approve <change> --gate <N>` | Confirm gate via file token | V2.5 |
+| `stdd state <change>` | Read/write change state (resume_context/active_slice etc.) | V2.5 |
+| `stdd curate <sub>` | Community pool curation (pull/deduplicate/review/pack) | V2.5 |
+| `--dry-run` | Global option: preview operations without modifying filesystem | V2.0 |
+| `--verbose` / `-v` | Verbose logging output | V2.0 |
 
 ---
 
@@ -303,10 +315,12 @@ Completed in under 1 hour with the full STDD six-phase process: 271 lines of cor
 
 | Version | Date | Key Changes |
 |---------|------|-------------|
-| **V2.3** | 2026-05-18 | Foundation completion: 5 language standards + 6 platforms + config modularization + skill standardization |
+| **V2.5** | 2026-05-21 | Experience lifecycle FSM + community pool + multi-agent support + cross-session resume + CI enhanced |
+| **V2.4** | 2026-05-20 | AI-assisted: self-learning experience library + spec auto-complete + smart slice + CI/CD integration |
+| **V2.3** | 2026-05-18 | Foundation: 5 language standards + 6 platforms + config modularization + skill standardization |
 | **V2.2** | 2026-05-15 | Process UX: enhanced gate interaction info + long-range mode reliability improvements |
-| **V2.1** | 2026-05-14 | Methodology enhancement: fixed 80 review issues + built-in review capability |
-| **V2.0** | 2026-05-13 | Architecture upgrade: modular CLI + 11 commands + pytest test framework |
+| **V2.1** | 2026-05-14 | Methodology: fixed 80 review issues + built-in review capability |
+| **V2.0** | 2026-05-13 | Architecture: modular CLI + 11 commands + pytest test framework |
 | **V1.x** | 2026-05 | Foundation: 6-phase flow → long-range mode → 11 failure modes → E2E + coverage |
 
 See [CHANGELOG.md](CHANGELOG.md) for full details.

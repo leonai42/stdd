@@ -1,7 +1,7 @@
 # STDD — 系统设计文档 | System Design
 
-> 版本 / Version：V2.3
-> 日期 / Date：2026-05-18
+> 版本 / Version：V2.5
+> 日期 / Date：2026-05-21
 >
 > STDD (Spec+Test Driven Development) 是一套 AI 辅助的 Spec 先行 + TDD 执行的研发流程系统。
 > STDD is an AI-assisted, spec-first + TDD execution methodology for software development.
@@ -600,6 +600,8 @@ At each mandatory gate, the Skill presents a standardized confirmation message.
 
 | 版本 | 日期 | 变更内容 |
 |------|------|---------|
+| **V2.5** | 2026-05-21 | 经验生命周期闭环：5状态FSM + 社区经验池 + 多Agent并行切片 + 跨Session状态恢复 + Gate文件确认 + CI增强（scope/coverage/contracts）+ 非代码Change支持 |
+| **V2.4** | 2026-05-20 | AI辅助增强：自学习经验库 + Spec自动补全 + 智能切片推荐（依赖图/环检测/拓扑排序）+ CI/CD集成（check-failures/check-structure） |
 | **V2.3** | 2026-05-18 | 基础配套完善：5 语言规范（Java/Go/Rust/TS）+ 6 平台扩展（Cursor/Copilot/Aider）+ 配置模块化补完 + Skill 标准化 |
 | **V2.2** | 2026-05-15 | 流程体验优化：Gate 交互信息完善 + 长程模式可靠性提升 + 降级触发条件优化 |
 | **V2.1** | 2026-05-14 | 方法论增强：全面修复 80 项评审问题 + 内置 Review 能力 + 质量体系强化 |

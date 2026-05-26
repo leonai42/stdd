@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <b>V2.3</b> &nbsp;·&nbsp; MIT License &nbsp;·&nbsp; Python 3.10+
+  <b>V2.5</b> &nbsp;·&nbsp; MIT License &nbsp;·&nbsp; Python 3.10+
 </p>
 
 <p align="center">
@@ -16,7 +16,7 @@
 
 > **AI 编程不只是"写代码"，而是"写出正确的代码"** — 当工程实践遇见 AI 辅助开发。
 >
-> STDD 是一套 **Spec 先行 + TDD 执行** 的 AI 辅助研发流程系统。6 个有序阶段 + 3 道强制确认门 + 11 类失败模式检查 + 双向可追溯链，将模糊需求转化为高质量交付。支持 5 门语言（Python / Java / Go / Rust / TypeScript），适配 6 大 AI 编程平台。
+> STDD 是一套 **Spec 先行 + TDD 执行** 的 AI 辅助研发流程系统。6 个有序阶段 + 3 道强制确认门 + 11 类失败模式检查 + 自学习经验库 + 双向可追溯链，将模糊需求转化为高质量交付。支持 5 门语言（Python / Java / Go / Rust / TypeScript），适配 6 大 AI 编程平台。
 
 ---
 
@@ -127,11 +127,16 @@ Gate 2 之后可选择**全自动长程模式**：一次性预授权后，Phase 
 | **Spec 先行** | GIVEN/WHEN/THEN 格式定义行为，THEN 中 SHALL 标记强制行为，杜绝需求歧义 |
 | **3 道强制确认门** | 需求→设计→质量三处不可跳过。Gate 2 是分水岭，之后可选全自动长程模式 |
 | **长程无人值守** | Gate 2 后一次性预授权，Phase 3-5 全自动连续执行，90%+ 操作无需人工干预 |
+| **自学习经验库** ⭐V2.5 | 5 状态生命周期（发现→验证→沉淀→共享→合并/退休），AI 从历史失败中持续学习 |
+| **社区经验池** ⭐V2.5 | GitHub Releases CDN + Gitee 镜像 + Issues 投票，全球 STDD 用户共享经验 |
+| **多 Agent 并行** ⭐V2.5 | 并行切片自动派发到多个 subagent，主 agent 协调等待并 merge 结果 |
+| **跨 Session 恢复** ⭐V2.5 | Agent 重启 session 后 1 轮内恢复上下文，长程任务不丢失进度 |
+| **CI 检查增强** ⭐V2.5 | 新增 scope 范围验证 + coverage 阈值检查 + contracts 契约一致性 3 项 CI 检查 |
 | **双向可追溯** | Scenario → TC-ID → 测试函数 → 源码，`stdd trace` 命令一键追溯完整映射链 |
 | **11 类故障检查** | 幻觉行为、范围蔓延、级联错误、上下文丢失、工具误用、运行时偏差、管线断链、内容质量偏差、指令衰减、覆盖真空、契约断层 |
 | **覆盖差异分析** | `stdd diff` 输出 spec 与测试之间的覆盖缺口对比表，一目了然 |
 | **设计调整追溯** | 实现过程中的任何设计偏离自动记录到 design-adjustments.md，Gate 3 统一审核 |
-| **11 命令 CLI 工具** | init / install / new / validate / status / archive / trace / diff / rollback / abort + `--dry-run` |
+| **18 命令 CLI 工具** | init / install / new / validate / status / archive / trace / diff / rollback / abort / experience / ci / gate / state / curate / dependency-graph / extract-proposal + `--dry-run` |
 | **内置 Review 审查** | V2.1 起内置代码审查能力，AI 实现后自动 Review，确保质量一致性 |
 
 ### 11 类失败模式
@@ -202,20 +207,27 @@ python /path/to/stdd-project/bin/stdd install aider
 
 ## CLI 命令
 
-| 命令 | 说明 |
-|------|------|
-| `stdd init` | 初始化 STDD 目录结构 |
-| `stdd install <platform>` | 安装 skills 到目标 AI 平台 |
-| `stdd new <name>` | 创建新 change 目录骨架 |
-| `stdd validate [name]` | 验证 change 结构完整性 + spec 格式 + TC-ID 唯一性 |
-| `stdd status [name]` | 查看变更当前阶段与状态 |
-| `stdd archive <name>` | 归档已完成变更并合并 specs |
-| `stdd trace <tc-id>` | 追溯 spec↔test↔code 双向映射链 |
-| `stdd diff [name]` | 显示 spec↔test 覆盖差异表 |
-| `stdd rollback <name>` | 从 archive 恢复已归档变更 |
-| `stdd abort <name>` | 放弃变更并归档 |
-| `--dry-run` | 全局选项：预览操作但不修改文件系统 |
-| `--verbose` / `-v` | 分级日志输出 |
+| 命令 | 说明 | 引入版本 |
+|------|------|---------|
+| `stdd init` | 初始化 STDD 目录结构 | V1.0 |
+| `stdd install <platform>` | 安装 skills 到目标 AI 平台 | V1.0 |
+| `stdd new <name>` | 创建新 change 目录骨架 | V2.0 |
+| `stdd validate [name]` | 验证 change 结构完整性 + spec 格式 + TC-ID 唯一性 | V2.0 |
+| `stdd status [name]` | 查看变更当前阶段与状态 | V2.0 |
+| `stdd archive <name>` | 归档已完成变更并合并 specs | V2.0 |
+| `stdd trace <tc-id>` | 追溯 spec↔test↔code 双向映射链 | V2.0 |
+| `stdd diff [name]` | 显示 spec↔test 覆盖差异表 | V2.0 |
+| `stdd rollback <name>` | 从 archive 恢复已归档变更 | V2.0 |
+| `stdd abort <name>` | 放弃变更并归档 | V2.0 |
+| `stdd experience <sub>` | 经验库管理（list/add/stats/export/pull/verify/deposit/retire） | V2.4 |
+| `stdd extract-proposal` | 从 proposal.md 提取结构化数据（JSON/YAML） | V2.4 |
+| `stdd dependency-graph` | 构建 spec 依赖图 + 环检测 + 拓扑排序 | V2.4 |
+| `stdd ci <sub>` | CI 检查（7 项：结构/格式/scope/coverage/contracts/diff/经验） | V2.5 |
+| `stdd gate approve <change> --gate <N>` | 文件 token 方式确认 Gate | V2.5 |
+| `stdd state <change>` | 读写 change 状态（resume_context/active_slice 等） | V2.5 |
+| `stdd curate <sub>` | 社区经验池维护工具（pull/deduplicate/review/pack） | V2.5 |
+| `--dry-run` | 全局选项：预览操作但不修改文件系统 | V2.0 |
+| `--verbose` / `-v` | 分级日志输出 | V2.0 |
 
 ---
 
@@ -303,6 +315,8 @@ STDD 项目仓库                           你的项目（安装后）
 
 | 版本 | 日期 | 核心变更 |
 |------|------|---------|
+| **V2.5** | 2026-05-21 | 经验生命周期闭环 + 社区经验池 + 多 Agent 适配 + 跨 Session 恢复 + CI 检查增强 |
+| **V2.4** | 2026-05-20 | AI 辅助增强：自学习经验库 + Spec 自动补全 + 智能切片推荐 + CI/CD 集成 |
 | **V2.3** | 2026-05-18 | 基础配套完善：5 语言规范 + 6 平台扩展 + 配置模块化 + Skill 标准化 |
 | **V2.2** | 2026-05-15 | 流程体验优化：Gate 交互信息完善 + 长程模式可靠性提升 |
 | **V2.1** | 2026-05-14 | 方法论增强：全面修复 80 项评审问题 + 内置 Review 能力 |

@@ -57,8 +57,8 @@ Produce technical design (design.md), behavior specs (specs/\*.md, GIVEN/WHEN/TH
 Split test plan into independently implementable vertical slices. Ordered by dependency, P0 first.
 
 **Phase 4: BUILD — TDD 实现 | TDD Implementation**
-逐一执行 RED → GREEN → REFACTOR。先写测试（RED），再写最小实现（GREEN），最后重构（REFACTOR）。
-Execute RED → GREEN → REFACTOR per slice. Write test first (RED), minimal implementation (GREEN), then refactor (REFACTOR).
+逐一执行 RED → GREEN → REFACTOR。先写测试（RED），再写最小实现（GREEN），最后重构（REFACTOR）。开始前自动加载对应语言规范和相关经验库条目。
+Execute RED → GREEN → REFACTOR per slice. Write test first (RED), minimal implementation (GREEN), then refactor (REFACTOR). Auto-loads language standards and relevant experience entries before starting.
 
 **Phase 5: VERIFY — 质量验证 | Quality Verification**
 全量测试 + 覆盖率诊断 + 多版本测试 + E2E 测试（可配置）+ Lint + Diff 审查 + 十一类失败模式检查。普通模式最多 5 轮迭代，长程模式最多 10 轮。汇总设计调整到 design-adjustments.md。
@@ -84,7 +84,7 @@ Archive to archive/ → merge specs to specs/ → Git commit + tag.
 
 ```
 .stdd/              # STDD 系统文件 / System files
-  experiences/      # 经验库 / Experience library (V2.4+)
+  experiences/      # 自学习经验库 / Self-learning experience library (V2.5: 5状态生命周期)
 changes/            # 活跃变更 / Active changes
 specs/              # 主规范 / Master specs
 archive/            # 已完成变更 / Completed changes

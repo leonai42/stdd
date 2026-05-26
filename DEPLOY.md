@@ -1,6 +1,6 @@
 # STDD 部署与使用指南 | Deployment & Usage Guide
 
-> STDD (Spec+Test Driven Development) V2.3
+> STDD (Spec+Test Driven Development) V2.5
 > 适用平台 / Supported Platforms：Claude Code / Cursor / Copilot / Aider / WorkBuddy / Trae / Windsurf
 
 ---
