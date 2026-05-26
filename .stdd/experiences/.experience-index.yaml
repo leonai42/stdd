@@ -1,0 +1,31 @@
+by_category:
+  cascading_errors:
+  - EXP-2026-0001
+  contract_gap:
+  - EXP-2026-0003
+  instruction_decay:
+  - EXP-2026-0004
+  scope_creep:
+  - EXP-2026-0002
+by_language:
+  go:
+  - EXP-2026-0003
+  python:
+  - EXP-2026-0001
+  - EXP-2026-0002
+  - EXP-2026-0004
+by_lifecycle:
+  discovered:
+  - EXP-2026-0001
+  - EXP-2026-0002
+  - EXP-2026-0003
+  - EXP-2026-0004
+by_severity:
+  high:
+  - EXP-2026-0001
+  - EXP-2026-0003
+  - EXP-2026-0004
+  medium:
+  - EXP-2026-0002
+last_id: 4
+total: 4

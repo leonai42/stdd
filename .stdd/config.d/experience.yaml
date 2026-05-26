@@ -1,0 +1,37 @@
+experience:
+  dir: .stdd/experiences
+  auto_record:
+    enabled: true
+    min_confidence: 0.5
+  auto_load:
+    enabled: true
+    max_experiences: 10
+    match:
+      by_language: true
+      by_category: true
+      by_tags: true
+  lifecycle:
+    verified_threshold: 3
+    settled_threshold: 10
+    retire_after_days: 730
+  export:
+    sanitize_paths: true
+    sanitize_ips: true
+    sanitize_domains: true
+  index:
+    auto_generate: true
+
+community:
+  registries:
+    - name: github
+      url: "https://github.com/leonai42/stdd-experiences/releases/latest/download"
+      priority: 1
+    - name: gitee
+      url: "https://gitee.com/leonai42/stdd-experiences/releases/latest/download"
+      priority: 2
+  fallback_timeout: 5
+  packs:
+    - name: python
+      version: "v1.0.0"
+    - name: go
+      version: "v1.0.0"

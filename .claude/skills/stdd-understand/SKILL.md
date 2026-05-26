@@ -2,6 +2,10 @@
 name: stdd-understand
 description: "STDD Phase 1: 需求理解与确认 — 将模糊需求转化为清晰、可验证的变更提案（proposal.md）"
 ---
+---
+name: stdd-understand
+description: "STDD Phase 1: 需求理解与确认 — 将模糊需求转化为清晰、可验证的变更提案（proposal.md）"
+---
 # STDD Phase 1: UNDERSTAND — 需求理解与确认
 
 ## 阶段目标

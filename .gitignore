@@ -21,6 +21,8 @@ env/
 # IDE
 .vscode/
 .idea/
+.cursor/
+.trae/
 *.swp
 *.swo
 *~
@@ -40,3 +42,20 @@ Desktop.ini
 
 # Project-specific (don't track installed skills in target projects)
 .stdd/platforms/*/skills/
+
+# Website & Playground (deployed separately)
+website/
+
+# Local planning & design docs
+VISION.md
+TEAM.md
+LAUNCH_PLAN.md
+DUAL_TRACK_DOC_SYSTEM.md
+STDD_V3_*.md
+
+# Local presentations
+ppt/
+
+# Local Claude memory
+.claude/memory/
+.claude/settings.local.json

@@ -43,6 +43,23 @@ description: "STDD Phase 4: TDD 实现 — 按切片执行 RED→GREEN→REFACTO
 2. 读取 `.stdd/standards/<language>.md`（如 `python.md`）
 3. 学习：命名规范、类型注解要求、异步规则、错误处理模式、测试规范
 
+### Step 0.5: 加载匹配经验
+
+在开始编写代码之前，从项目经验库加载与当前变更相关的经验，预防已知失败模式：
+
+1. 执行 `python bin/stdd experience list --language <project.language> --format json`
+2. 从输出中筛选 `lifecycle_state` 为 `verified` 或 `settled` 的经验（已充分验证的经验更可靠）
+3. **project_type 过滤（V2.5）**：按当前 change 的 `project_type` 过滤经验：
+   - 匹配同类型或 `project_type: null`（通配，V2.4 兼容）的经验 → 加载
+   - `project_type` 不匹配的经验 → 跳过
+   - 输出摘要：`已加载 <N> 条匹配经验（<project_type>），过滤 <M> 条不匹配`
+4. 根据当前 change 的 capabilities 和 spec，选出模式文本（pattern/root_cause/detection_trigger）与当前工作最相关的经验（默认加载最多 10 条，可从 `.stdd/config.d/experience.yaml` 的 `auto_load.max_experiences` 读取）
+5. 将匹配的经验内容（pattern + root_cause + fix_template）主动注入编码上下文
+6. 编码时对照经验库检查：
+   - 模式匹配 → 参考 fix_template 预防已知错误
+   - 不匹配 → 正常编码
+7. 经验库加载结果输出一行摘要：`经验库加载: <N> 条匹配经验已注入上下文`
+
 ### Step 1: 按切片顺序执行
 
 对 `slices.md` 中的每个切片（或 `tasks.md` 中的每个任务）：
@@ -57,6 +74,7 @@ description: "STDD Phase 4: TDD 实现 — 按切片执行 RED→GREEN→REFACTO
 4. 测试函数注释中标注 TC-ID
 5. 运行测试 → **确认失败（RED）**
 6. 如果测试直接通过 → 检查是否已有等价测试，有则跳过 RED 阶段
+7. **经验检查点**：测试是否反映了 Step 0.5 加载的经验模式？如经验提示"异步函数中裸 except 遗漏 CancelledError"，测试是否覆盖了超时/取消场景？
 
 ---
 
@@ -87,6 +105,7 @@ description: "STDD Phase 4: TDD 实现 — 按切片执行 RED→GREEN→REFACTO
 
 **小的偏离**（不改变接口和行为语义）：
 - 记录到 `pending-adjustments.md`
+- 检查偏离是否命中经验库中的已知模式 → 如命中，记录到 pending-adjustments 并引用 EXP-ID
 - 继续执行（两种模式行为一致）
 
 **大的偏离**（改变接口或行为语义）：
@@ -159,6 +178,39 @@ description: "STDD Phase 4: TDD 实现 — 按切片执行 RED→GREEN→REFACTO
 | 大设计偏离 | 暂停，报告用户 | 自动记录并继续（test-report 汇总） |
 | 技术阻塞 | 暂停，询问用户 | 尝试绕过/跳过；无法处理时降级暂停 |
 | 所有切片完成 | 自动进入 Phase 5 | 自动进入 Phase 5 |
+
+## 并行执行策略（V2.5 parallel-slice-guide）
+
+当 `slices.md` 中存在标记为 `parallel_group: N` 的切片时，可采用并行执行策略：
+
+### 条件检测
+
+1. 读取 `slices.md`，检查是否有切片标记了 `parallel_group`
+2. 检查当前执行环境是否支持子任务派发（delegation / sub-agent）
+3. **有 delegation 能力** → 并行派发
+4. **无 delegation 能力** → 串行 fallback（按拓扑顺序逐个执行）
+
+### 并行派发流程
+
+1. 同 `parallel_group` 的切片可同时派发给多个子 agent
+2. 每个子 agent 独立执行 RED → GREEN → REFACTOR 循环
+3. 父 agent 等待所有子 agent 完成后收集结果
+4. 验证：合并所有切片的变更，运行全量回归测试
+
+### 串行 Fallback
+
+若无 delegation 能力或并行派发失败：
+- 按 `slices.md` 的依赖拓扑顺序串行执行
+- 无依赖的切片优先
+- P0 优先于 P1
+
+### 结果合并
+
+并行执行完成后：
+1. 检查各切片是否有代码冲突（同一文件被多个切片修改）
+2. 冲突文件 → 合并变更（优先顺序：Slice A → B → C → D）
+3. 运行全量 pytest 确认无回归
+4. 输出合并摘要：`并行执行完成: <N> 个切片，<M> 个冲突已合并`
 
 ## 下一阶段
 
