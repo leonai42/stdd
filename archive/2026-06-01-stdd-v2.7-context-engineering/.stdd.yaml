@@ -1,0 +1,53 @@
+change_name: 2026-06-01-stdd-v2.7-context-engineering
+version: "2.7"
+active_phase: 4
+active_slice: 7
+phase_context_file: "changes/2026-06-01-stdd-v2.7-context-engineering/phase-context.md"
+
+phase1:
+  started: "2026-06-02T20:00:00"
+  completed: "2026-06-03T00:00:00"
+  gate1: { confirmed: true, confirmed_at: "2026-06-03T00:00:00" }
+
+phase2:
+  started: "2026-06-03T01:00:00"
+  completed: "2026-06-03T02:30:00"
+  gate2: { confirmed: true, confirmed_at: "2026-06-03T02:30:00" }
+  outputs: { design_lines: 2207, spec_files: 13, scenarios: 91, tc_cases: 39 }
+
+phase3:
+  started: "2026-06-03T02:45:00"
+  completed: "2026-06-03T03:00:00"
+  outputs: { slices: 7, parallel_groups: 3 }
+
+phase4:
+  started: "2026-06-03T03:00:00"
+  slices_completed:
+    "1": { status: "done", tests: 9, new_files: 10, time: "2026-06-03T03:15:00" }
+    "2": { status: "done", new_files: 1, time: "2026-06-03T03:25:00" }
+    "3": { status: "done", new_files: 1, time: "2026-06-03T03:30:00" }
+    "4": { status: "done", new_files: 3, time: "2026-06-03T03:40:00" }
+    "5": { status: "done", new_files: 0, time: "2026-06-03T03:45:00" }
+    "6": { status: "done", new_files: 2, time: "2026-06-03T03:55:00" }
+    "7": { status: "done", new_files: 0, time: "2026-06-03T04:00:00" }
+
+long_range:
+  enabled: true
+  mode: "full_auto"
+  pre_auth_completed: true
+
+resume_context: "Phase 4 BUILD 全部 7 个切片完成。Phase 5 VERIFY 就绪。"
+last_action: "Phase 4 完成：7 slices / 24 new files / 9 new tests / 164 total tests passing"
+last_modified: "2026-06-03T04:00:00"
+
+state_freshness:
+  verified_at: "2026-06-03T04:00:00"
+  git_head: ""
+
+design_adjustments:
+  - id: ADJ-1
+    description: "canon generate uses direct mapping (no Jinja2) to avoid adding dependencies"
+    severity: minor
+  - id: ADJ-2
+    description: "structure/skill/hooks CLI modules created as skeletons; full implementation deferred to V2.7 patches"
+    severity: minor

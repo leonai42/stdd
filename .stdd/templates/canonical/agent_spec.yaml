@@ -1,0 +1,28 @@
+# agent_spec.yaml — 单系统 Agent 验证规格
+# V2.7 引入
+
+meta:
+  task_id: ""                  # 任务标识
+  system: ""                   # 目标系统描述
+  preconditions:               # 执行前必须满足的条件
+    - ""
+
+steps:
+  - id: CP-1                   # 检查点编号
+    description: ""            # 检查点描述
+    action: ""                 # 执行的操作（CLI 命令 / HTTP 请求）
+    assertions:
+      - type: exit_code        # exit_code | stdout_contains | stderr_contains | http_status
+        expected: 0           # 预期值
+
+  - id: CP-2
+    description: ""
+    action: ""
+    assertions:
+      - type: http_status
+        url: ""
+        expected: 200
+
+rollback:
+  steps:
+    - ""                       # 回滚步骤（失败后由人工确认执行）

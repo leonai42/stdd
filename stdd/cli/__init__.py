@@ -179,6 +179,53 @@ def main() -> None:
     p_curate_pack = curate_subs.add_parser("pack", help="打包官方经验包", parents=[parent])
     p_curate_pack.add_argument("language", help="目标语言（如 python）")
 
+    # V2.7: proposal — Canonical proposal management
+    p_proposal = subparsers.add_parser("proposal", help="管理 Canonical proposal (V2.7)", parents=[parent])
+    p_proposal.add_argument("action", choices=["init", "validate", "show"], help="操作")
+    p_proposal.add_argument("change_name", nargs="?", help="change 名称")
+
+    # V2.7: canon — Dual-track document management
+    p_canon = subparsers.add_parser("canon", help="双轨制文档管理 (V2.7)", parents=[parent])
+    canon_subs = p_canon.add_subparsers(dest="subcommand", help="子命令")
+    p_canon_init = canon_subs.add_parser("init", help="初始化 canonical/ 目录", parents=[parent])
+    p_canon_gen = canon_subs.add_parser("generate", help="从 Canonical 生成 Human View", parents=[parent])
+    p_canon_gen.add_argument("change_name", nargs="?", help="change 名称")
+    p_canon_gen.add_argument("--type", choices=["proposal", "design", "spec"], default="proposal")
+    p_canon_gen.add_argument("--all", action="store_true", help="生成所有 change 的 Human View")
+    p_canon_verify = canon_subs.add_parser("verify", help="验证双轨一致性", parents=[parent])
+    p_canon_verify.add_argument("change_name", help="change 名称")
+
+    # V2.7: index — Project-level index management
+    p_index = subparsers.add_parser("index", help="项目索引管理 (V2.7)", parents=[parent])
+    p_index.add_argument("action", choices=["update", "show", "trace"], help="操作")
+    p_index.add_argument("target", nargs="?", help="capability 名称 (show) 或 file 路径 (trace)")
+
+    # V2.7: agent — Agent verification pipeline
+    p_agent = subparsers.add_parser("agent", help="Agent 行为验证 (V2.7)", parents=[parent])
+    p_agent.add_argument("action", choices=["verify"], help="操作")
+    p_agent.add_argument("task", nargs="?", help="任务 ID (对应 agent_spec.yaml)")
+    p_agent.add_argument("--cp", help="仅执行指定检查点")
+    p_agent.add_argument("--dry-run", action="store_true", help="预览模式")
+
+    # V2.7: hooks — Lifecycle hooks management
+    p_hooks = subparsers.add_parser("hooks", help="生命周期 Hooks 管理 (V2.7)", parents=[parent])
+    p_hooks.add_argument("action", choices=["install", "status", "uninstall"], help="操作")
+    p_hooks.add_argument("--force", action="store_true", help="覆盖已有配置")
+
+    # V2.7: structure — Code structure summary management
+    p_structure = subparsers.add_parser("structure", help="代码结构摘要管理 (V2.7)", parents=[parent])
+    p_structure.add_argument("action", choices=["delta", "merge", "rebuild", "show", "graph"], help="操作")
+    p_structure.add_argument("target", nargs="?", help="change 名称 (delta/merge) / module 名称 (show)")
+
+    # V2.7: skill — Skill management
+    p_skill = subparsers.add_parser("skill", help="Skill 管理 (V2.7)", parents=[parent])
+    p_skill.add_argument("action", choices=["create"], help="操作")
+    p_skill.add_argument("name", nargs="?", help="Skill 名称")
+    p_skill.add_argument("--type", choices=["language", "workflow", "tools"], default="language")
+
+    # V2.7: experience list — add provenance filter
+    p_exp_list.add_argument("--provenance", help="按来源过滤 (ci-detected / ai-inferred / human-reported / community-imported)")
+
     args = parser.parse_args()
 
     if not args.command:
@@ -205,6 +252,14 @@ def main() -> None:
         "experience": "stdd.cli.commands.experience.cmd_experience",
         "state": "stdd.cli.commands.state.cmd_state",
         "gate": "stdd.cli.commands.gate.cmd_gate",
+        # V2.7 new commands
+        "proposal": "stdd.cli.commands.proposal._dispatch",
+        "canon": "stdd.cli.commands.canon._dispatch",
+        "index": "stdd.cli.commands.index._dispatch",
+        "agent": "stdd.cli.commands.agent._dispatch",
+        "hooks": "stdd.cli.commands.hooks._dispatch",
+        "structure": "stdd.cli.commands.structure._dispatch",
+        "skill": "stdd.cli.commands.skill._dispatch",
     }
 
     if args.command in commands:

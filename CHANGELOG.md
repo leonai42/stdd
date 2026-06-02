@@ -1,5 +1,57 @@
 # STDD 变更日志 / Changelog
 
+## V2.7 (2026-06-03) — 结构化基础 + 锚定落地 + 双轨验证 + 上下文工程 + 工程效能优化
+
+> V2.6 合并入 V2.7，跳过 V2.6 版本号。25 项改动 / 5 个板块（E/A/B/C/D）
+
+### 结构化基础（板块 E · 原 V2.6）
+- `canonical/` 目录结构 + `.canon-index.yaml`
+- `proposal.yaml` Canonical 格式 + `stdd proposal init/validate/show` CLI
+- `agent_spec.yaml` Canonical 格式（单系统 Agent 验证规格）
+- `project-index.yaml` 格式 + `stdd index update/show/trace` CLI
+- `STDD_ANCHORING.md` 锚定法方法论文档（L1-L4 四级锚定）
+- `stdd canon init/generate/verify` CLI（双轨制基础）
+- `.stdd/templates/canonical/` + `.stdd/templates/human-view/` 模板目录
+
+### 锚定落地 + 双轨验证（板块 A）
+- 锚定评估 Phase 2 集成（spec.md Step 2.4）
+- 第 12 类失败模式 (l) 锚定缺失 + `stdd ci check-anchoring`
+- `specs/code/` 与 `specs/agent/` 分目录
+- `stdd agent verify` CLI + CP 检查点执行器
+- `stdd canon verify` CLI（DC-HASH / DC-FIELD 一致性检查）
+- `anchors/` 目录 + L2/L3/L4 锚定支持
+- 经验库新增 agent_cp_failure / spec_ambiguity 类别
+
+### 上下文工程（板块 B）
+- `phase-context.md` 阶段交接摘要机制
+- `resume_context` 重定位（指针 + phase_context_file 引用）
+- 上下文预算检查（build.md / verify.md Step -1）
+- `stdd install opencode` 平台适配器
+
+### 工程效能优化（板块 C · ECC 借鉴）
+- Token 优化策略体系（6 阶段模型分层 + 文件大小约束）
+- 4 个新 subagent 定义（security/perf/compat/planner）
+- 3 个 Claude Code hooks + `stdd hooks install` CLI
+- Skill 目录重构 + `stdd skill create` CLI
+
+### 代码知识积累（板块 D · CodeGraph 借鉴）
+- 代码结构摘要系统（code-structure-delta → index.md 自积累）
+- 经验 provenance 字段（ci-detected/ai-inferred/human-reported/community-imported）
+- `.stdd.yaml` 状态新鲜度校验（state_freshness + git HEAD 对比）
+- 10 条关键规则中英双语注入（STDD.md / AGENTS.md / 各阶段 skill）
+
+### CLI 命令新增
+- `proposal`, `canon`, `index`, `agent`, `hooks`, `structure`, `skill` — 7 个新命令
+- `experience list --provenance` — 按来源过滤经验
+- `state --resume` — 含新鲜度状态和 phase_context 摘要
+
+### 社区经验池
+- 社区经验池（GitHub + Gitee）基础设施就绪
+- 4 条种子经验（Python 3 + Go 1）
+- CONTRIBUTING.md + 脱敏检查清单 + `.experience-template.md`
+
+---
+
 ## V2.5 (2026-05-21) — 经验生命周期闭环 + 社区经验池 + 多Agent适配 / Experience Lifecycle + Community Pool + Multi-Agent Support
 
 ### 经验生命周期状态机 / Experience Lifecycle FSM
