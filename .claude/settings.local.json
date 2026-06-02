@@ -55,7 +55,27 @@
       "Bash(pip *)",
       "Bash(rm *)",
       "Bash(yamllint *)",
-      "Bash(python -c *)"
+      "Bash(python -c *)",
+      "Bash(cp \"D:/mycode/stdd/.stdd/skills/understand.md\" \"C:/Users/HUAWEI/.claude/skills/stdd-understand/SKILL.md\")",
+      "Bash(cp \"D:/mycode/stdd/.stdd/skills/spec.md\" \"C:/Users/HUAWEI/.claude/skills/stdd-spec/SKILL.md\")",
+      "Bash(cp \"D:/mycode/stdd/.stdd/skills/slice.md\" \"C:/Users/HUAWEI/.claude/skills/stdd-slice/SKILL.md\")",
+      "Bash(cp \"D:/mycode/stdd/.stdd/skills/build.md\" \"C:/Users/HUAWEI/.claude/skills/stdd-build/SKILL.md\")",
+      "Bash(cp \"D:/mycode/stdd/.stdd/skills/verify.md\" \"C:/Users/HUAWEI/.claude/skills/stdd-verify/SKILL.md\")",
+      "WebSearch",
+      "Read(//d/mycode/projectdemo/visio-flowchart.git/**)",
+      "Read(//d/mycode/projectdemo/**)",
+      "WebFetch(domain:trilium.atibm.com)",
+      "Bash(git stash *)",
+      "Bash(git reset *)",
+      "Bash(git push *)",
+      "Bash(gh auth *)",
+      "Bash(git rm *)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:deepwiki.com)",
+      "Bash(mkdir -p /d/mycode/stdd-experiences/packs/python/v1.0.0)",
+      "Bash(mkdir -p /d/mycode/stdd-experiences/packs/go/v1.0.0)",
+      "Bash(mkdir -p /d/mycode/stdd-experiences/community/proposals)"
     ]
   }
 }

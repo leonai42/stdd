@@ -471,14 +471,28 @@ def _read_community_config(project_root: Path) -> dict:
     return config.get("community", {})
 
 
-def _download_with_fallback(pack_name: str, config: dict) -> bytes | None:
-    """Download pack from registries with priority ordering and timeout fallback."""
+def _download_with_fallback(pack_name: str, pack_version: str, config: dict) -> bytes | None:
+    """Download pack from registries with priority ordering and timeout fallback.
+
+    Supports two registry types:
+      - github (default):  {url}/experience-{pack}-latest.tar.gz
+      - gitee:             {url}/{version}/experience-{pack}-{version}.tar.gz
+    """
     registries = sorted(config.get("registries", []), key=lambda r: r.get("priority", 99))
     timeout = config.get("fallback_timeout", 5)
-    pack_filename = f"experience-{pack_name}-latest.tar.gz"
 
     for i, registry in enumerate(registries):
-        url = f"{registry['url'].rstrip('/')}/{pack_filename}"
+        registry_type = registry.get("type", "github")
+
+        if registry_type == "gitee":
+            # Gitee: /releases/download/{tag}/{file} — no /latest/ redirect
+            pack_filename = f"experience-{pack_name}-{pack_version}.tar.gz"
+            url = f"{registry['url'].rstrip('/')}/{pack_version}/{pack_filename}"
+        else:
+            # GitHub (default): /releases/latest/download/{file}
+            pack_filename = f"experience-{pack_name}-latest.tar.gz"
+            url = f"{registry['url'].rstrip('/')}/{pack_filename}"
+
         try:
             resp = requests.get(url, timeout=timeout)
             resp.raise_for_status()
@@ -506,9 +520,19 @@ def _cmd_pull(args: argparse.Namespace, exp_dir: Path) -> None:
         sys.exit(1)
 
     pack_name = args.pack_name
-    print(f"  Pulling experience pack: {pack_name} ...")
 
-    data = _download_with_fallback(pack_name, config)
+    # Look up pack version from config
+    pack_version = None
+    for pack in config.get("packs", []):
+        if pack.get("name") == pack_name:
+            pack_version = pack.get("version", "latest")
+            break
+    if pack_version is None:
+        pack_version = "latest"
+
+    print(f"  Pulling experience pack: {pack_name} (version: {pack_version}) ...")
+
+    data = _download_with_fallback(pack_name, pack_version, config)
     if data is None:
         print(f"  Error: all registries unreachable")
         sys.exit(1)

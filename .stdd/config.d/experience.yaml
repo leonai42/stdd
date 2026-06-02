@@ -24,10 +24,12 @@ experience:
 community:
   registries:
     - name: github
+      type: github
       url: "https://github.com/leonai42/stdd-experiences/releases/latest/download"
       priority: 1
     - name: gitee
-      url: "https://gitee.com/leonai42/stdd-experiences/releases/latest/download"
+      type: gitee
+      url: "https://gitee.com/leonai42/stdd-experiences/releases/download"
       priority: 2
   fallback_timeout: 5
   packs:
