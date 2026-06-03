@@ -171,6 +171,38 @@ def cmd_proposal_validate(args):
     print(f"  proposal.yaml validation passed")
 
 
+def cmd_proposal_show(args):
+    """Display proposal.yaml in human-readable format."""
+    canon_dir = Path.cwd() / "canonical" / "proposals"
+    yaml_file = canon_dir / f"{args.change_name}.yaml"
+
+    if not yaml_file.exists():
+        print(f"  canonical/proposals/{args.change_name}.yaml not found")
+        sys.exit(1)
+
+    data = yaml.safe_load(yaml_file.read_text(encoding="utf-8"))
+    title = data.get("meta", {}).get("title", args.change_name)
+    print(f"\n  Proposal: {title}")
+    print(f"  Change ID: {data['meta']['change_id']}")
+    print(f"  Status: {data['meta'].get('status', 'draft')}")
+    print(f"\n  Why: {data.get('why', {}).get('problem', '')}")
+    print(f"\n  Changes ({len(data.get('what_changes', []))} items):")
+    for c in data.get("what_changes", []):
+        print(f"    - {c.get('description', '')}")
+    caps = data.get("capabilities", {})
+    new = caps.get("new", [])
+    if new:
+        print(f"\n  New Capabilities ({len(new)}):")
+        for c in new:
+            print(f"    + {c.get('name', '')}: {c.get('description', '')}")
+    modified = caps.get("modified", [])
+    if modified:
+        print(f"\n  Modified Capabilities ({len(modified)}):")
+        for c in modified:
+            print(f"    ~ {c.get('name', '')}: {c.get('description', '')}")
+    print()
+
+
 def _dispatch(args):
     """Route to appropriate subcommand."""
     if args.action == "init":
