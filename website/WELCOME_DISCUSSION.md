@@ -10,10 +10,12 @@ Welcome to the official discussion forum for STDD (Spec+Test Driven Development)
 
 STDD 是一套开源 AI 辅助研发流程系统。它通过 **Spec 先行 + TDD 执行** 的方式，让 AI 写出更正确的代码。核心能力包括：
 
-- 🧠 **自学习经验库** — 项目越用越聪明
-- 🛡️ **12 类失败模式检查** — 系统性堵住 AI 常见错误
-- 🌐 **社区经验共享池** — 一个人的教训，所有人的经验
-- 🤖 **26 个 CLI 命令 + 7 大 AI 平台支持**
+STDD is an open-source AI-assisted development methodology. Through **Spec-First + TDD Execution**, it ensures AI writes correct code. Core capabilities include:
+
+- 🧠 **自学习经验库 / Self-Learning Experience Library** — 项目越用越聪明 / Gets smarter with every project
+- 🛡️ **12 类失败模式检查 / 12 Failure Mode Checks** — 系统性堵住 AI 常见错误 / Systematically prevents common AI mistakes
+- 🌐 **社区经验共享池 / Community Experience Pool** — 一个人的教训，所有人的经验 / One person's lesson, everyone's experience
+- 🤖 **26 个 CLI 命令 + 7 大 AI 平台支持 / 26 CLI Commands + 7 AI Platforms**
 
 📦 GitHub: [github.com/leonai42/stdd](https://github.com/leonai42/stdd)
 🌐 官网: [STDD 官网](https://www.hzddyy.com/stdd/)
@@ -45,21 +47,21 @@ python bin/stdd init
 python bin/stdd install claude-code
 
 # 4. 开始第一个需求 / Start your first change
-/stdd-understand 你的需求描述
+/stdd-understand "describe your requirement here"
 ```
 
 ---
 
 ## 🤝 贡献指南 / Contributing
 
-我们欢迎各种形式的贡献：
+我们欢迎各种形式的贡献 / We welcome all forms of contributions:
 
-- 🐛 报告 Bug / Report issues
-- 💡 提出新功能 / Suggest features
+- 🐛 报告 Bug / Report bugs
+- 💡 提出新功能 / Suggest new features
 - 📝 完善文档 / Improve documentation
 - 🧪 贡献经验条目到社区经验池 / Contribute experience entries to the community pool
 
-详见 [CONTRIBUTING.md](https://github.com/leonai42/stdd/blob/master/CONTRIBUTING.md)
+详见 / See: [CONTRIBUTING.md](https://github.com/leonai42/stdd/blob/master/CONTRIBUTING.md)
 
 ---
 
@@ -68,4 +70,5 @@ python bin/stdd install claude-code
 - GitHub Issues: [github.com/leonai42/stdd/issues](https://github.com/leonai42/stdd/issues)
 - 社区经验池: [github.com/leonai42/stdd-experiences](https://github.com/leonai42/stdd-experiences)
 
-**Spec 先行，TDD 执行，质量不靠运气，靠系统。** 🚀
+**Spec 先行，TDD 执行，质量不靠运气，靠系统。**  
+**Spec First, TDD Execution. Quality by system, not by luck.** 🚀
