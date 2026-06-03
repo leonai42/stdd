@@ -205,7 +205,7 @@ def main() -> None:
     p_agent.add_argument("action", choices=["verify"], help="操作")
     p_agent.add_argument("task", nargs="?", help="任务 ID (对应 agent_spec.yaml)")
     p_agent.add_argument("--cp", help="仅执行指定检查点")
-    p_agent.add_argument("--dry-run", action="store_true", help="预览模式")
+    # --dry-run 由父解析器提供，agent 直接使用 args.dry_run
 
     # V2.7: hooks — Lifecycle hooks management
     p_hooks = subparsers.add_parser("hooks", help="生命周期 Hooks 管理 (V2.7)", parents=[parent])
