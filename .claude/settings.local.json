@@ -75,7 +75,25 @@
       "WebFetch(domain:deepwiki.com)",
       "Bash(mkdir -p /d/mycode/stdd-experiences/packs/python/v1.0.0)",
       "Bash(mkdir -p /d/mycode/stdd-experiences/packs/go/v1.0.0)",
-      "Bash(mkdir -p /d/mycode/stdd-experiences/community/proposals)"
+      "Bash(mkdir -p /d/mycode/stdd-experiences/community/proposals)",
+      "Bash(awk -F: '{sum+=$2} END {print \"Total Scenarios:\", sum}')",
+      "Bash(find *)",
+      "Write(specs/**)",
+      "Edit(specs/**)",
+      "Write(stdd/**)",
+      "Edit(stdd/**)",
+      "Write(tests/**)",
+      "Edit(tests/**)",
+      "Write(AGENTS.md)",
+      "Edit(AGENTS.md)",
+      "Write(STDD.md)",
+      "Edit(STDD.md)",
+      "Write(README.md)",
+      "Edit(README.md)",
+      "Write(V2.5_FEATURES.md)",
+      "Edit(V2.5_FEATURES.md)",
+      "Write(STDD_ANCHORING.md)",
+      "Edit(STDD_ANCHORING.md)"
     ]
   }
 }

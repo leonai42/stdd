@@ -1,40 +1,23 @@
 change_name: 2026-06-01-stdd-v2.7-context-engineering
 version: "2.7"
-active_phase: 6
+active_phase: 4
+active_slice: 1
+phase_context_file: "changes/2026-06-01-stdd-v2.7-context-engineering/phase-context.md"
 
-phase1:
-  started: "2026-06-02T20:00:00"
-  completed: "2026-06-03T00:00:00"
-  gate1: { confirmed: true, confirmed_at: "2026-06-03T00:00:00" }
-
-phase2:
-  started: "2026-06-03T01:00:00"
-  completed: "2026-06-03T02:30:00"
-  gate2: { confirmed: true, confirmed_at: "2026-06-03T02:30:00" }
-
-phase3:
-  started: "2026-06-03T02:45:00"
-  completed: "2026-06-03T03:00:00"
+# Phase 1-3: 复用已有（proposal/design/specs 全部覆盖 16 项剩余工作）
+# Phase 4: V2.7 补全 — 16 项 / 3 个新切片
 
 phase4:
-  started: "2026-06-03T03:00:00"
-  completed: "2026-06-03T04:00:00"
-  slices: 7
-  new_files: 24
-  new_tests: 9
-  total_tests: 164
+  started: "2026-06-03T21:00:00"
+  round: 2  # 第二轮 BUILD（补全遗漏项）
 
-phase5:
-  started: "2026-06-03T04:00:00"
-  completed: "2026-06-03T04:10:00"
-  gate3: { confirmed: true, confirmed_at: "2026-06-03T04:10:00" }
-  tests_passed: 164
-  tests_failed: 0
-  design_adjustments: 3
+long_range:
+  enabled: false  # 本次用普通模式，严格逐切片验证
+  mode: "normal"
 
-phase6:
-  started: "2026-06-03T04:10:00"
-  completed: "2026-06-03T04:15:00"
+resume_context: "Phase 4 R2: 补全 16 项剩余工作。3 个切片（高优6项/中优7项/低优3项）。普通模式，逐切片验证。"
+last_modified: "2026-06-03T21:00:00"
 
-resume_context: "STDD V2.7 全部 6 个阶段完成。已归档 + specs 合并 + CHANGELOG 更新。"
-last_modified: "2026-06-03T04:15:00"
+state_freshness:
+  verified_at: "2026-06-03T21:00:00"
+  git_head: ""

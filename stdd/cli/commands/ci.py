@@ -574,6 +574,41 @@ def check_tc_implementation_coverage(change_dir: Path, project_root: Path) -> tu
 
 
 @_register_check
+def check_anchoring_missing(change_dir: Path, project_root: Path) -> tuple[str, str]:
+    """(l) Check critical Change has sufficient anchoring level (V2.7)."""
+    import yaml as _yaml
+    # Check for canonical proposal
+    canon_file = project_root / "canonical" / "proposals" / f"{change_dir.name}.yaml"
+    if not canon_file.exists():
+        return ("SKIP", "(l) canonical proposal not found — cannot check anchoring")
+
+    try:
+        data = _yaml.safe_load(canon_file.read_text(encoding="utf-8"))
+    except Exception:
+        return ("SKIP", "(l) canonical proposal parse failed")
+
+    critical = data.get("critical", {})
+    if not critical.get("is_critical", False):
+        return ("PASS", "(l) Non-critical change — anchoring not required")
+
+    risk = critical.get("risk_assessment", {})
+    required = "L1"
+    if risk.get("financial"):
+        required = "L4"
+    elif risk.get("safety_critical"):
+        required = "L3"
+    elif risk.get("cross_system"):
+        required = "L2"
+
+    current = data.get("anchoring", {}).get("level", "L1")
+    level_num = {"L1": 1, "L2": 2, "L3": 3, "L4": 4}
+
+    if level_num.get(current, 1) < level_num.get(required, 1):
+        return ("FAIL", f"(l) 锚定等级不足：当前 {current}，最低要求 {required}")
+    return ("PASS", f"(l) Anchoring: {current} >= {required}")
+
+
+@_register_check
 def check_slice_completion(change_dir: Path, project_root: Path) -> tuple[str, str]:
     """Check that all slices marked 'done' have evidence (V2.7 post-mortem P4-3)."""
     stdd_yaml = change_dir / ".stdd.yaml"

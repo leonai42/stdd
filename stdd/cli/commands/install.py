@@ -105,6 +105,13 @@ def cmd_install(args: argparse.Namespace) -> None:
             "single_file": True,
             "target_name": "stdd.md",
         },
+        "opencode": {
+            "target_base": ".opencode/skills",
+            "description": "OpenCode",
+            "frontmatter_fn": _make_claude_code_frontmatter,
+            "is_dir_per_skill": True,
+            "skill_filename": "SKILL.md",
+        },
     }
 
     if platform not in platform_map:

@@ -678,7 +678,7 @@ class TestCategoryValidation:
                                tags="", root_cause="", detection_trigger="", fix_template="", source_change=None)
             cmd_experience(args)
 
-        assert len(list(exp_dir.glob("EXP-*.md"))) == 11
+        assert len(list(exp_dir.glob("EXP-*.md"))) == len(VALID_CATEGORIES)
 
 
 class TestExperienceLifecycle:

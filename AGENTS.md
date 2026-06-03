@@ -50,3 +50,39 @@ archive/                # 已完成变更 / Completed changes
 - Cross-platform: one set of core skills → `stdd install` generates platform-specific adapters
 - V2.5 new: Experience lifecycle FSM (discover→verify→deposit→share→merge/retire), Community experience pool, Multi-agent parallel slices, Cross-session state resume, Gate file confirmation, CI checks enhanced (scope/coverage/contracts)
 - V2.4 new: Self-learning experience library, Spec auto-complete, Smart slice recommendation, CI/CD integration
+
+## 专项 Subagent 定义 / Specialized Subagents (V2.7)
+
+> 以下 agent 默认禁用。在 quality.yaml review.agents 中按需启用。
+
+### security-reviewer / 安全审计员
+- **ID**: security-reviewer | **模型**: Opus | **阶段**: Phase 5
+- **职责**: 注入/SQL/XSS/认证/敏感数据/依赖CVE 安全审计
+- **触发**: Phase 5 VERIFY review 阶段启用，或手动 `/security-review`
+
+### perf-analyzer / 性能分析师
+- **ID**: perf-analyzer | **模型**: Sonnet | **阶段**: Phase 5
+- **职责**: N+1查询/内存泄漏/阻塞IO/算法复杂度 性能分析
+- **触发**: Phase 5 VERIFY review 阶段启用
+
+### compat-checker / 兼容性检查员
+- **ID**: compat-checker | **模型**: Sonnet | **阶段**: Phase 5
+- **职责**: API breaking/依赖冲突/平台差异/Python版本兼容性
+- **触发**: Phase 5 VERIFY review 阶段启用
+
+### planner / 架构规划师
+- **ID**: planner | **模型**: Opus | **阶段**: Phase 2
+- **职责**: 独立执行技术设计，产出 design.md
+- **触发**: quality.yaml 中 agents.planner.enabled=true 时，Phase 2 分离为 planner + spec-writer 双 Agent
+
+## ⚠️ 强制性约束 / MANDATORY CONSTRAINTS (V2.7)
+
+> 以下规则不可跳过、不可变通 / NEVER skip or override these rules:
+
+| # | 中文 | English |
+|---|------|---------|
+| 1 | **绝不可跳过 Gate 确认** — 三道 Gate 必须用户明确确认 | **NEVER skip a Gate** — all three Gates require explicit user confirmation |
+| 2 | **绝不静默修改设计** — 偏离必须记录到 design-adjustments.md | **NEVER silently deviate from design** — deviations MUST be recorded |
+| 3 | **绝不可先写代码再补测试** — 严格 RED→GREEN→REFACTOR | **NEVER write code before tests** — strict RED→GREEN→REFACTOR |
+| 4 | **绝不可跳过失败模式检查** — Phase 5 必须全量 12 类检查 | **NEVER skip failure mode checks** — all 12 categories mandatory |
+| 5 | **绝不可跳过切片验证** — 每个切片必须通过 Step 1.4 验证 | **NEVER skip slice verification** — Step 1.4 mandatory per slice |

@@ -8,7 +8,8 @@ from datetime import datetime
 import yaml
 
 
-RESUME_FIELDS = ["resume_context", "active_slice", "last_action", "last_modified"]
+RESUME_FIELDS = ["resume_context", "active_slice", "last_action", "last_modified",
+                  "active_phase", "phase_context_file"]
 
 
 def _find_change_dir(name: str | None, project_root: Path) -> Path | None:
@@ -73,9 +74,49 @@ def cmd_state(args: argparse.Namespace) -> None:
 
     if getattr(args, "resume", False):
         ctx = read_resume_context(change_dir)
-        print(f"  Resume context for {change_dir.name}:")
-        for k in RESUME_FIELDS:
-            print(f"    {k}: {ctx[k]}")
+        state_file = change_dir / ".stdd.yaml"
+        data = yaml.safe_load(state_file.read_text(encoding="utf-8")) or {}
+
+        print(f"\n  ══════════════════════════════════════")
+        print(f"    STDD Resume Context")
+        print(f"  ══════════════════════════════════════")
+        print(f"\n  Change: {change_dir.name}")
+        print(f"  Phase: {data.get('active_phase', '?')}")
+        print(f"  Slice: {data.get('active_slice', 'N/A')}")
+        print(f"  Last Action: {data.get('last_action', 'unknown')}")
+        print(f"  Last Modified: {data.get('last_modified', 'unknown')}")
+
+        # Phase context file pointer
+        pc_file = data.get("phase_context_file", "")
+        if pc_file:
+            print(f"\n  📄 Phase Context: {pc_file}")
+            print(f"  💡 建议: 先读取 phase-context.md 了解完整背景")
+
+        # State freshness check (V2.7)
+        freshness = data.get("state_freshness", {})
+        if freshness:
+            verified_at = freshness.get("verified_at", "unknown")
+            saved_head = freshness.get("git_head", "")
+
+            # Check git HEAD
+            import subprocess
+            try:
+                result = subprocess.run(
+                    ["git", "rev-parse", "--short", "HEAD"],
+                    capture_output=True, text=True, cwd=project_root
+                )
+                current_head = result.stdout.strip()
+            except Exception:
+                current_head = ""
+
+            if saved_head and current_head and saved_head != current_head:
+                print(f"\n  🟡 State Freshness: STALE")
+                print(f"     Git HEAD 已变更: saved={saved_head}, current={current_head}")
+                print(f"     建议: 检查变更是否影响当前 change 的产出物")
+            else:
+                print(f"\n  🟢 State Freshness: FRESH — {verified_at}")
+
+        print()
         return
 
     set_kv = getattr(args, "set", None)

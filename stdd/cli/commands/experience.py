@@ -27,6 +27,10 @@ VALID_CATEGORIES = [
     "instruction_decay",
     "coverage_vacuum",
     "contract_gap",
+    # V2.7 new categories
+    "anchor_missing",
+    "agent_cp_failure",
+    "spec_ambiguity",
 ]
 
 CATEGORY_LABELS = {
@@ -41,7 +45,24 @@ CATEGORY_LABELS = {
     "instruction_decay": "(i) 指令衰减",
     "coverage_vacuum": "(j) 覆盖真空",
     "contract_gap": "(k) 契约断层",
+    "anchor_missing": "(l) 锚定缺失",
+    "agent_cp_failure": "(l-aux) Agent CP 失败",
+    "spec_ambiguity": "(l-aux) Spec 歧义",
 }
+
+PROVENANCE_WEIGHTS = {
+    "human-reported": 0.95,
+    "ci-detected": 0.85,
+    "ai-inferred": 0.60,
+    "community-imported": 0.50,
+}
+
+
+def _provenance_weight(args) -> float:
+    """Get provenance weight from args or default."""
+    if hasattr(args, "provenance") and args.provenance:
+        return PROVENANCE_WEIGHTS.get(args.provenance, 0.60)
+    return PROVENANCE_WEIGHTS.get("ai-inferred", 0.60)
 
 # Valid lifecycle state transitions
 # discovered → verified → deposited
@@ -292,6 +313,9 @@ def _cmd_list(args: argparse.Namespace, exp_dir: Path) -> None:
             continue
         if args.severity and data.get("severity") != args.severity:
             continue
+        # V2.7: provenance filter
+        if getattr(args, "provenance", None) and data.get("provenance") != args.provenance:
+            continue
 
         experiences.append(data)
 
@@ -339,6 +363,9 @@ def _cmd_add(args: argparse.Namespace, exp_dir: Path) -> None:
         "community_votes_unuseful": 0,
         "adoption_count": 0,
         "project_type": getattr(args, "project_type", None) or _detect_project_type(Path.cwd() / "changes"),
+        # V2.7: provenance tracking
+        "provenance": getattr(args, "provenance", None) or "ai-inferred",
+        "provenance_weight": _provenance_weight(args),
     }
 
     body = args.body or ""
