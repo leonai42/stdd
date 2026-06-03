@@ -634,3 +634,38 @@ def check_slice_completion(change_dir: Path, project_root: Path) -> tuple[str, s
         return ("WARN", f"以下切片标记为 done 但缺少验证证据: {'; '.join(unverified)}")
 
     return ("PASS", f"{len(slices)} 个切片均有验证证据")
+
+
+# ── V2.8: pass@k verification ──────────────────────────────
+
+def run_pass_k(test_command: str, k: int = 3) -> dict:
+    """Run tests k times and compute pass@k metrics.
+
+    Returns dict with: pass_count, total, pass_at_1, pass_at_k, details
+    """
+    import subprocess
+    results = []
+    for i in range(k):
+        result = subprocess.run(test_command, shell=True, capture_output=True, text=True)
+        results.append(result.returncode == 0)
+
+    return {
+        "pass_count": sum(results),
+        "total": k,
+        "pass_at_1": 1.0 if results[0] else 0.0,
+        "pass_at_k": sum(results) / k if k > 0 else 0.0,
+        "details": results,
+    }
+
+
+def check_passk_ambiguity(pass_at_1: float, pass_at_k: float, k: int) -> str | None:
+    """Detect spec ambiguity: pass@1 low but pass@k high.
+
+    Returns warning message if ambiguity detected, None otherwise.
+    """
+    if k < 3:
+        return None
+    if pass_at_1 < 0.5 and pass_at_k > 0.8:
+        return (f"⚠️  Spec 可能存在歧义 — pass@1={pass_at_1:.0%} 但 pass@{k}={pass_at_k:.0%}。"
+                f"建议在 Phase 2 中提升锚定等级。")
+    return None
