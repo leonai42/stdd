@@ -5,6 +5,7 @@ by_category:
   - EXP-2026-0003
   instruction_decay:
   - EXP-2026-0004
+  - EXP-2026-0006
   scope_creep:
   - EXP-2026-0002
   - EXP-2026-0005
@@ -16,6 +17,7 @@ by_language:
   - EXP-2026-0002
   - EXP-2026-0004
   - EXP-2026-0005
+  - EXP-2026-0006
 by_lifecycle:
   discovered:
   - EXP-2026-0001
@@ -23,13 +25,15 @@ by_lifecycle:
   - EXP-2026-0003
   - EXP-2026-0004
   - EXP-2026-0005
+  - EXP-2026-0006
 by_severity:
   high:
   - EXP-2026-0001
   - EXP-2026-0003
   - EXP-2026-0004
   - EXP-2026-0005
+  - EXP-2026-0006
   medium:
   - EXP-2026-0002
-last_id: 5
-total: 5
+last_id: 6
+total: 6
