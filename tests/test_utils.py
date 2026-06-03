@@ -41,9 +41,18 @@ def test_get_stdd_source():
     assert (source / "bin" / "stdd").exists()
 
 
-def test_read_config_from_config_d():
+def test_read_config_from_config_d(tmp_path: Path):
     """从 config.d/ 读取配置。"""
-    config = read_config(Path.cwd())
+    import yaml
+    config_d = tmp_path / ".stdd" / "config.d"
+    config_d.mkdir(parents=True)
+    (config_d / "project.yaml").write_text(yaml.dump({
+        "project": {"name": "test"}, "stdd_version": "2.8"
+    }), encoding="utf-8")
+    (config_d / "gates.yaml").write_text(yaml.dump({"gates": {"phase1": {}}}), encoding="utf-8")
+    (config_d / "long_range.yaml").write_text(yaml.dump({"long_range": {"enabled": False}}), encoding="utf-8")
+
+    config = read_config(tmp_path)
     assert "project" in config
     assert "stdd_version" in config
     assert "gates" in config
