@@ -26,12 +26,37 @@ description: "STDD Phase 4: TDD 实现 — 按切片执行 RED→GREEN→REFACTO
 
 ## 长程模式运行协议（仅在 `long_range.mode == "full_auto"` 时适用）
 
-1. **无交互原则**：整个阶段内不使用 AskUserQuestion，不等待用户回复
+### ⚠️ 长程模式强制约束 / MANDATORY LONG-RANGE CONSTRAINTS
+
+> 长程模式 ≠ 可以跳过流程步骤。
+> Long-range mode skips authorization interactions, NOT process steps.
+
+以下规则不可违反。违反任一条 = 流程失败 / The following rules CANNOT be violated:
+
+| # | 中文 | English |
+|---|------|---------|
+| 1 | **每个 Step 必须执行** — 长程模式跳过的是授权交互（AskUserQuestion），不是流程步骤 | **EVERY Step MUST be executed** — long-range skips authorization (AskUserQuestion), NOT process steps |
+| 2 | **Step 1.4 切片验证不可跳过** — 每个切片必须通过 TC 覆盖 + 产出物核对 + 测试通过三项检查 | **Step 1.4 slice verification CANNOT be skipped** — every slice MUST pass TC coverage + deliverable check + test pass |
+| 3 | **每个切片必须有新增测试** — 如果 test-plan 中本切片有 TC，新增测试数必须 > 0 | **EVERY slice MUST have new tests** — if test-plan has TCs for this slice, new test count MUST be > 0 |
+| 4 | **进度标记必须有证据** — .stdd.yaml 的 slice done 必须关联 tc_coverage / new_tests / verified_at | **Progress markers MUST be evidence-backed** — slice done requires tc_coverage / new_tests / verified_at |
+| 5 | **降级触发覆盖静默失败** — 切片 TC 覆盖率为 0 → WARNING；连续 3 个切片无新增测试 → DEGRADE | **Degradation covers silent failures** — 0 TC coverage → WARNING; 3 consecutive slices with 0 new tests → DEGRADE |
+| 6 | **禁止占位符标记完成** — 产出物为 [TODO] 或骨架占位符的切片不能标记为 done | **NEVER mark placeholders as done** — slices with [TODO] output CANNOT be marked complete |
+
+### 运行协议
+
+1. **无交互原则**：整个阶段内不使用 AskUserQuestion，不等待用户回复。**但所有 Step 必须执行**
 2. **批量执行**：将同一切片的 RED+GREEN+REFACTOR 合并在一轮内完成
-3. **自动降级检测**：每步操作后检查是否触发降级条件（连续3次修复失败/通过率<95%/安全问题）
-4. **进度汇报**：每个切片完成后输出简短进度（1行），但不等待回复
-5. **阶段衔接**：完成后立即自动调用下一阶段 Skill（stdd-verify）
-6. **仅降级时暂停**：仅在触发降级条件时才使用 AskUserQuestion 暂停
+3. **自动降级检测**：每步操作后检查是否触发降级条件：
+   - 连续 3 次修复失败
+   - 通过率 < 95%
+   - 安全问题
+   - **切片 TC 覆盖率为 0%（新增·V2.7 复盘）**
+   - **连续 3 个切片新增测试数为 0（新增·V2.7 复盘）**
+   - **产出物为 [TODO] 占位符（新增·V2.7 复盘）**
+4. **切片验证**：每个切片完成后必须执行 Step 1.4 切片验证，通过后才能进入下一切片
+5. **进度汇报**：每个切片完成后输出验证结果（TC 覆盖率 + 测试数），但不等待回复
+6. **阶段衔接**：所有切片完成 + 验证通过后，自动调用 Phase 5（stdd-verify）
+7. **仅降级时暂停**：仅在触发降级条件时才使用 AskUserQuestion 暂停
 
 ## 执行流程
 
@@ -96,6 +121,48 @@ description: "STDD Phase 4: TDD 实现 — 按切片执行 RED→GREEN→REFACTO
 4. 应用 deep modules 原则（小接口隐藏大复杂度）
 5. 应用 deletion test（如果移除这个模块，复杂度是否集中在调用方？如果不是，这个模块不值得存在）
 6. 运行测试 → **保持 GREEN**
+
+---
+
+#### Step 1.4: 切片验证（V2.7 复盘新增 — 每切片强制）
+
+**本步骤不可跳过。长程模式下也必须执行。**
+
+在进入下一个切片之前，必须逐项验证本切片的完成情况：
+
+1. **TC 覆盖检查**：
+   - 读取 `test-plan.md`，获取本切片对应的所有 TC-ID
+   - 搜索 `tests/` 目录，确认每个 TC-ID 是否在测试函数注释中出现
+   - 本切片 TC 覆盖率 = 有测试的 TC 数 / 本切片 TC 总数
+   - **如果本切片 TC 覆盖率 < 100%** → 切片未完成 → 回到 Step 1.1
+
+2. **产出物核对**：
+   - 对照 `slices.md` 中本切片的"实现目标"列
+   - 逐项检查：目标中的每个文件/模块是否真实存在？
+   - **如果有目标未实现** → 切片未完成 → 回到 Step 1.1
+
+3. **测试运行**：
+   - 运行本切片相关的测试：`pytest tests/ -k "<slice_test_pattern>" -v`
+   - **本切片新增测试必须全部通过**
+   - **本切片新增测试数必须 > 0**（如果 test-plan 中本切片有 TC）
+   - 如果新增测试 = 0 且 test-plan 中有 TC → 切片未完成 → 回到 Step 1.1
+   - 同时运行全量回归 → 确认无回归
+
+4. **更新状态**（仅在全部通过后）：
+   ```yaml
+   # .stdd.yaml
+   phase4:
+     slices_completed:
+       "<N>":
+         status: "done"
+         tc_coverage: "<M>/<K>"
+         new_tests: <M>
+         verified_at: "<timestamp>"
+   ```
+
+5. **不通过处理**：
+   - 修复问题 → 重新验证 → 最多 3 次
+   - 3 次仍不通过 → 降级为普通模式，暂停等待用户确认
 
 ---
 

@@ -87,3 +87,64 @@
 - [ ] 8.2 向后兼容验证（V2.5 格式文件可被 V2.7 正确读取）
 - [ ] 8.3 `stdd state --resume` 端到端验证
 - [ ] 8.4 `stdd canon init → generate → verify` 端到端验证
+
+## 9. 板块 F — 流程修复（V2.7 复盘·P0）🔴 Critical
+
+> 来源：V2.7 开发复盘（review/V2.7-post-mortem.md）
+> 25 个流程缺陷中 12 个 P0 项必须在 V2.7 patches 中修复
+
+### 9.1 切片验证（P4-1）
+- [ ] 9.1.1 build.md 增加 Step 1.4 切片验证（TC 覆盖检查 + 产出物核对）
+- [ ] 9.1.2 切片验证不通过 → 最多 3 次修复 → 仍不通过 → 降级暂停
+
+### 9.2 长程模式强化（P4-2, 长程专项）
+- [ ] 9.2.1 long-range-auth.md 模板重写：明确"跳过授权≠跳过流程"
+- [ ] 9.2.2 build.md / verify.md 增加 6 条长程强制约束
+- [ ] 9.2.3 降级条件扩展：切片 TC 覆盖率为 0 → WARNING → 3 连续 → DEGRADE
+- [ ] 9.2.4 降级条件扩展：连续产出物为 [TODO] 占位符 → DEGRADE
+
+### 9.3 进度标记验证（P4-3）
+- [ ] 9.3.1 .stdd.yaml active_slice 更新前必须执行切片验证
+- [ ] 9.3.2 state.py 增加 verified_tests / verified_at 字段
+- [ ] 9.3.3 `stdd state` 输出包含切片验证状态
+
+### 9.4 test-plan 强制引用（P4-4）
+- [ ] 9.4.1 build.md Step 1.1 增加强制步骤：读取 test-plan 获取本切片 TC 列表
+- [ ] 9.4.2 每个 TC 实现后标注 TC-ID 在测试函数注释中
+
+### 9.5 稻草人检查消除（P5-1, P5-2）
+- [ ] 9.5.1 `_check_coverage_vacuum(c)` 重写：对比 test-plan TC vs 实际测试函数
+- [ ] 9.5.2 `_check_hallucination(a)` 重写：检查引用的导入/API 是否存在
+- [ ] 9.5.3 `_check_cascading(c)` 重写：检查 try/except 模式的 CancelledError 处理
+- [ ] 9.5.4 `_check_scope_creep(b)` 重写：git diff --stat vs proposal Impact 对比
+- [ ] 9.5.5 所有检查的默认返回值从 `("pass", "")` 改为 `("skip", "check not executed")`
+
+### 9.6 Gate 3 报告完整化（P5-8）
+- [ ] 9.6.1 Gate 3 报告模板增加：test-plan TC 覆盖率、切片完成度、新增测试数
+- [ ] 9.6.2 报告中区分"实际通过的检查"和"未执行的检查"
+- [ ] 9.6.3 禁止在报告中用 "PASS" 代替未实际执行的检查
+
+### 9.7 交付审计（P6-1）
+- [ ] 9.7.1 实现 `stdd ci check-completeness`（TC 覆盖率 + capability 交付率）
+- [ ] 9.7.2 `stdd deliver` 前置条件：check-completeness 必须通过
+- [ ] 9.7.3 未通过时输出详细的缺口报告
+
+### 9.8 并行评审工具化（P5-4）
+- [ ] 9.8.1 verify.md Step 0 降级为强制 AI 目视指令（不可跳过）
+- [ ] 9.8.2 实现 `stdd review run --type code|test_config|docs_skills` CLI
+
+### 9.9 TC 覆盖验证（P2-2）
+- [ ] 9.9.1 `stdd validate` 增加 `--check-tc-coverage` 选项
+- [ ] 9.9.2 解析 test-plan.md 提取 TC-ID → 搜索测试文件中对应 ID
+
+### 9.10 Change 粒度检查（P1-1）
+- [ ] 9.10.1 understand.md 增加粒度检查：What Changes > 8 项 → 输出拆分建议
+- [ ] 9.10.2 Capabilities (new + modified) > 5 个 → 输出拆分建议
+
+### 9.11 切片完成标准（P3-3）
+- [ ] 9.11.1 slices.md 模板增加"完成标准"列（机器可验证的条件）
+- [ ] 9.11.2 每个切片的完成标准至少 1 条可机器验证的条件
+
+### 9.12 假 GREEN 检测（P4-5）
+- [ ] 9.12.1 切片验证时区分"回归测试"和"切片新增测试"
+- [ ] 9.12.2 切片新增测试 = 0 → 不视为完成，警告输出

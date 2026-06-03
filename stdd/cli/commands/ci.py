@@ -528,3 +528,74 @@ def _run_single_check(args: argparse.Namespace, project_root: Path, subcommand: 
     print(f"  {symbol.get(status, '?')} [{status}] {message}")
     if status == "FAIL":
         sys.exit(1)
+
+
+# ── V2.7 复盘新增: TC 计划 vs 实际测试对账 ─────────────────
+
+@_register_check
+def check_tc_implementation_coverage(change_dir: Path, project_root: Path) -> tuple[str, str]:
+    """Check that test-plan TC-IDs have corresponding test implementations.
+
+    This is the critical check that would have caught the V2.7 development failure:
+    30 planned TCs had zero corresponding test functions.
+    """
+    test_plan = change_dir / "test-plan.md"
+    if not test_plan.exists():
+        return ("SKIP", "test-plan.md 不存在，跳过 TC 实现覆盖检查")
+
+    # Extract TC-IDs from test plan
+    content = test_plan.read_text(encoding="utf-8")
+    planned_tcs = set(re.findall(r"(TC-[A-Z]+-\d{3})", content))
+    if not planned_tcs:
+        return ("SKIP", "test-plan.md 中未找到 TC-ID")
+
+    # Search for TC-IDs in test files
+    tests_dir = project_root / "tests"
+    if not tests_dir.exists():
+        return ("FAIL", f"tests/ 目录不存在，{len(planned_tcs)} 个计划 TC 无对应测试")
+
+    implemented_tcs = set()
+    for test_file in tests_dir.rglob("test_*.py"):
+        file_content = test_file.read_text(encoding="utf-8")
+        for tc_id in planned_tcs:
+            if tc_id in file_content:
+                implemented_tcs.add(tc_id)
+
+    missing = planned_tcs - implemented_tcs
+    coverage_pct = len(implemented_tcs) / len(planned_tcs) * 100 if planned_tcs else 100
+
+    if not missing:
+        return ("PASS", f"TC 实现覆盖: {len(implemented_tcs)}/{len(planned_tcs)} (100%)")
+
+    if coverage_pct < 50:
+        return ("FAIL", f"TC 实现覆盖严重不足: {len(implemented_tcs)}/{len(planned_tcs)} ({coverage_pct:.0f}%)。缺失: {', '.join(sorted(missing)[:5])}{'...' if len(missing) > 5 else ''}")
+
+    return ("WARN", f"TC 实现覆盖: {len(implemented_tcs)}/{len(planned_tcs)} ({coverage_pct:.0f}%)。缺失: {', '.join(sorted(missing)[:5])}{'...' if len(missing) > 5 else ''}")
+
+
+@_register_check
+def check_slice_completion(change_dir: Path, project_root: Path) -> tuple[str, str]:
+    """Check that all slices marked 'done' have evidence (V2.7 post-mortem P4-3)."""
+    stdd_yaml = change_dir / ".stdd.yaml"
+    if not stdd_yaml.exists():
+        return ("SKIP", ".stdd.yaml 不存在")
+
+    import yaml as _yaml
+    state = _yaml.safe_load(stdd_yaml.read_text(encoding="utf-8")) or {}
+    slices = state.get("phase4", {}).get("slices_completed", {})
+    if not slices:
+        return ("SKIP", "无切片完成记录")
+
+    unverified = []
+    for slice_id, info in slices.items():
+        if info.get("status") == "done":
+            tc_cov = info.get("tc_coverage", "N/A")
+            new_tests = info.get("new_tests", 0)
+            verified_at = info.get("verified_at", "")
+            if not verified_at or new_tests == 0:
+                unverified.append(f"Slice {slice_id} (new_tests={new_tests}, verified_at={'set' if verified_at else 'missing'})")
+
+    if unverified:
+        return ("WARN", f"以下切片标记为 done 但缺少验证证据: {'; '.join(unverified)}")
+
+    return ("PASS", f"{len(slices)} 个切片均有验证证据")
