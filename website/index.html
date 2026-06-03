@@ -149,7 +149,17 @@
         v20t:"架构升级",v20d:"CLI模块化+pytest+11类失败。54 tests。",
         dl1:"下载源码",dl1d:"git clone github.com/leonai42/stdd",dl1b:"GitHub →",
         dl2:"阅读文档",dl2d:"README + STDD.md 完整使用指南",dl2b:"查看文档 →",
-        dl3:"社区讨论",dl3d:"GitHub Discussions · 提问 · 反馈",dl3b:"加入讨论 →"
+        dl3:"社区讨论",dl3d:"GitHub Discussions · 提问 · 反馈",dl3b:"加入讨论 →",
+        cmp_dim:"维度",cmp_tdd:"TDD 强制",cmp_exp:"经验自学习",cmp_pool:"社区共享",
+        cmp_fail:"失败检查",cmp_plat:"多平台",cmp_learn:"学习曲线",
+        cmp_mandatory:"强制",cmp_5fsm:"5态FSM",cmp_dual:"双仓库",cmp_12cat:"12类",cmp_informal:"非正式",
+        cmp_med:"中",cmp_low1:"低",cmp_high:"高",cmp_low2:"低",
+        cmp_link:"查看完整 9 框架深度对比分析 →",
+        pf_langs:"支持 5 语言规范：Python · Java · Go · Rust · TypeScript",
+        pl_note:"（当前仅支持中文界面，英文版即将推出）",
+        qs_1:"# 1. 克隆并初始化",
+        qs_2:"# 2. 安装到 AI 平台",
+        qs_3:"# 3. 开始第一个需求"
     },
     en:{nav_f:"Features",nav_c:"Cases",nav_p:"Playground",nav_d:"Docs",nav_com:"Community",
         hero_t:'Make AI <span>Write Correct Code</span>',hero_s:"Spec-First + TDD + Self-Learning. An evolving quality system.",hero_d:"Supports Java/Go/Python/Rust/TypeScript. 7 AI platforms. 26 CLI commands, 232 tests, 12 failure checks.",
@@ -189,7 +199,17 @@
         v20t:"Architecture",v20d:"CLI modular+pytest+11 checks. 54 tests.",
         dl1:"Download",dl1d:"git clone github.com/leonai42/stdd",dl1b:"GitHub →",
         dl2:"Documentation",dl2d:"README + STDD.md full guide",dl2b:"Read Docs →",
-        dl3:"Community",dl3d:"GitHub Discussions · Q&A",dl3b:"Join →"
+        dl3:"Community",dl3d:"GitHub Discussions · Q&A",dl3b:"Join →",
+        cmp_dim:"Dimension",cmp_tdd:"TDD Enforced",cmp_exp:"Self-Learning",cmp_pool:"Community Pool",
+        cmp_fail:"Failure Checks",cmp_plat:"Platforms",cmp_learn:"Learning Curve",
+        cmp_mandatory:"Yes",cmp_5fsm:"5-State FSM",cmp_dual:"Dual Repo",cmp_12cat:"12 Categories",cmp_informal:"Informal",
+        cmp_med:"Med",cmp_low1:"Low",cmp_high:"High",cmp_low2:"Low",
+        cmp_link:"View full 9-framework comparison →",
+        pf_langs:"Supports 5 languages: Python · Java · Go · Rust · TypeScript",
+        pl_note:"(CN content only — EN version coming soon)",
+        qs_1:"# 1. Clone and initialize",
+        qs_2:"# 2. Install to AI platform",
+        qs_3:"# 3. Start your first requirement"
     }};
     function T(){L=L==='zh'?'en':'zh';document.querySelectorAll('[data-t]').forEach(function(e){var k=e.dataset.t;if(D[L][k]){if(k.startsWith('hero_t')){e.innerHTML=D[L][k]}else{e.textContent=D[L][k]}}});document.querySelector('.nav-lang').textContent=L==='zh'?'EN':'中文';}
     </script>
@@ -239,17 +259,17 @@
         <p class="subtitle" data-t="t_why2">与其他主流 AI 编程框架的对比</p>
         <div class="cmp-wrap">
             <table class="cmp-table">
-                <tr><th>维度</th><th>STDD V2.5</th><th>OpenSpec</th><th>Spec Kit</th><th>Superpowers</th></tr>
-                <tr><td>TDD 强制</td><td class="c-y">✅ 强制</td><td class="c-n">❌</td><td class="c-n">❌</td><td class="c-y">✅</td></tr>
-                <tr><td>经验自学习</td><td class="c-y">✅ 5态FSM</td><td class="c-n">❌</td><td class="c-n">❌</td><td class="c-n">❌</td></tr>
-                <tr><td>社区共享</td><td class="c-y">✅ 双仓库</td><td class="c-n">❌</td><td class="c-n">❌</td><td class="c-n">❌</td></tr>
-                <tr><td>失败检查</td><td class="c-y">✅ 12类</td><td class="c-n">❌</td><td class="c-n">❌</td><td class="c-w">⚠️ 非正式</td></tr>
-                <tr><td>多平台</td><td class="c-y">7</td><td>6</td><td>5+</td><td>4</td></tr>
-                <tr><td>学习曲线</td><td>中</td><td>低</td><td>高</td><td>低</td></tr>
+                <tr><th data-t="cmp_dim">维度</th><th>STDD V2.5</th><th>OpenSpec</th><th>Spec Kit</th><th>Superpowers</th></tr>
+                <tr><td data-t="cmp_tdd">TDD 强制</td><td class="c-y">✅ <span data-t="cmp_mandatory">强制</span></td><td class="c-n">❌</td><td class="c-n">❌</td><td class="c-y">✅</td></tr>
+                <tr><td data-t="cmp_exp">经验自学习</td><td class="c-y">✅ <span data-t="cmp_5fsm">5态FSM</span></td><td class="c-n">❌</td><td class="c-n">❌</td><td class="c-n">❌</td></tr>
+                <tr><td data-t="cmp_pool">社区共享</td><td class="c-y">✅ <span data-t="cmp_dual">双仓库</span></td><td class="c-n">❌</td><td class="c-n">❌</td><td class="c-n">❌</td></tr>
+                <tr><td data-t="cmp_fail">失败检查</td><td class="c-y">✅ <span data-t="cmp_12cat">12类</span></td><td class="c-n">❌</td><td class="c-n">❌</td><td class="c-w">⚠️ <span data-t="cmp_informal">非正式</span></td></tr>
+                <tr><td data-t="cmp_plat">多平台</td><td class="c-y">7</td><td>6</td><td>5+</td><td>4</td></tr>
+                <tr><td data-t="cmp_learn">学习曲线</td><td data-t="cmp_med">中</td><td data-t="cmp_low1">低</td><td data-t="cmp_high">高</td><td data-t="cmp_low2">低</td></tr>
             </table>
         </div>
         <p style="text-align:center;margin-top:12px;font-size:14px;color:#919598;">
-            <a href="https://github.com/leonai42/stdd/blob/master/AI_CODING_METHODOLOGY_COMPARISON.md" style="color:#009573;">查看完整 9 框架深度对比分析 →</a>
+            <a href="https://github.com/leonai42/stdd/blob/master/AI_CODING_METHODOLOGY_COMPARISON.md" style="color:#009573;" data-t="cmp_link">查看完整 9 框架深度对比分析 →</a>
         </p>
     </div>
 </section>
@@ -329,7 +349,7 @@
             <div class="pf-card"><div class="pf-icon">▶</div><h4>Trae</h4></div>
             <div class="pf-card new"><div class="pf-icon" style="color:#009573;">🆕</div><h4>OpenCode</h4></div>
         </div>
-        <p style="text-align:center;margin-top:16px;font-size:14px;color:#919598;">支持 5 语言规范：Python · Java · Go · Rust · TypeScript</p>
+        <p style="text-align:center;margin-top:16px;font-size:14px;color:#919598;" data-t="pf_langs">支持 5 语言规范：Python · Java · Go · Rust · TypeScript</p>
     </div>
 </section>
 
@@ -338,6 +358,7 @@
     <div class="section-inner" style="text-align:center">
         <h2 data-t="t_pl">🎮 在线体验 STDD</h2>
         <p class="subtitle" data-t="t_pl2">不需要安装，直接在浏览器中体验完整流程</p>
+        <p style="font-size:13px;color:#919598;margin-bottom:12px" data-t="pl_note">（当前仅支持中文界面，英文版即将推出）</p>
         <a href="playground/index.html" class="btn btn-p" style="font-size:18px;padding:16px 48px;">立即体验 Playground →</a>
     </div>
 </section>
@@ -348,12 +369,12 @@
         <h2 style="color:#fff" data-t="t_qs">快速开始</h2>
         <p class="subtitle" style="color:rgba(255,255,255,0.5)" data-t="t_qs2">三步在你的项目中启用 STDD</p>
         <div class="code-block">
-            <span class="cmt"># 1. 克隆并初始化</span><br>
+            <span class="cmt" data-t="qs_1"># 1. 克隆并初始化</span><br>
             git clone https://github.com/leonai42/stdd.git<br>
             cd stdd && python bin/stdd init<br>
-            <span class="cmt"># 2. 安装到 AI 平台</span><br>
+            <span class="cmt" data-t="qs_2"># 2. 安装到 AI 平台</span><br>
             python bin/stdd install claude-code<br>
-            <span class="cmt"># 3. 开始第一个需求</span><br>
+            <span class="cmt" data-t="qs_3"># 3. 开始第一个需求</span><br>
             /stdd-understand 你的需求描述
         </div>
     </div>
