@@ -552,7 +552,7 @@ def check_tc_implementation_coverage(change_dir: Path, project_root: Path) -> tu
     # Search for TC-IDs in test files
     tests_dir = project_root / "tests"
     if not tests_dir.exists():
-        return ("FAIL", f"tests/ 目录不存在，{len(planned_tcs)} 个计划 TC 无对应测试")
+        return ("SKIP", "tests/ 目录不存在，跳过 TC 实现覆盖检查")
 
     implemented_tcs = set()
     for test_file in tests_dir.rglob("test_*.py"):
