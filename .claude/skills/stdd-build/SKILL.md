@@ -30,14 +30,67 @@ description: "STDD Phase 4: TDD 实现 — 按切片执行 RED→GREEN→REFACTO
 
 ## 长程模式运行协议（仅在 `long_range.mode == "full_auto"` 时适用）
 
-1. **无交互原则**：整个阶段内不使用 AskUserQuestion，不等待用户回复
+### ⚠️ 长程模式强制约束 / MANDATORY LONG-RANGE CONSTRAINTS
+
+> 长程模式 ≠ 可以跳过流程步骤。
+> Long-range mode skips authorization interactions, NOT process steps.
+
+以下规则不可违反。违反任一条 = 流程失败 / The following rules CANNOT be violated:
+
+| # | 中文 | English |
+|---|------|---------|
+| 1 | **每个 Step 必须执行** — 长程模式跳过的是授权交互（AskUserQuestion），不是流程步骤 | **EVERY Step MUST be executed** — long-range skips authorization (AskUserQuestion), NOT process steps |
+| 2 | **Step 1.4 切片验证不可跳过** — 每个切片必须通过 TC 覆盖 + 产出物核对 + 测试通过三项检查 | **Step 1.4 slice verification CANNOT be skipped** — every slice MUST pass TC coverage + deliverable check + test pass |
+| 3 | **每个切片必须有新增测试** — 如果 test-plan 中本切片有 TC，新增测试数必须 > 0 | **EVERY slice MUST have new tests** — if test-plan has TCs for this slice, new test count MUST be > 0 |
+| 4 | **进度标记必须有证据** — .stdd.yaml 的 slice done 必须关联 tc_coverage / new_tests / verified_at | **Progress markers MUST be evidence-backed** — slice done requires tc_coverage / new_tests / verified_at |
+| 5 | **降级触发覆盖静默失败** — 切片 TC 覆盖率为 0 → WARNING；连续 3 个切片无新增测试 → DEGRADE | **Degradation covers silent failures** — 0 TC coverage → WARNING; 3 consecutive slices with 0 new tests → DEGRADE |
+| 6 | **禁止占位符标记完成** — 产出物为 [TODO] 或骨架占位符的切片不能标记为 done | **NEVER mark placeholders as done** — slices with [TODO] output CANNOT be marked complete |
+
+### 运行协议
+
+1. **无交互原则**：整个阶段内不使用 AskUserQuestion，不等待用户回复。**但所有 Step 必须执行**
 2. **批量执行**：将同一切片的 RED+GREEN+REFACTOR 合并在一轮内完成
-3. **自动降级检测**：每步操作后检查是否触发降级条件（连续3次修复失败/通过率<95%/安全问题）
-4. **进度汇报**：每个切片完成后输出简短进度（1行），但不等待回复
-5. **阶段衔接**：完成后立即自动调用下一阶段 Skill（stdd-verify）
-6. **仅降级时暂停**：仅在触发降级条件时才使用 AskUserQuestion 暂停
+3. **自动降级检测**：每步操作后检查是否触发降级条件：
+   - 连续 3 次修复失败
+   - 通过率 < 95%
+   - 安全问题
+   - **切片 TC 覆盖率为 0%（新增·V2.7 复盘）**
+   - **连续 3 个切片新增测试数为 0（新增·V2.7 复盘）**
+   - **产出物为 [TODO] 占位符（新增·V2.7 复盘）**
+4. **切片验证**：每个切片完成后必须执行 Step 1.4 切片验证，通过后才能进入下一切片
+5. **进度汇报**：每个切片完成后输出验证结果（TC 覆盖率 + 测试数），但不等待回复
+6. **阶段衔接**：所有切片完成 + 验证通过后，自动调用 Phase 5（stdd-verify）
+7. **仅降级时暂停**：仅在触发降级条件时才使用 AskUserQuestion 暂停
 
 ## 执行流程
+
+### Step -1: 上下文预算检查（V2.7 context-budget-check）
+
+在开始本阶段之前，检查当前会话的上下文状态。**本步骤不可跳过。**
+
+1. **估算上下文长度**：
+   - 回顾对话轮次：当前会话大致经历了多少轮用户-Agent 交互？
+   - 如果 > 50 轮 → 上下文可能已接近模型有效窗口的 60-70%
+   - 如果用户反馈"变慢了" → 上下文几乎确定已膨胀
+
+2. **判断是否需要重置**：
+   - 满足以下任一条件时，建议重置：
+     a. 对话轮次 > 80 轮
+     b. 用户明确说"好慢"或"怎么这么慢"
+     c. 上一阶段已完成，且 phase-context.md 已更新
+   - 长程模式下，建议每个 phase 完成后主动重置 session
+
+3. **如果建议重置**：
+   - 确认当前 phase-context.md 已更新到最新状态
+   - 确认 .stdd.yaml 的 state_freshness 已更新
+   - 向用户输出重置建议和 `stdd state --resume` 结果
+
+4. **如果选择继续**（或不满足重置条件）：
+   - 正常进入 Step 0
+
+> 上下文预算检查是**软建议**，不阻断流程。仅做提示。
+
+---
 
 ### Step 0: 学习开发规范
 
@@ -53,12 +106,16 @@ description: "STDD Phase 4: TDD 实现 — 按切片执行 RED→GREEN→REFACTO
 
 1. 执行 `python bin/stdd experience list --language <project.language> --format json`
 2. 从输出中筛选 `lifecycle_state` 为 `verified` 或 `settled` 的经验（已充分验证的经验更可靠）
-3. 根据当前 change 的 capabilities 和 spec，选出模式文本（pattern/root_cause/detection_trigger）与当前工作最相关的经验（默认加载最多 10 条，可从 `.stdd/config.d/experience.yaml` 的 `auto_load.max_experiences` 读取）
-4. 将匹配的经验内容（pattern + root_cause + fix_template）主动注入编码上下文
-5. 编码时对照经验库检查：
+3. **project_type 过滤（V2.5）**：按当前 change 的 `project_type` 过滤经验：
+   - 匹配同类型或 `project_type: null`（通配，V2.4 兼容）的经验 → 加载
+   - `project_type` 不匹配的经验 → 跳过
+   - 输出摘要：`已加载 <N> 条匹配经验（<project_type>），过滤 <M> 条不匹配`
+4. 根据当前 change 的 capabilities 和 spec，选出模式文本（pattern/root_cause/detection_trigger）与当前工作最相关的经验（默认加载最多 10 条，可从 `.stdd/config.d/experience.yaml` 的 `auto_load.max_experiences` 读取）
+5. 将匹配的经验内容（pattern + root_cause + fix_template）主动注入编码上下文
+6. 编码时对照经验库检查：
    - 模式匹配 → 参考 fix_template 预防已知错误
    - 不匹配 → 正常编码
-6. 经验库加载结果输出一行摘要：`经验库加载: <N> 条匹配经验已注入上下文`
+7. 经验库加载结果输出一行摘要：`经验库加载: <N> 条匹配经验已注入上下文`
 
 ### Step 1: 按切片顺序执行
 
@@ -96,6 +153,48 @@ description: "STDD Phase 4: TDD 实现 — 按切片执行 RED→GREEN→REFACTO
 4. 应用 deep modules 原则（小接口隐藏大复杂度）
 5. 应用 deletion test（如果移除这个模块，复杂度是否集中在调用方？如果不是，这个模块不值得存在）
 6. 运行测试 → **保持 GREEN**
+
+---
+
+#### Step 1.4: 切片验证（V2.7 复盘新增 — 每切片强制）
+
+**本步骤不可跳过。长程模式下也必须执行。**
+
+在进入下一个切片之前，必须逐项验证本切片的完成情况：
+
+1. **TC 覆盖检查**：
+   - 读取 `test-plan.md`，获取本切片对应的所有 TC-ID
+   - 搜索 `tests/` 目录，确认每个 TC-ID 是否在测试函数注释中出现
+   - 本切片 TC 覆盖率 = 有测试的 TC 数 / 本切片 TC 总数
+   - **如果本切片 TC 覆盖率 < 100%** → 切片未完成 → 回到 Step 1.1
+
+2. **产出物核对**：
+   - 对照 `slices.md` 中本切片的"实现目标"列
+   - 逐项检查：目标中的每个文件/模块是否真实存在？
+   - **如果有目标未实现** → 切片未完成 → 回到 Step 1.1
+
+3. **测试运行**：
+   - 运行本切片相关的测试：`pytest tests/ -k "<slice_test_pattern>" -v`
+   - **本切片新增测试必须全部通过**
+   - **本切片新增测试数必须 > 0**（如果 test-plan 中本切片有 TC）
+   - 如果新增测试 = 0 且 test-plan 中有 TC → 切片未完成 → 回到 Step 1.1
+   - 同时运行全量回归 → 确认无回归
+
+4. **更新状态**（仅在全部通过后）：
+   ```yaml
+   # .stdd.yaml
+   phase4:
+     slices_completed:
+       "<N>":
+         status: "done"
+         tc_coverage: "<M>/<K>"
+         new_tests: <M>
+         verified_at: "<timestamp>"
+   ```
+
+5. **不通过处理**：
+   - 修复问题 → 重新验证 → 最多 3 次
+   - 3 次仍不通过 → 降级为普通模式，暂停等待用户确认
 
 ---
 
@@ -178,6 +277,39 @@ description: "STDD Phase 4: TDD 实现 — 按切片执行 RED→GREEN→REFACTO
 | 大设计偏离 | 暂停，报告用户 | 自动记录并继续（test-report 汇总） |
 | 技术阻塞 | 暂停，询问用户 | 尝试绕过/跳过；无法处理时降级暂停 |
 | 所有切片完成 | 自动进入 Phase 5 | 自动进入 Phase 5 |
+
+## 并行执行策略（V2.5 parallel-slice-guide）
+
+当 `slices.md` 中存在标记为 `parallel_group: N` 的切片时，可采用并行执行策略：
+
+### 条件检测
+
+1. 读取 `slices.md`，检查是否有切片标记了 `parallel_group`
+2. 检查当前执行环境是否支持子任务派发（delegation / sub-agent）
+3. **有 delegation 能力** → 并行派发
+4. **无 delegation 能力** → 串行 fallback（按拓扑顺序逐个执行）
+
+### 并行派发流程
+
+1. 同 `parallel_group` 的切片可同时派发给多个子 agent
+2. 每个子 agent 独立执行 RED → GREEN → REFACTOR 循环
+3. 父 agent 等待所有子 agent 完成后收集结果
+4. 验证：合并所有切片的变更，运行全量回归测试
+
+### 串行 Fallback
+
+若无 delegation 能力或并行派发失败：
+- 按 `slices.md` 的依赖拓扑顺序串行执行
+- 无依赖的切片优先
+- P0 优先于 P1
+
+### 结果合并
+
+并行执行完成后：
+1. 检查各切片是否有代码冲突（同一文件被多个切片修改）
+2. 冲突文件 → 合并变更（优先顺序：Slice A → B → C → D）
+3. 运行全量 pytest 确认无回归
+4. 输出合并摘要：`并行执行完成: <N> 个切片，<M> 个冲突已合并`
 
 ## 下一阶段
 

@@ -223,6 +223,11 @@ def main() -> None:
     p_skill.add_argument("name", nargs="?", help="Skill 名称")
     p_skill.add_argument("--type", choices=["language", "workflow", "tools"], default="language")
 
+    # V2.8: fix — Plankton multi-level auto-fix
+    p_fix = subparsers.add_parser("fix", help="多级自动修复 (V2.8)", parents=[parent])
+    p_fix.add_argument("--level", type=int, choices=[1, 2, 3], default=1, help="修复级别 (1=静默 2=建议 3=报告)")
+    # --dry-run inherited from parent parser
+
     # V2.7: experience list — add provenance filter
     p_exp_list.add_argument("--provenance", help="按来源过滤 (ci-detected / ai-inferred / human-reported / community-imported)")
 
@@ -260,6 +265,8 @@ def main() -> None:
         "hooks": "stdd.cli.commands.hooks._dispatch",
         "structure": "stdd.cli.commands.structure._dispatch",
         "skill": "stdd.cli.commands.skill._dispatch",
+        # V2.8 new commands
+        "fix": "stdd.cli.commands.fix._dispatch",
     }
 
     if args.command in commands:

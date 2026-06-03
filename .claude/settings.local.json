@@ -93,7 +93,8 @@
       "Write(V2.5_FEATURES.md)",
       "Edit(V2.5_FEATURES.md)",
       "Write(STDD_ANCHORING.md)",
-      "Edit(STDD_ANCHORING.md)"
+      "Edit(STDD_ANCHORING.md)",
+      "Bash(awk '{printf \"%-45s %6s %6s %6s\\\\n\", $1, $2, $3, $4}')"
     ]
   }
 }
