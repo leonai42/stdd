@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STDD V2.5 — AI 编程质量保障系统 | Spec+Test 双驱动</title>
+    <meta name="description" content="STDD 是开源的 AI 辅助研发流程系统，26 个 CLI 命令、12 类失败模式检查、5 态经验自学习、7 大 AI 平台支持。比 OpenSpec 更严谨，比 Spec Kit 更轻量。">
+    <meta name="keywords" content="STDD,Spec+Test,AI编程,TDD,研发流程,规范驱动,测试驱动,经验库,AI质量">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        ul,ol{list-style:none}a{text-decoration:none;color:inherit}
+        html,body{width:100%;font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',Arial,sans-serif;color:#515a6e;background:#fff;font-size:16px;line-height:1.7;scroll-behavior:smooth}
+        .section{width:100%;display:flex;justify-content:center;padding:80px 20px}
+        .section-inner{max-width:1200px;width:100%}
+        .section h2{font-size:32px;font-weight:700;color:#1a1a2e;text-align:center;margin-bottom:12px}
+        .section .subtitle{text-align:center;color:#919598;font-size:16px;margin-bottom:48px}
+        .bg-gray{background:#f8f9fb}
+        .bg-dark{background:linear-gradient(135deg,#001036 0%,#02226b 50%,#001036 100%);color:#fff}
+
+        .nav{position:fixed;top:0;z-index:999;width:100%;background:rgba(0,16,54,1);height:64px;display:flex;justify-content:center}
+        .nav-inner{max-width:1200px;width:100%;display:flex;justify-content:space-between;align-items:center;padding:0 20px}
+        .nav-logo{font-size:24px;font-weight:700;color:#fff}
+        .nav-logo span{color:#78f8ff}
+        .nav-links{display:flex;gap:28px;align-items:center}
+        .nav-links a{font-size:15px;color:rgba(255,255,255,0.85);transition:color .2s}
+        .nav-links a:hover{color:#78f8ff}
+        .nav-lang{cursor:pointer;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:5px 14px;border-radius:4px;font-size:13px}
+        .content-wrap{margin-top:64px}
+
+        .hero{padding:100px 20px 80px;text-align:center}
+        .hero .ribbon{display:inline-block;padding:5px 16px;border-radius:20px;font-size:13px;letter-spacing:1px;margin:0 4px 20px}
+        .ribbon-st{background:rgba(120,248,255,0.15);color:#78f8ff}
+        .ribbon-bt{background:rgba(255,193,7,0.2);color:#ffc107}
+        .hero h1{font-size:56px;font-weight:700;letter-spacing:3px}
+        .hero h1 span{color:#78f8ff}
+        .hero .sub{font-size:20px;color:rgba(255,255,255,0.6);margin-top:12px}
+        .hero .desc{font-size:16px;color:rgba(255,255,255,0.45);max-width:680px;margin:16px auto 0;line-height:1.8}
+        .hero-stats{display:flex;gap:36px;justify-content:center;margin-top:40px;flex-wrap:wrap}
+        .hero-stat{text-align:center}
+        .hero-stat .val{font-size:42px;font-weight:700;color:#78f8ff}
+        .hero-stat .lbl{font-size:14px;color:rgba(255,255,255,0.5);margin-top:4px}
+        .hero-btns{margin-top:36px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+        .btn{display:inline-block;padding:14px 36px;border-radius:4px;font-size:16px;font-weight:500;cursor:pointer;transition:all .2s;text-align:center}
+        .btn-p{background:#009573;color:#fff;border:none}
+        .btn-p:hover{background:#00b388}
+        .btn-o{background:transparent;color:#78f8ff;border:1.5px solid #78f8ff}
+        .btn-o:hover{background:rgba(120,248,255,0.08)}
+        .btn-sm{padding:8px 20px;font-size:14px}
+
+        .phase-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+        .phase-card{background:#fff;border-radius:6px;padding:28px 24px;box-shadow:0 2px 12px rgba(0,0,0,0.06);border-top:3px solid #009573;transition:box-shadow .2s}
+        .phase-card:hover{box-shadow:0 4px 20px rgba(0,0,0,0.10)}
+        .phase-card .num{font-size:13px;color:#009573;font-weight:600;letter-spacing:2px}
+        .phase-card h3{font-size:17px;color:#1a1a2e;margin:6px 0 8px}
+        .phase-card .gate{display:inline-block;padding:3px 12px;border-radius:20px;font-size:12px;margin-top:8px}
+        .gate-f{background:#fef3c7;color:#92400e}
+        .gate-a{background:#e6f4f1;color:#009573}
+
+        .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+        .feat-item{display:flex;gap:16px;background:#f8f9fb;padding:24px;border-radius:6px;align-items:flex-start}
+        .feat-item:hover{background:#e6f4f1}
+        .fi{width:44px;height:44px;flex-shrink:0;background:#009573;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px}
+        .ft strong{display:block;color:#1a1a2e;margin-bottom:4px;font-size:16px}
+        .ft span{color:#919598;font-size:14px}
+
+        .cmp-wrap{overflow-x:auto}
+        .cmp-table{width:100%;border-collapse:collapse;font-size:14px}
+        .cmp-table th{background:#001036;color:#78f8ff;padding:12px 16px;text-align:center;font-weight:500}
+        .cmp-table th:first-child{text-align:left}
+        .cmp-table td{padding:10px 16px;border-bottom:1px solid #e8e8e8;text-align:center}
+        .cmp-table td:first-child{text-align:left;font-weight:500}
+        .cmp-table tr:nth-child(even) td{background:#f8f9fb}
+        .c-y{color:#009573;font-weight:600}.c-n{color:#ccc}.c-w{color:#e67e22}
+
+        .timeline{max-width:700px;margin:0 auto}
+        .tl-item{display:flex;gap:16px;margin-bottom:20px}
+        .tl-ver{min-width:72px;padding:6px 14px;background:#009573;color:#fff;border-radius:4px;text-align:center;font-weight:600;font-size:13px}
+        .tl-ver.cur{background:#78f8ff;color:#001036}
+        .tl-content strong{display:block;color:#1a1a2e;margin-bottom:4px;font-size:15px}
+        .tl-content span{color:#919598;font-size:13px}
+
+        .card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+        .card{background:#fff;border-radius:8px;padding:28px 24px;box-shadow:0 2px 12px rgba(0,0,0,0.06);text-align:center;transition:transform .2s}
+        .card:hover{transform:translateY(-4px);box-shadow:0 6px 24px rgba(0,0,0,0.10)}
+        .card-icon{font-size:36px;margin-bottom:12px}
+        .card h4{font-size:18px;color:#1a1a2e;margin-bottom:8px}
+        .card p{font-size:14px;color:#919598;line-height:1.6}
+
+        .pf-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:12px}
+        .pf-card{background:#fff;border-radius:6px;padding:20px 12px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.05);transition:transform .2s}
+        .pf-card:hover{transform:translateY(-3px)}
+        .pf-card.new{border:2px solid #009573}
+        .pf-icon{font-size:28px;margin-bottom:8px}
+        .pf-card h4{font-size:14px;color:#1a1a2e}
+
+        .code-block{max-width:660px;margin:0 auto;background:rgba(0,0,0,0.35);border-radius:8px;padding:28px 32px;font-family:'Courier New',monospace;font-size:14px;line-height:2.2;color:#c7d2fe;overflow-x:auto}
+        .cmt{color:#64748b}
+
+        .footer{background:linear-gradient(180deg,#02226b 0%,#000b33 100%);padding:48px 20px;text-align:center;color:rgba(255,255,255,0.7);font-size:14px}
+        .footer a{color:#78f8ff}
+        .flinks{display:flex;gap:24px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+
+        @media(max-width:768px){
+            .hero h1{font-size:30px}.hero-stats{gap:16px}.hero-stat .val{font-size:26px}
+            .phase-grid,.feat-grid,.card-grid{grid-template-columns:1fr}
+            .pf-grid{grid-template-columns:repeat(3,1fr)}
+            .nav-links{gap:16px}.nav-links a{font-size:13px}
+            .section{padding:48px 12px}
+        }
+    </style>
+    <script>
+    var _hmt=_hmt||[];(function(){var hm=document.createElement("script");hm.src="https://hm.baidu.com/hm.js?0ba7177c8ed66cb3ce480dd70af41855";var s=document.getElementsByTagName("script")[0];s.parentNode.insertBefore(hm,s)})();
+    var L='zh';
+    var D={zh:{nav_f:"功能",nav_c:"案例",nav_p:"Playground",nav_d:"文档",nav_com:"社区",
+        hero_t:'让 AI <span>写出正确的代码</span>',hero_s:"Spec 先行 + TDD 执行 + 经验自学习。不只是流程，更是会进化的质量体系。",hero_d:"支持 Java / Go / Python / Rust / TypeScript，适配 7 大 AI 平台。26 个 CLI 命令，232 个自动化测试，12 类系统化失败检查。",
+        s1:"CLI 命令",s2:"自动化测试",s3:"失败检查",s4:"AI 平台",
+        b1:"⭐ GitHub",b2:"快速开始",b3:"🎮 Playground",
+        t_why:"为什么选择 STDD",t_why2:"与其他主流 AI 编程框架的对比",
+        t_ph:"六阶段流程",t_ph2:"从需求到交付，每阶段都有明确产出物与质量门",
+        t_v25:"V2.5 核心能力",t_v252:"不只是流程，更是一套会进化的质量保障体系",
+        t_hist:"版本演进",t_hist2:"从 V1.0 到 V2.8，持续迭代",
+        t_case:"实战案例",t_case2:"来自真实项目的验证数据",
+        t_pf:"七大 AI 平台支持",t_pf2:"一套 Skill，7 平台通用。stdd install 一行命令",
+        t_pl:"🎮 在线体验 STDD",t_pl2:"不需要安装，直接在浏览器中体验完整流程。3 个真实案例场景。",
+        t_qs:"快速开始",t_qs2:"三步在你的项目中启用 STDD",
+        t_cta:"获取 STDD",t_cta2:"免费开源，MIT 协议",
+        badge_st:"V2.5 正式发布",badge_bt:"V2.8 灰度内测中",
+        footer_t:"Spec 先行，TDD 执行，质量不靠运气，靠系统。",
+        f1:"FPPT 项目",f1d:"5 天 · 27,826 行代码 · 326 测试用例 · 100% 通过率",
+        f2:"TStrategy 量化系统",f2d:"V4.2 稳定版 · 19,500+ 行测试 · 全链路回测→风控",
+        f3:"STDD 自举开发",f3d:"用 STDD 开发 STDD · 发现并修复 25 个流程缺陷",
+        ph1:"UNDERSTAND · 需求理解",ph1d:"模糊需求 → proposal.md 可验证提案",ph1g:"Gate 1 · 强制确认",
+        ph2:"SPEC · 规格设计",ph2d:"design.md + specs + test-plan",ph2g:"Gate 2 · 强制确认（最关键）",
+        ph3:"SLICE · 切片规划",ph3d:"tasks.md + slices.md · 智能切片",ph3g:"Gate 2 后可长程自动",
+        ph4:"BUILD · TDD 实现",ph4d:"RED→GREEN→REFACTOR · 经验加载",ph4g:"设计偏离自动记录",
+        ph5:"VERIFY · 质量验证",ph5d:"全量测试 + 12类失败检查",ph5g:"Gate 3 · 强制确认",
+        ph6:"DELIVER · 交付",ph6d:"归档 + 合并 specs + git tag",ph6g:"自动执行",
+        e1t:"自学习经验库",e1d:"5 态 FSM 生命周期。项目用得越久，AI 越了解你的代码模式。新成员第一天就能获得老员工的 AI 辅助。",
+        e2t:"社区经验共享池",e2d:"零后端设计 — GitHub+Gitee 双源下载。导出自动脱敏，导入自动去重。一个人的教训，所有人的经验。",
+        e3t:"12 类失败模式检查",e3d:"幻觉/范围蔓延/级联错误/上下文丢失/工具误用/运行时偏差/管线断链/质量偏差/指令衰减/覆盖真空/契约断层/锚定缺失。CLI+AI 双重覆盖。",
+        e4t:"多 Agent 并行适配",e4d:"并行切片自动派发 + Agent 验证管线。v2.5 支持多 Agent 平台，同 change 下多切片可并行执行。",
+        e5t:"跨 Session 状态恢复",e5d:"active_phase + phase_context + freshness 三重保障。Agent 跨 session 后一键恢复，不再每次从零开始。",
+        e6t:"Gate 三通道确认",e6d:"对话/CLI/Token 文件三种确认等效。Gate 2 后可选长程全自动，Phase 3-5 连续执行仅 Gate 3 等待。",
+        v28t:"质量度量升级",v28d:"pass@k + Plankton 自动修复 + TDD 强制。232 tests / 73%。",
+        v27t:"工程化升级",v27d:"双轨制+锚定+OpenCode+7新CLI。184 tests。",
+        v25t:"经验闭环 ← 当前",v25d:"5态FSM+社区池+多Agent。155 tests。",
+        v24t:"AI 辅助增强",v24d:"经验库+Spec补全+智能切片。109 tests。",
+        v23t:"基础配套完善",v23d:"5语言+6平台+配置模块化。54 tests。",
+        v20t:"架构升级",v20d:"CLI模块化+pytest+11类失败。54 tests。",
+        dl1:"下载源码",dl1d:"git clone github.com/leonai42/stdd",dl1b:"GitHub →",
+        dl2:"阅读文档",dl2d:"README + STDD.md 完整使用指南",dl2b:"查看文档 →",
+        dl3:"社区讨论",dl3d:"GitHub Discussions · 提问 · 反馈",dl3b:"加入讨论 →"
+    },
+    en:{nav_f:"Features",nav_c:"Cases",nav_p:"Playground",nav_d:"Docs",nav_com:"Community",
+        hero_t:'Make AI <span>Write Correct Code</span>',hero_s:"Spec-First + TDD + Self-Learning. An evolving quality system.",hero_d:"Supports Java/Go/Python/Rust/TypeScript. 7 AI platforms. 26 CLI commands, 232 tests, 12 failure checks.",
+        s1:"CLI Cmds",s2:"Tests",s3:"Checks",s4:"Platforms",
+        b1:"⭐ GitHub",b2:"Quick Start",b3:"🎮 Playground",
+        t_why:"Why STDD",t_why2:"Compared with other AI coding frameworks",
+        t_ph:"Six-Phase Flow",t_ph2:"Clear outputs and quality gates at every phase",
+        t_v25:"V2.5 Core Capabilities",t_v252:"An evolving quality assurance system",
+        t_hist:"Version History",t_hist2:"Continuous iteration from V1.0 to V2.8",
+        t_case:"Case Studies",t_case2:"Verified data from real projects",
+        t_pf:"7 AI Platforms",t_pf2:"One skill set, 7 platforms. stdd install in one line",
+        t_pl:"Try STDD Online",t_pl2:"No installation needed. 3 real-world scenarios in your browser.",
+        t_qs:"Quick Start",t_qs2:"Enable STDD in 3 steps",
+        t_cta:"Get STDD",t_cta2:"Free, Open Source, MIT License",
+        badge_st:"V2.5 Stable",badge_bt:"V2.8 Beta",
+        footer_t:"Spec first, TDD execution. Quality by system, not by luck.",
+        f1:"FPPT Project",f1d:"5 days · 27,826 LOC · 326 tests · 100% pass rate",
+        f2:"TStrategy Quant",f2d:"V4.2 · 19,500+ test LOC · Full pipeline",
+        f3:"STDD Dogfooding",f3d:"Built STDD with STDD · Found & fixed 25 process flaws",
+        ph1:"UNDERSTAND",ph1d:"Vague requirements → proposal.md",ph1g:"Gate 1 · Mandatory",
+        ph2:"SPEC · Design",ph2d:"design.md + specs + test-plan",ph2g:"Gate 2 · Mandatory",
+        ph3:"SLICE · Plan",ph3d:"tasks.md + slices.md",ph3g:"Auto after Gate 2",
+        ph4:"BUILD · TDD",ph4d:"RED→GREEN→REFACTOR",ph4g:"Deviations auto-recorded",
+        ph5:"VERIFY · QA",ph5d:"Tests + 12 failure checks",ph5g:"Gate 3 · Mandatory",
+        ph6:"DELIVER",ph6d:"Archive + merge + tag",ph6g:"Auto",
+        e1t:"Self-Learning Experience",e1d:"5-state FSM lifecycle. The more you use STDD, the smarter it gets about your code patterns.",
+        e2t:"Community Experience Pool",e2d:"Zero-backend dual-source download. Export auto-sanitized, import auto-deduped. One person's lesson, everyone's experience.",
+        e3t:"12 Failure Mode Checks",e3d:"Hallucination/Scope creep/Cascading/Context loss/Tool misuse/Runtime deviation/Pipeline break/Quality/Instruction decay/Coverage vacuum/Contract gap/Anchor missing.",
+        e4t:"Multi-Agent Parallel",e4d:"Parallel slice dispatch + Agent verification pipeline. Multiple slices in one change can execute concurrently.",
+        e5t:"Session Resume",e5d:"active_phase + phase_context + freshness. Agents recover in one step across sessions.",
+        e6t:"3-Channel Gate Confirm",e6d:"Dialog/CLI/Token file. After Gate 2, full-auto long-range mode available.",
+        v28t:"Quality Metrics",v28d:"pass@k + Plankton auto-fix. 232 tests / 73%.",
+        v27t:"Engineering",v27d:"Dual-track+Anchoring+OpenCode. 184 tests.",
+        v25t:"Experience Loop",v25d:"5-FSM+Community+Multi-Agent. 155 tests.",
+        v24t:"AI Enhancement",v24d:"Experience Lib+Spec Complete+Slice. 109 tests.",
+        v23t:"Foundation",v23d:"5 Lang+6 Platforms+Config. 54 tests.",
+        v20t:"Architecture",v20d:"CLI modular+pytest+11 checks. 54 tests.",
+        dl1:"Download",dl1d:"git clone github.com/leonai42/stdd",dl1b:"GitHub →",
+        dl2:"Documentation",dl2d:"README + STDD.md full guide",dl2b:"Read Docs →",
+        dl3:"Community",dl3d:"GitHub Discussions · Q&A",dl3b:"Join →"
+    }};
+    function T(){L=L==='zh'?'en':'zh';document.querySelectorAll('[data-t]').forEach(function(e){var k=e.dataset.t;if(D[L][k]){if(k.startsWith('hero_t')){e.innerHTML=D[L][k]}else{e.textContent=D[L][k]}}});document.querySelector('.nav-lang').textContent=L==='zh'?'EN':'中文';}
+    </script>
+</head>
+<body>
+
+<nav class="nav">
+    <div class="nav-inner">
+        <a href="/" class="nav-logo">ST<span>DD</span></a>
+        <div class="nav-links">
+            <a href="#phases" data-t="nav_f">功能</a>
+            <a href="#cases" data-t="nav_c">案例</a>
+            <a href="playground/index.html" data-t="nav_p">Playground</a>
+            <a href="https://github.com/leonai42/stdd" data-t="nav_d">文档</a>
+            <a href="https://github.com/leonai42/stdd/discussions" data-t="nav_com">社区</a>
+            <button class="nav-lang" onclick="T()">EN</button>
+        </div>
+    </div>
+</nav>
+
+<div class="content-wrap">
+
+<!-- Hero -->
+<section class="hero bg-dark">
+    <span class="ribbon ribbon-st" data-t="badge_st">V2.5 正式发布</span>
+    <span class="ribbon ribbon-bt" data-t="badge_bt">V2.8 灰度内测中</span>
+    <h1 data-t="hero_t">让 AI <span>写出正确的代码</span></h1>
+    <p class="sub" data-t="hero_s">Spec 先行 + TDD 执行 + 经验自学习。不只是流程，更是会进化的质量体系。</p>
+    <p class="desc" data-t="hero_d">支持 Java / Go / Python / Rust / TypeScript，适配 7 大 AI 平台。26 个 CLI 命令，232 个自动化测试，12 类系统化失败检查。</p>
+    <div class="hero-stats">
+        <div class="hero-stat"><div class="val">26</div><div class="lbl" data-t="s1">CLI 命令</div></div>
+        <div class="hero-stat"><div class="val">232</div><div class="lbl" data-t="s2">自动化测试</div></div>
+        <div class="hero-stat"><div class="val">12</div><div class="lbl" data-t="s3">失败检查</div></div>
+        <div class="hero-stat"><div class="val">7</div><div class="lbl" data-t="s4">AI 平台</div></div>
+    </div>
+    <div class="hero-btns">
+        <a href="https://github.com/leonai42/stdd" class="btn btn-p" data-t="b1">⭐ GitHub</a>
+        <a href="#quickstart" class="btn btn-o" data-t="b2">快速开始</a>
+        <a href="playground/index.html" class="btn btn-o" data-t="b3">🎮 Playground</a>
+    </div>
+</section>
+
+<!-- Comparison -->
+<section class="section" id="why">
+    <div class="section-inner">
+        <h2 data-t="t_why">为什么选择 STDD</h2>
+        <p class="subtitle" data-t="t_why2">与其他主流 AI 编程框架的对比</p>
+        <div class="cmp-wrap">
+            <table class="cmp-table">
+                <tr><th>维度</th><th>STDD V2.5</th><th>OpenSpec</th><th>Spec Kit</th><th>Superpowers</th></tr>
+                <tr><td>TDD 强制</td><td class="c-y">✅ 强制</td><td class="c-n">❌</td><td class="c-n">❌</td><td class="c-y">✅</td></tr>
+                <tr><td>经验自学习</td><td class="c-y">✅ 5态FSM</td><td class="c-n">❌</td><td class="c-n">❌</td><td class="c-n">❌</td></tr>
+                <tr><td>社区共享</td><td class="c-y">✅ 双仓库</td><td class="c-n">❌</td><td class="c-n">❌</td><td class="c-n">❌</td></tr>
+                <tr><td>失败检查</td><td class="c-y">✅ 12类</td><td class="c-n">❌</td><td class="c-n">❌</td><td class="c-w">⚠️ 非正式</td></tr>
+                <tr><td>多平台</td><td class="c-y">7</td><td>6</td><td>5+</td><td>4</td></tr>
+                <tr><td>学习曲线</td><td>中</td><td>低</td><td>高</td><td>低</td></tr>
+            </table>
+        </div>
+        <p style="text-align:center;margin-top:12px;font-size:14px;color:#919598;">
+            <a href="https://github.com/leonai42/stdd/blob/master/AI_CODING_METHODOLOGY_COMPARISON.md" style="color:#009573;">查看完整 9 框架深度对比分析 →</a>
+        </p>
+    </div>
+</section>
+
+<!-- Six Phases -->
+<section class="section bg-gray" id="phases">
+    <div class="section-inner">
+        <h2 data-t="t_ph">六阶段流程</h2>
+        <p class="subtitle" data-t="t_ph2">从需求到交付，每阶段都有明确产出物与质量门</p>
+        <div class="phase-grid">
+            <div class="phase-card"><div class="num">Phase 1</div><h3 data-t="ph1">UNDERSTAND · 需求理解</h3><p data-t="ph1d">模糊需求 → proposal.md 可验证提案</p><span class="gate gate-f" data-t="ph1g">Gate 1 · 强制确认</span></div>
+            <div class="phase-card"><div class="num">Phase 2</div><h3 data-t="ph2">SPEC · 规格设计</h3><p data-t="ph2d">design.md + specs + test-plan</p><span class="gate gate-f" data-t="ph2g">Gate 2 · 强制确认</span></div>
+            <div class="phase-card"><div class="num">Phase 3</div><h3 data-t="ph3">SLICE · 切片规划</h3><p data-t="ph3d">tasks.md + slices.md</p><span class="gate gate-a" data-t="ph3g">Gate 2 后可自动</span></div>
+            <div class="phase-card"><div class="num">Phase 4</div><h3 data-t="ph4">BUILD · TDD 实现</h3><p data-t="ph4d">RED→GREEN→REFACTOR</p><span class="gate gate-a" data-t="ph4g">偏离自动记录</span></div>
+            <div class="phase-card"><div class="num">Phase 5</div><h3 data-t="ph5">VERIFY · 质量验证</h3><p data-t="ph5d">全量测试 + 12类检查</p><span class="gate gate-f" data-t="ph5g">Gate 3 · 强制确认</span></div>
+            <div class="phase-card"><div class="num">Phase 6</div><h3 data-t="ph6">DELIVER · 交付</h3><p data-t="ph6d">归档 + 合并 + tag</p><span class="gate gate-a" data-t="ph6g">自动执行</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- V2.5 Capabilities -->
+<section class="section" id="features">
+    <div class="section-inner">
+        <h2 data-t="t_v25">V2.5 核心能力</h2>
+        <p class="subtitle" data-t="t_v252">不只是流程，更是一套会进化的质量保障体系</p>
+        <div class="feat-grid">
+            <div class="feat-item"><div class="fi">🧠</div><div class="ft"><strong data-t="e1t">自学习经验库</strong><span data-t="e1d">5 态 FSM 生命周期。项目用得越久，AI 越了解你的代码模式。</span></div></div>
+            <div class="feat-item"><div class="fi">🌐</div><div class="ft"><strong data-t="e2t">社区经验共享池</strong><span data-t="e2d">零后端设计。导出脱敏，导入去重。一个人的教训，所有人的经验。</span></div></div>
+            <div class="feat-item"><div class="fi">🛡️</div><div class="ft"><strong data-t="e3t">12 类失败模式检查</strong><span data-t="e3d">幻觉/蔓延/级联/丢失/误用/偏差/断链/质量/衰减/真空/断层/锚定。</span></div></div>
+            <div class="feat-item"><div class="fi">🤖</div><div class="ft"><strong data-t="e4t">多 Agent 并行适配</strong><span data-t="e4d">并行切片派发 + Agent 验证管线。同 change 下多切片并行。</span></div></div>
+            <div class="feat-item"><div class="fi">📋</div><div class="ft"><strong data-t="e5t">跨 Session 状态恢复</strong><span data-t="e5d">phase_context + freshness。Agent 跨 session 一键恢复。</span></div></div>
+            <div class="feat-item"><div class="fi">🔑</div><div class="ft"><strong data-t="e6t">Gate 三通道确认</strong><span data-t="e6d">对话/CLI/Token。Gate 2 后可选长程全自动模式。</span></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- Timeline -->
+<section class="section bg-gray" id="timeline">
+    <div class="section-inner">
+        <h2 data-t="t_hist">版本演进</h2>
+        <p class="subtitle" data-t="t_hist2">从 V1.0 到 V2.8，持续迭代</p>
+        <div class="timeline">
+            <div class="tl-item"><div class="tl-ver">V2.8</div><div class="tl-content"><strong data-t="v28t">质量度量升级</strong><span data-t="v28d">pass@k + Plankton + TDD。232 tests / 73%。</span></div></div>
+            <div class="tl-item"><div class="tl-ver">V2.7</div><div class="tl-content"><strong data-t="v27t">工程化升级</strong><span data-t="v27d">双轨制+锚定+OpenCode+7新CLI。184 tests。</span></div></div>
+            <div class="tl-item"><div class="tl-ver cur">V2.5 ←</div><div class="tl-content"><strong data-t="v25t">经验闭环</strong><span data-t="v25d">5态FSM+社区池+多Agent。155 tests。</span></div></div>
+            <div class="tl-item"><div class="tl-ver">V2.4</div><div class="tl-content"><strong data-t="v24t">AI 辅助增强</strong><span data-t="v24d">经验库+Spec补全+智能切片。109 tests。</span></div></div>
+            <div class="tl-item"><div class="tl-ver">V2.3</div><div class="tl-content"><strong data-t="v23t">基础配套完善</strong><span data-t="v23d">5语言+6平台+配置模块化。54 tests。</span></div></div>
+            <div class="tl-item"><div class="tl-ver">V2.0</div><div class="tl-content"><strong data-t="v20t">架构升级</strong><span data-t="v20d">CLI模块化+pytest+11类失败。54 tests。</span></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- Cases -->
+<section class="section" id="cases">
+    <div class="section-inner">
+        <h2 data-t="t_case">实战案例</h2>
+        <p class="subtitle" data-t="t_case2">来自真实项目的验证数据</p>
+        <div class="card-grid">
+            <div class="card"><div class="card-icon">📊</div><h4 data-t="f1">FPPT 项目</h4><p data-t="f1d">5 天 · 27,826 行 · 326 测试 · 100%</p></div>
+            <div class="card"><div class="card-icon">📈</div><h4 data-t="f2">TStrategy 量化</h4><p data-t="f2d">V4.2 · 19,500+ 测试 · 全链路</p></div>
+            <div class="card"><div class="card-icon">🔄</div><h4 data-t="f3">STDD 自举</h4><p data-t="f3d">用 STDD 开发 STDD · 修复 25 缺陷</p></div>
+        </div>
+    </div>
+</section>
+
+<!-- Platforms -->
+<section class="section bg-gray" id="platforms">
+    <div class="section-inner">
+        <h2 data-t="t_pf">七大 AI 平台支持</h2>
+        <p class="subtitle" data-t="t_pf2">一套 Skill，7 平台通用</p>
+        <div class="pf-grid">
+            <div class="pf-card"><div class="pf-icon">◼</div><h4>Claude Code</h4></div>
+            <div class="pf-card"><div class="pf-icon">⌨</div><h4>Cursor</h4></div>
+            <div class="pf-card"><div class="pf-icon">☁</div><h4>Copilot</h4></div>
+            <div class="pf-card"><div class="pf-icon">⚙</div><h4>Aider</h4></div>
+            <div class="pf-card"><div class="pf-icon">☰</div><h4>WorkBuddy</h4></div>
+            <div class="pf-card"><div class="pf-icon">▶</div><h4>Trae</h4></div>
+            <div class="pf-card new"><div class="pf-icon" style="color:#009573;">🆕</div><h4>OpenCode</h4></div>
+        </div>
+        <p style="text-align:center;margin-top:16px;font-size:14px;color:#919598;">支持 5 语言规范：Python · Java · Go · Rust · TypeScript</p>
+    </div>
+</section>
+
+<!-- Playground CTA -->
+<section class="section">
+    <div class="section-inner" style="text-align:center">
+        <h2 data-t="t_pl">🎮 在线体验 STDD</h2>
+        <p class="subtitle" data-t="t_pl2">不需要安装，直接在浏览器中体验完整流程</p>
+        <a href="playground/index.html" class="btn btn-p" style="font-size:18px;padding:16px 48px;">立即体验 Playground →</a>
+    </div>
+</section>
+
+<!-- Quick Start -->
+<section class="section bg-dark" id="quickstart">
+    <div class="section-inner">
+        <h2 style="color:#fff" data-t="t_qs">快速开始</h2>
+        <p class="subtitle" style="color:rgba(255,255,255,0.5)" data-t="t_qs2">三步在你的项目中启用 STDD</p>
+        <div class="code-block">
+            <span class="cmt"># 1. 克隆并初始化</span><br>
+            git clone https://github.com/leonai42/stdd.git<br>
+            cd stdd && python bin/stdd init<br>
+            <span class="cmt"># 2. 安装到 AI 平台</span><br>
+            python bin/stdd install claude-code<br>
+            <span class="cmt"># 3. 开始第一个需求</span><br>
+            /stdd-understand 你的需求描述
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="section" id="download">
+    <div class="section-inner" style="text-align:center">
+        <h2 data-t="t_cta">获取 STDD</h2>
+        <p class="subtitle" data-t="t_cta2">免费开源，MIT 协议</p>
+        <div class="card-grid" style="max-width:800px;margin:0 auto">
+            <div class="card" style="border-top:3px solid #009573;"><div class="card-icon">📦</div><h4 data-t="dl1">下载源码</h4><p data-t="dl1d">git clone github.com/leonai42/stdd</p><a href="https://github.com/leonai42/stdd" class="btn btn-p btn-sm" style="margin-top:12px" data-t="dl1b">GitHub →</a></div>
+            <div class="card"><div class="card-icon">📖</div><h4 data-t="dl2">阅读文档</h4><p data-t="dl2d">README + STDD.md</p><a href="https://github.com/leonai42/stdd#readme" class="btn btn-o btn-sm" style="margin-top:12px;color:#009573;border-color:#009573" data-t="dl2b">查看文档 →</a></div>
+            <div class="card"><div class="card-icon">💬</div><h4 data-t="dl3">社区讨论</h4><p data-t="dl3d">GitHub Discussions</p><a href="https://github.com/leonai42/stdd/discussions" class="btn btn-o btn-sm" style="margin-top:12px;color:#009573;border-color:#009573" data-t="dl3b">加入讨论 →</a></div>
+        </div>
+    </div>
+</section>
+
+</div>
+
+<footer class="footer">
+    <div class="flinks">
+        <a href="https://github.com/leonai42/stdd">GitHub</a>
+        <a href="https://github.com/leonai42/stdd/blob/master/CHANGELOG.md">更新日志</a>
+        <a href="https://github.com/leonai42/stdd/discussions">社区讨论</a>
+        <a href="https://github.com/leonai42/stdd/blob/master/AI_CODING_METHODOLOGY_COMPARISON.md">框架对比</a>
+    </div>
+    <p style="margin-bottom:4px" data-t="footer_t">Spec 先行，TDD 执行，质量不靠运气，靠系统。</p>
+    <p style="color:rgba(255,255,255,0.4)">STDD V2.5 · MIT License · 小以AI实验室</p>
+</footer>
+
+</body>
+</html>
