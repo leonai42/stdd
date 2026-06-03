@@ -192,6 +192,30 @@ description: "STDD Phase 4: TDD 实现 — 按切片执行 RED→GREEN→REFACTO
    - 修复问题 → 重新验证 → 最多 3 次
    - 3 次仍不通过 → 降级为普通模式，暂停等待用户确认
 
+#### Step 1.5: 并行切片合并验证（V2.8 C1 — 条件触发）
+
+**执行条件**：slices.md 中存在 parallel_group 标记，且本组所有切片已完成 Step 1.4 验证。
+
+1. **冲突检查**：`git diff --check` 检查合并冲突
+2. **交叉测试**：运行全量测试确保并行切片间无意外交互
+3. **接口一致性**：如果两个并行切片修改了同一模块的接口，验证签名兼容
+4. **产出物合并**：如果并行切片各自生成了 delta，合并到同一个 phase-context 条目
+
+> 非并行模式（单切片顺序执行）跳过此步骤。
+
+#### Step 1.6: 更新 phase-context.md（V2.8 C3）
+
+每个切片完成（含 Step 1.4 验证通过）后：
+
+1. 在 phase-context.md 的 Phase 4 章节追加当前切片的简要记录：
+   - 切片编号 + 名称
+   - TC 覆盖情况（X/Y 通过）
+   - 新产生的文件列表
+2. 如果触发了经验库条目（Step 0.5），注明 EXP-ID
+3. 所有切片完成后，更新 phase-context.md 的 Phase 4 状态为 completed
+
+> 此步骤确保后续 session 恢复时，Agent 可精确知道每个切片的完成状态。
+
 ---
 
 ### Step 2: 处理设计偏离

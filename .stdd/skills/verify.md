@@ -222,7 +222,26 @@ L 级问题：仅在 test-report 的附录中列出，不阻塞。
 - **注释**：只保留 WHY（非显而易见的约束、微妙的不变性），删掉 WHAT 注释
 
 → 发现问题：修复 → 回到 Step 1
-→ 无问题：进入 Step 3
+→ 无问题：进入 Step 2.1
+
+---
+
+#### Step 2.1: 非代码 Change 检测（V2.8 C4）
+
+**执行条件**：自动检测。如果 diff 中不包含代码文件（无 .py / .go / .java / .rs / .ts 文件变更），自动切换检查维度：
+
+1. **检测方法**：`git diff --name-only` 检查变更文件扩展名
+2. **触发条件**：所有变更文件扩展名均不在 CODE_EXTENSIONS 列表中
+3. **切换后的替代检查项**：
+   - (a) 幻觉行为 → 所有引用链接是否有效？
+   - (b) 范围蔓延 → 变更文件数是否与 proposal 声明的 Impact 一致？
+   - (g) 管线断链 → 内部 href/src 引用是否可达？
+   - (h) 内容质量 → 与 spec/test-plan 逐项对照内容完整性？
+   - (j) 覆盖真空 → 所有 TC 是否都有对应的目视验证记录？
+4. **输出**：`检测到非代码 Change（<N> 个文档/配置文件），已切换检查维度`
+5. **经验记录**：非代码 Change 的检查结果照常记录到经验库，project_type 标记为 docs/config/static_site
+
+> CODE_EXTENSIONS = {'.py', '.go', '.java', '.rs', '.ts', '.tsx', '.js', '.jsx', '.c', '.cpp', '.h'}
 
 ---
 
