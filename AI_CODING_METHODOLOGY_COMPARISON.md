@@ -1,6 +1,6 @@
-# AI 编程方法论深度对比分析 — 2026 年 8 大框架
+# AI 编程方法论深度对比分析 — 2026 年 9 大框架
 
-> 日期：2026-06-03 | 分析对象：STDD V2.8 / OpenSpec / Spec Kit / Superpowers / EvanFlow / BMAD / ECC / CodeGraph
+> 日期：2026-06-03 | 分析对象：STDD V2.8 / OpenSpec / Spec Kit / Superpowers / EvanFlow / BMAD / ECC / CodeGraph / Kiro
 > 数据来源：开源仓库源码分析 + Web 搜索 + 学术论文引用
 
 ---
@@ -25,13 +25,13 @@
 ### 框架分类
 
 ```
-规范驱动型 (SDD)               技能组合型                 基础设施型
-─────────────────             ────────────              ──────────
+规范驱动型 (SDD)               技能组合型                 基础设施型/IDE型
+─────────────────             ────────────              ──────────────────
 Spec Kit (GitHub)             Superpowers               ECC (Claude Code OS)
 OpenSpec (Fission-AI)         EvanFlow                  CodeGraph (代码图谱)
-BMAD (多Agent敏捷)            STDD (规范+测试双驱动)
-                               ↑
-                         本报告重点分析对象
+BMAD (多Agent敏捷)            STDD (规范+测试双驱动)     Kiro (AWS Agentic IDE)
+Kiro (AWS IDE)                                          ↑
+                                                       企业级 IDE 方案
 ```
 
 ---
@@ -204,6 +204,56 @@ BMAD (多Agent敏捷)            STDD (规范+测试双驱动)
 
 ---
 
+### 2.9 Kiro（AWS Agentic IDE）
+
+| 维度 | 详情 |
+|------|------|
+| **开发者** | Amazon Web Services |
+| **形态** | IDE（VS Code 分支）+ CLI + Web 界面 |
+| **技术栈** | Amazon Bedrock（Claude 模型 + 开源模型） |
+| **核心理念** | Spec-Driven Development — 结构化规范先行，规范是第一公民 |
+| **工作流** | 4 阶段：Intent → Requirements → Design → Task Plan → Code Diffs |
+| **强制 TDD** | ❌ 可选（task 级别预加载测试） |
+| **AI 模型** | Claude Opus 4.7（独占）/ Sonnet 4.6 / Haiku + DeepSeek/Qwen/MiniMax |
+| **关键创新** | **神经符号需求分析**（LLM + SMT 求解器）+ **EARS 标注**（WHEN...THE SYSTEM SHALL） |
+| **Agent 能力** | Autopilot 自主模式 + Agent Hooks（文件事件驱动）+ 并行任务执行 + 检查点恢复 |
+| **治理体系** | Steering Files（.kiro/steering/）+ IAM Policy Autopilot + 全链路审计追溯 |
+| **平台锁定** | AWS Bedrock 独占（无 GPT/Gemini 支持） |
+| **定价** | 免费 50 credits/月 → $20-200/月（spec 模式 5x 费用） |
+
+**核心差异化**：
+
+1. **神经符号需求分析**（2026年5月）— 这是 Kiro 最独特的能力。LLM 将模糊需求重写为可测试标准 → 翻译为形式逻辑 → SMT 求解器识别矛盾/歧义/缺口。AWS 研究显示：模糊需求导致代码准确率下降 20-40%，60-90% 的"编译通过"代码语义错误。
+
+2. **EARS 标注**（Easy Approach to Requirements Syntax）— `WHEN [condition] THE SYSTEM SHALL [behavior]`，与 STDD 的 GIVEN/WHEN/THEN 异曲同工，但 Kiro 更进一步：需求被机器解析和验证。
+
+3. **IDE 级集成** — 与 VS Code 深度绑定，规范文件（.kiro/specs/）在 IDE 中可视化编辑、与代码 diff 联动。这是所有其他框架没有的体验。
+
+4. **企业治理** — 全链路审计追溯（需求→设计→任务→代码 diffs→部署），Steering Files 编码团队规范，IAM 自动生成最小权限策略。
+
+**优势**：企业级完整度最高，需求分析最科学（LLM+SMT），AWS 原生集成最深，IDE 体验最好。
+
+**局限**：AWS 锁定（Bedrock 独占），定价较高（spec 模式 5x），学习曲线较陡（2-3 周），不是开源工具（商业产品），仅支持 AWS 生态。
+
+**与 STDD 的关键对比**：
+
+| 维度 | Kiro | STDD V2.8 |
+|------|------|-----------|
+| 需求格式 | EARS (WHEN...SHALL) | GIVEN/WHEN/THEN + SHALL |
+| 需求分析 | **LLM + SMT 求解器**（自动检测矛盾） | AI 辅助 + 人工 Gate 确认 |
+| 锚定机制 | ❌ 无 | ✅ L1-L4 四级锚定 |
+| 失败模式 | ❌ 无系统分类 | ✅ 12 类 |
+| 经验自学习 | ❌ 无 | ✅ 5 态 FSM |
+| 社区共享 | ❌ 商业产品 | ✅ 开源 + 社区池 |
+| 成本 | $20-200/月 | 免费开源 |
+| 平台 | AWS 独占 | 7 平台 |
+| TDD | 可选 | **强制** |
+| 代码知识积累 | ❌ 无 | ✅ 代码结构摘要自积累 |
+
+**Kiro 代表了一种趋势**：IDE 级 SDD + 企业治理 + 神经符号 AI。它与 STDD 在"规范先行"理念上一致，但实现路径不同——Kiro 是商业 IDE 产品，STDD 是开源方法论+工具。两者在需求分析（LLM+SMT vs AI+Gate）和经验积累（无 vs 5态FSM）上各有长短。
+
+---
+
 ## 三、核心维度对比
 
 ### 3.1 流程结构对比
@@ -217,6 +267,7 @@ BMAD (多Agent敏捷)            STDD (规范+测试双驱动)
 | EvanFlow | 5 | 设计+计划+迭代 | 3 道 | 中（人为指挥） |
 | BMAD | 4 | PASS/CONCERNS/FAIL | 各阶段 | 高（多 Agent 自主协作） |
 | ECC | 5 | 建议性 | 无强制 | 最高（48 agent 编排） |
+| **Kiro** | 4 | 每阶段人工审阅 | 每阶段 diff 审批 | 高（Autopilot + Agent Hooks） |
 
 **STDD 独特之处**：门控数量适中（3 道）且**不可跳过** — Spec Kit 的阶段门控可绕过，OpenSpec 几乎没有门控，Superpowers/EvanFlow 的门控依赖 Agent 自觉。
 
@@ -224,17 +275,18 @@ BMAD (多Agent敏捷)            STDD (规范+测试双驱动)
 
 ### 3.2 质量保障对比
 
-| 能力 | STDD V2.8 | Spec Kit | OpenSpec | Superpowers | EvanFlow | BMAD | ECC |
+| 能力 | STDD | Spec Kit | OpenSpec | Superpowers | BMAD | ECC | Kiro |
 |------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| TDD 强制 | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ | 可选 |
-| 失败模式分类 | **12 类** | ❌ | ❌ | 5 类(非正式) | 5 类 | ❌ | ❌ |
-| 覆盖率要求 | ✅ 80% | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ 80%+ |
-| CLI 自动化检查 | ✅ 10+ 项 | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| pass@k 统计 | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ pass@k |
-| 自动修复 | ✅ 3 级 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Adversarial 审查 | ⚠️ 3路审查 | ❌ | ❌ | ❌ | ✅ Coder/Overseer | ✅ **内置** | ✅ 多 reviewer |
+| TDD 强制 | ✅ | ❌ | ❌ | ✅ | ❌ | 可选 | 可选 |
+| 失败模式分类 | **12 类** | ❌ | ❌ | 5类 | ❌ | ❌ | ❌ |
+| 覆盖率要求 | ✅ 80% | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ |
+| CLI 自动化检查 | ✅ 10+ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ SDK |
+| pass@k 统计 | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| 自动修复 | ✅ 3级 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 需求形式化验证 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ **LLM+SMT** |
+| Adversarial 审查 | ⚠️ 3路 | ❌ | ❌ | ❌ | ✅ | ✅ | ⚠️ Agent审查 |
 
-**STDD 独特之处**：质量保障维度最全面 — TDD 强制 + 12 类失败模式 + pass@k + 3 级自动修复。BMAD 的 Adversarial 审查最强，但缺少系统化的失败模式检查和自动修复。
+**STDD 独特之处**：质量保障维度最全面。Kiro 的 LLM+SMT 需求验证是独有能力，但缺少系统化的失败模式分类和自动修复。
 
 ---
 
@@ -256,30 +308,32 @@ BMAD (多Agent敏捷)            STDD (规范+测试双驱动)
 
 ### 3.4 学习与进化对比
 
-| 能力 | STDD V2.8 | Spec Kit | OpenSpec | Superpowers | BMAD | ECC |
-|------|:---:|:---:|:---:|:---:|:---:|:---:|
-| 经验自学习 | ✅ **5态FSM** | ❌ | ❌ | ❌ | ❌ | ✅ Homunculus |
-| 经验溯源 | ✅ provenience | ❌ | ❌ | ❌ | ❌ | ❌ |
-| 社区经验池 | ✅ **GitHub+Gitee** | ❌ | ❌ | ❌ | ❌ | ❌ |
-| 项目越用越聪明 | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| 代码结构知识 | ✅ 自积累 | ❌ | ❌ | ❌ | ❌ | ❌ |
-| 扩展系统 | Skill 体系 | **50+扩展** | Custom Schema | Skill 组合 | Skill 编辑 | 182 skills |
+| 能力 | STDD | Spec Kit | OpenSpec | Superpowers | BMAD | ECC | Kiro |
+|------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| 经验自学习 | ✅ **5态FSM** | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| 经验溯源 | ✅ provenance | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 社区经验池 | ✅ **GitHub+Gitee** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 项目越用越聪明 | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| 代码结构知识 | ✅ 自积累 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 扩展系统 | Skill 体系 | **50+扩展** | Custom Schema | Skill 组合 | Skill 编辑 | 182 skills | Powers |
+| 检查点恢复 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 
-**STDD 独特之处**：经验自学习是最核心的差异化 — 5 态 FSM + provenience 溯源 + 社区共享池 + 自动提升规则。ECC 有 Homunculus（Continuous Learning v2）但缺少结构化的生命周期管理和社区共享。其他框架完全没有这个维度。
+**STDD 独特之处**：经验自学习是最核心的差异化。Kiro 有检查点恢复（类似 STDD 的跨 session 状态恢复），但没有经验积累。ECC 有 Homunculus（Continuous Learning v2）但缺少结构化的生命周期管理和社区共享。
 
 ---
 
 ### 3.5 工程效能对比
 
-| 能力 | STDD V2.8 | Spec Kit | OpenSpec | Superpowers | BMAD | ECC |
-|------|:---:|:---:|:---:|:---:|:---:|:---:|
-| CLI 工具 | ✅ 26 命令 | ✅ specify | ✅ openspec | ❌ | ❌ | ✅ **最丰富** |
-| CI/CD 集成 | ✅ GitHub Actions | ✅ | ❌ | ❌ | ❌ | ✅ |
-| 多平台 | 7 | 28+ | 25+ | 6 | 4 | 6+ |
-| 多语言 | 5 | 不限 | 不限 | 不限 | 不限 | 12 |
-| Token 优化 | ✅ 模型分层 | ❌ | ❌ | ❌ | ❌ | ✅ **最精细** |
-| Git 集成 | ✅ worktree | ❌ | ✅ archive | ✅ guardrails | ✅ guardrails | ✅ worktree |
-| 安装复杂度 | Python CLI | Python uv/pipx | npm | 零依赖 | 零依赖 | Plugin |
+| 能力 | STDD | Spec Kit | OpenSpec | Superpowers | BMAD | ECC | Kiro |
+|------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| CLI 工具 | ✅ 26 | ✅ specify | ✅ openspec | ❌ | ❌ | ✅ **最丰富** | ✅ CLI+IDE |
+| CI/CD 集成 | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ 深度AWS |
+| 多平台 | 7 | 28+ | 25+ | 6 | 4 | 6+ | 1 (AWS) |
+| 多语言 | 5 | 不限 | 不限 | 不限 | 不限 | 12 | 不限 |
+| Token 优化 | ✅ 分层 | ❌ | ❌ | ❌ | ❌ | ✅ **精细** | ✅ 模型路由 |
+| Git 集成 | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| 安装复杂度 | Python CLI | uv/pipx | npm | 零依赖 | 零依赖 | Plugin | IDE 安装 |
+| 定价 | 免费 | 免费 | 免费 | 免费 | 免费 | 免费 | **$20-200/月** |
 
 ---
 
@@ -287,9 +341,10 @@ BMAD (多Agent敏捷)            STDD (规范+测试双驱动)
 
 | 场景 | 最佳选择 | 次选 |
 |------|---------|------|
-| **高风险领域（金融/医疗）** | **STDD**（12类失败模式+锚定+追溯） | BMAD |
+| **高风险领域（金融/医疗）** | **STDD**（12类失败+锚定+追溯） | BMAD |
+| **企业级/AWS生态** | **Kiro**（IDE+治理+SMT验证） | Spec Kit |
 | **快速迭代/个人项目** | OpenSpec | Superpowers |
-| **大型企业新项目** | Spec Kit | BMAD |
+| **大型企业新项目** | Spec Kit / Kiro | BMAD |
 | **棕场/遗留系统改造** | OpenSpec | STDD |
 | **TDD 强制执行** | Superpowers / STDD | EvanFlow |
 | **多 Agent 团队模拟** | BMAD | Superpowers |
@@ -297,6 +352,7 @@ BMAD (多Agent敏捷)            STDD (规范+测试双驱动)
 | **代码理解加速** | CodeGraph | — |
 | **社区经验复用** | **STDD**（唯一） | — |
 | **长期项目（越用越聪明）** | **STDD**（唯一） | ECC |
+| **IDE 深度集成** | **Kiro**（唯一） | — |
 
 ---
 
@@ -360,11 +416,11 @@ STDD 在**流程严谨度 × 质量保障 × 学习进化**三个维度上形成
 
 | # | 能力 | 说明 | 其他框架状态 |
 |---|------|------|:---:|
-| 1 | **经验自学习闭环** | 5 态 FSM + provenience + 社区共享 | **0/7 拥有** |
-| 2 | **双轨制文档体系** | Canonical YAML + Human View MD | **0/7 拥有** |
-| 3 | **Spec 锚定法** | L1-L4 四级锚定，事前锁定 AI 自由度 | **0/7 拥有** |
-| 4 | **12 类失败模式** | 系统化分类 + CLI 自动化 + AI 目视 | **0/7 拥有** |
-| 5 | **pass@k + 3 级修复** | 统计质量度量 + 自动修复分级 | **0/7 拥有**（ECC 有 pass@k 但无自动修复） |
+| 1 | **经验自学习闭环** | 5 态 FSM + provenance + 社区共享 | **0/8 拥有** |
+| 2 | **双轨制文档体系** | Canonical YAML + Human View MD | **0/8 拥有** |
+| 3 | **Spec 锚定法** | L1-L4 四级锚定，事前锁定 AI 自由度 | **0/8 拥有** |
+| 4 | **12 类失败模式** | 系统化分类 + CLI 自动化 + AI 目视 | **0/8 拥有** |
+| 5 | **pass@k + 3 级修复** | 统计质量度量 + 自动修复分级 | **0/8 拥有**（ECC 有 pass@k 但无自动修复） |
 
 ### 5.3 STDD 的不足与改进方向
 
@@ -373,7 +429,8 @@ STDD 在**流程严谨度 × 质量保障 × 学习进化**三个维度上形成
 | Delta Spec 缺失 | OpenSpec 的 Delta 机制 | V3.0 规划中 |
 | 安装复杂度 | Spec Kit 的 uv/pipx 一键安装 | V2.8 已优化 pip install |
 | 社区规模 | Superpowers/ECC 的 10万+ stars | 开源推广中 |
-| 多语言不限 | OpenSpec/Spec Kit 不限语言 | 当前 5 语言，V3.0 扩展 |
+| 需求形式化验证 | Kiro 的 LLM+SMT 求解器 | V3.0 研究 |
+| IDE 集成深度 | Kiro 的 VS Code 分支 | 不计划（CLI+Plugin 路线） |
 | Adversarial 审查 | BMAD 的内置对抗审查 | V3.0 TEAM 版规划 |
 | 全生命周期 | BMAD 的 Phase 0-7 | TEAM 版 Phase 0+7 规划 |
 
@@ -386,7 +443,8 @@ STDD 在**流程严谨度 × 质量保障 × 学习进化**三个维度上形成
 | 团队 | 推荐 | 理由 |
 |------|------|------|
 | 金融/医疗 IT 团队 | **STDD** | 12 类失败模式 + 锚定 + 追溯链 = 合规刚需 |
-| 大型企业（新项目） | Spec Kit + STDD | Spec Kit 管理需求，STDD 保障代码质量 |
+| AWS 深度企业 | **Kiro** + STDD | Kiro IDE+治理，STDD 经验+失败检查 |
+| 大型企业（新项目） | Spec Kit / Kiro | Spec Kit 多平台，Kiro AWS 原生 |
 | 中小团队/个人开发者 | OpenSpec（快速）或 STDD（质量优先） | 取决于质量要求 |
 | TDD 信仰者 | Superpowers / STDD | 两者都强制 TDD |
 | Claude Code 深度用户 | ECC + Superpowers + STDD | ECC 提效，Superpowers 管流程，STDD 保质量 |
@@ -396,10 +454,11 @@ STDD 在**流程严谨度 × 质量保障 × 学习进化**三个维度上形成
 
 | 项目 | 推荐 | 理由 |
 |------|------|------|
-| 新项目（绿场） | Spec Kit 或 BMAD | 全生命周期覆盖 |
+| 新项目（绿场） | Spec Kit / Kiro / BMAD | 全生命周期覆盖 |
 | 现有项目（棕场） | OpenSpec | Delta Spec 天然适合 |
-| 高风险项目 | **STDD** | 唯一有系统化失败模式检查的框架 |
-| 长期项目 | **STDD** | 唯一有经验自学习的框架 |
+| 高风险项目 | **STDD** | 唯一有系统化失败模式检查 |
+| 长期项目 | **STDD** | 唯一有经验自学习 |
+| AWS 生态项目 | **Kiro** | IDE + IAM + Bedrock 原生 |
 | 快速原型 | OpenSpec | 3 步最简流程 |
 
 ### 组合推荐
