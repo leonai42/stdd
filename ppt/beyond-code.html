@@ -465,7 +465,15 @@ python bin/stdd agent verify website-deploy</pre></div>
 
 </div>
 <script>
-(function(){var d=document.getElementById('deck'),s=d.children,i=0,n=s.length;var h=document.createElement('div');h.style.cssText='position:fixed;bottom:3vh;right:3vw;z-index:30;font-family:monospace;font-size:10px;letter-spacing:.2em;opacity:.4;color:#aaa';h.textContent='← → 翻页 · ESC 索引';document.body.appendChild(h);function g(x){if(x<0||x>=n)return;i=x;d.style.transform='translateX('+(-i*100)+'vw)'}document.addEventListener('keydown',function(e){if(e.key==='ArrowRight'||e.key==='ArrowDown')g(i+1);else if(e.key==='ArrowLeft'||e.key==='ArrowUp')g(i-1);else if(e.key==='Escape')g(0)});var sx=0;d.addEventListener('touchstart',function(e){sx=e.touches[0].clientX});d.addEventListener('touchend',function(e){var dx=sx-e.changedTouches[0].clientX;if(Math.abs(dx)>50)g(i+(dx>0?1:-1))})})();
+// FPPT-compatible global navigation
+var deck=document.getElementById('deck'),slides=deck.children,idx=0,total=slides.length,lock=false;
+var navDiv=document.createElement('div');navDiv.id='nav';navDiv.style.cssText='position:fixed;bottom:3vh;left:50%;transform:translateX(-50%);z-index:30;display:flex;gap:8px';document.body.appendChild(navDiv);
+for(var ni=0;ni<total;ni++){var d=document.createElement('span');d.className='dot';d.style.cssText='width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,.3);cursor:pointer;transition:.2s';d.onclick=(function(n){return function(){go(n)}})(ni);navDiv.appendChild(d)}
+function go(n){if(lock)return;idx=Math.max(0,Math.min(total-1,n));deck.style.transform='translateX('+(-idx*100)+'vw)';navDiv.querySelectorAll('.dot').forEach(function(d,i){d.classList.toggle('active',i===idx);d.style.background=i===idx?'rgba(255,255,255,.95)':'rgba(255,255,255,.3)'});lock=true;setTimeout(function(){lock=false},700)}
+go(0);navDiv.querySelector('.dot').classList.add('active');navDiv.querySelector('.dot').style.background='rgba(255,255,255,.95)';
+document.addEventListener('keydown',function(e){if(e.key==='ArrowRight'||e.key==='ArrowDown')go(idx+1);else if(e.key==='ArrowLeft'||e.key==='ArrowUp')go(idx-1);else if(e.key==='Escape')go(0)});
+var sx=0;deck.addEventListener('touchstart',function(e){sx=e.touches[0].clientX});deck.addEventListener('touchend',function(e){var dx=sx-e.changedTouches[0].clientX;if(Math.abs(dx)>50)go(idx+(dx>0?1:-1))});
+var hint=document.createElement('div');hint.style.cssText='position:fixed;bottom:3vh;right:3vw;z-index:30;font-family:monospace;font-size:10px;letter-spacing:.2em;opacity:.4;color:#aaa';hint.textContent='← → 翻页 · ESC 索引';document.body.appendChild(hint);
 </script>
 </body>
 </html>
