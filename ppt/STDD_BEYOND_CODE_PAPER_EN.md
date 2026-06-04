@@ -6,6 +6,7 @@
 **Xiaoyi AI Lab / 小以AI实验室**  
 **June 2026 · License: CC BY 4.0**  
 *Online handle: naoziAi (脑子)*
+*Online handle: naoziAi (脑子)*
 
 ---
 

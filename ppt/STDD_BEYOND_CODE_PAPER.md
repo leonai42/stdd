@@ -3,8 +3,8 @@
 
 **Liang Shi (史亮)**  
 **Xiaoyi AI Lab / 小以AI实验室**  
-**2026年6月 · arXiv: 待分配 · CC BY 4.0**  
-*在线用户名: naoziAi (脑子)*
+**2026年6月 · License: CC BY 4.0**  
+*Online handle: naoziAi (脑子)*
 
 ---
 
