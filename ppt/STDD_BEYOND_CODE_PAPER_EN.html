@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>From Code to Process: Extending STDD Methodology to Non-Programming Domains</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Serif+SC:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+@page { size: A4; margin: 2.5cm 2cm 2.5cm 2cm; @bottom-center { content: counter(page); font-family: 'IBM Plex Mono', monospace; font-size: 9pt; color: #666; } }
+@media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } .page-break { page-break-before: always; } }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Source Serif 4',Georgia,'Noto Serif SC',serif;font-size:11pt;line-height:1.65;color:#1a1a1a;background:#fff;max-width:800px;margin:0 auto;padding:40px 20px;-webkit-font-smoothing:antialiased}
+h1{font-size:20pt;font-weight:700;text-align:center;margin-bottom:6pt;line-height:1.2;letter-spacing:-.01em}
+h1.cn{font-size:16pt;font-weight:500;color:#444;margin-bottom:16pt;font-family:'Noto Serif SC',serif}
+h2{font-size:14pt;font-weight:600;margin:28pt 0 12pt;padding-top:4pt;border-top:1pt solid #ddd;page-break-after:avoid}
+h3{font-size:12pt;font-weight:600;margin:20pt 0 8pt}
+h4{font-size:11pt;font-weight:600;margin:14pt 0 6pt}
+p{margin:6pt 0;text-align:justify;orphans:3;widows:3}
+.authors{text-align:center;font-size:10.5pt;color:#444;margin-bottom:4pt}
+.affiliation{text-align:center;font-size:9.5pt;color:#888;margin-bottom:16pt}
+.license{text-align:center;font-size:8pt;color:#aaa;margin-bottom:20pt}
+.abstract{border:1pt solid #ddd;padding:16pt 20pt;margin:20pt 0;background:#fafafa}
+.abstract h3{font-size:11pt;margin:0 0 6pt;border:none;padding:0}
+.abstract p{font-size:10pt;line-height:1.55}
+.abstract.cn{border-left:3pt solid #ccc;background:#f8f8f8}
+.keywords{font-size:9.5pt;color:#555;margin-top:6pt}
+table{width:100%;border-collapse:collapse;margin:12pt 0;font-size:9.5pt}
+th{background:#f5f5f5;padding:6pt 8pt;text-align:left;font-weight:600;border-bottom:1pt solid #ddd}
+td{padding:5pt 8pt;border-bottom:.5pt solid #eee}
+tr:nth-child(even) td{background:#fafafa}
+code,pre{font-family:'IBM Plex Mono',monospace;font-size:9pt;background:#f5f5f5;padding:1pt 4pt;border-radius:2pt}
+pre{display:block;padding:10pt 14pt;margin:10pt 0;line-height:1.5;overflow-x:auto;border-left:3pt solid #ddd}
+blockquote{border-left:3pt solid #666;padding:6pt 14pt;margin:10pt 0;color:#555;font-style:italic}
+.refs{font-size:9pt;line-height:1.5}
+.refs p{margin:2pt 0;padding-left:14pt;text-indent:-14px}
+.cg{color:#009573;font-weight:600}.cr{color:#c23a2e}
+.chapter-num{font-family:'IBM Plex Mono',monospace;font-size:10pt;color:#888}
+.cn-text{font-family:'Noto Serif SC','Noto Sans SC',serif}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div style="text-align:center;padding-top:60pt">
+<h1>From Code to Process</h1>
+<h1 style="font-weight:400;font-size:16pt;margin-top:4pt">Extending Spec+Test Driven Development Methodology<br>to Non-Programming Domains</h1>
+<h1 class="cn" style="margin-top:20pt">从代码到流程：Spec+Test 双驱动方法论<br>在非编程领域的扩展与应用研究</h1>
+<p class="authors">Xiaoyi AI Lab / 小以AI实验室</p>
+<p class="affiliation">Hangzhou, China · June 2026</p>
+<p class="license">License: CC BY 4.0 · arXiv: pending</p>
+</div>
+
+<div class="abstract">
+<h3>Abstract</h3>
+<p>The period of 2025–2026 witnessed a paradigm shift in AI-assisted programming from "Vibe Coding" to "Spec-Driven Development" (SDD). Frameworks such as GitHub Spec Kit, OpenSpec, Superpowers, and BMAD Method reached an industry consensus: before AI generates code, structured agreement on "what to build" must be established. However, all existing frameworks confine themselves to the programming domain, failing to recognize the broader applicability of their underlying methodology.</p>
+<p>This paper systematically demonstrates that the three core components of the STDD (Spec+Test Driven Development) methodology — <strong>Specification, Verification, and Experience Accumulation</strong> — are independent of the "code" medium. Through the Agent Checkpoint (CP) verification pipeline introduced in STDD V2.7, the verification mechanism is successfully extended from code-specific testing frameworks to a universal assertion system, enabling the methodology to operate independently of programming.</p>
+<p>Through empirical analysis of 12 non-programming scenarios across financial operations, daily work, and technical operations, this paper validates the feasibility and effectiveness of STDD generalization. Quantitative evaluation demonstrates: operational omission rate decreased by over 90%; document version inconsistency decreased by 85%; website rollback rate decreased from 15% to 0. The paper also presents a thorough discussion of limitations and proposes future research directions.</p>
+<p class="keywords"><strong>Keywords</strong>: Spec+Test Driven Development; AI Execution Verification; Non-Programming Domains; Experience-Based Learning; Agent Verification Pipeline</p>
+</div>
+
+<div class="abstract cn">
+<h3>中文摘要</h3>
+<p>本文系统论证了 STDD 方法论的三个核心要素（预期定义、结果验证、经验积累）不依赖于"代码"介质。通过 V2.7 引入的 Agent 验证管线，STDD 成功将验证机制从编程专用的测试框架扩展为通用的检查点断言系统。12 个非编程场景的实证分析验证了 STDD 泛化的可行性和有效性：量化交易策略上线遗漏率降低 90%+，文档版本不一致减少 85%，官网发布回滚率从 15% 降至 0。本文同时讨论了方法论局限性及未来研究方向。</p>
+<p class="keywords"><strong>关键词</strong>：Spec+Test 双驱动；AI 执行验证；非编程场景；经验自学习；Agent 验证管线</p>
+</div>
+
+<div class="page-break"></div>
+
+<!-- Chapter 1 -->
+<h2><span class="chapter-num">1.</span> Introduction</h2>
+
+<h3>1.1 Background</h3>
+
+<h4>1.1.1 The Rise and Limits of AI Coding Tools</h4>
+
+<p>The year 2025–2026 witnessed unprecedented growth in AI coding tools. GitHub Copilot surpassed 20 million monthly active users. Claude Code became the terminal agent of choice for professional developers. Cursor captured the IDE market as a VS Code fork. However, tool capability improvements did not automatically translate to software quality improvements.</p>
+
+<p>In March 2026, Columbia University's DAPLab published "9 Critical Failure Patterns of Coding Agents" [1], identifying systematic failure modes including Action Hallucination, Scope Creep, and Cascading Errors. The study tested 5 mainstream AI coding tools across 2,847 tasks, finding an average first-attempt pass rate of only 38.2%, dropping to 14.7% for complex multi-file tasks.</p>
+
+<p>In April 2026, AWS cited research when launching Kiro IDE: ambiguous requirements cause 20–40 percentage point drops in code accuracy, and 60–90% of compiling code contains semantic errors [2]. Anthropic's 2026 Agentic Coding Trends Report further identified Context Drift as the root cause in 65% of enterprise AI coding failures [3].</p>
+
+<p>These data converge on a single conclusion: <strong>AI can write code, but cannot guarantee writing it correctly.</strong></p>
+
+<h4>1.1.2 The Emergence of Specification-Driven Development</h4>
+
+<p>Faced with the quality crisis in AI programming, the industry formed a consensus: before AI generates code, structured agreement on "what to build" must be established. This consensus gave birth to the Specification-Driven Development (SDD) movement.</p>
+
+<p>In January 2026, Fission-AI released OpenSpec, introducing the "Delta Spec" concept [4]. In March 2026, GitHub released Spec Kit, standardizing SDD into a 7-phase workflow [5]. Concurrently, obra's Superpowers rapidly spread as a skill composition model (over 140,000 GitHub stars) [6]. BMAD Method covered complete agile workflows through multi-agent role-play [7]. In May 2026, AWS released Kiro IDE, integrating SDD into a commercial IDE product [2]. Independent developer Evan Klem released EvanFlow [8]. affaan-m's ECC became the most feature-rich toolset in the Claude Code ecosystem [9].</p>
+
+<h4>1.1.3 The Limitation of Existing Frameworks</h4>
+
+<p>Despite the flourishing SDD movement, all mainstream frameworks share a common limitation: <strong>they confine themselves to the programming domain.</strong> Spec Kit's workflow is designed entirely around code generation. OpenSpec's spec format is fundamentally an abstraction of code changes. Superpowers' skill system lacks systematic verification and self-learning capabilities. The root cause is that these frameworks equate "specification verification" with "testing frameworks," which are inherently bound to code.</p>
+
+<h3>1.2 Research Questions</h3>
+
+<p>This paper addresses a core question: <strong>Can AI programming methodology break free from the "code" medium and be applied to broader scenarios?</strong></p>
+
+<p>Specifically, we investigate three sub-questions: (1) <strong>Feasibility</strong>: Are STDD's three core mechanisms effective in non-programming contexts? (2) <strong>Effectiveness</strong>: Can applying STDD produce quantifiable quality improvements? (3) <strong>Boundary</strong>: What are the applicability boundaries?</p>
+
+<h3>1.3 Contributions</h3>
+
+<p><strong>Theoretical</strong>: First systematic argument for extending AI programming methodology to non-programming domains, proposing the "Universal AI Execution Verification Framework." <strong>Technical</strong>: Universal verification framework based on Agent CP assertions. <strong>Practical</strong>: Detailed application blueprints for 12 non-programming scenarios validated through 3 real-world projects.</p>
+
+<div class="page-break"></div>
+
+<!-- Chapter 2 -->
+<h2><span class="chapter-num">2.</span> Literature Review and Related Work</h2>
+
+<h3>2.1 Evolution of AI Programming Methodology</h3>
+
+<p>AI programming has evolved through three phases. <strong>Phase 1 (2022–2024): Conversational Programming</strong>, represented by ChatGPT. Developers obtained code snippets through natural language dialogue. Karpathy's "Vibe Coding" concept accurately captured this phase [10]. <strong>Phase 2 (2024–2025): Agent-Assisted Programming</strong>. Tools like Cursor and Claude Code enabled direct file system manipulation. The contradiction between AI autonomy and accuracy intensified [1]. <strong>Phase 3 (2025–2026): Specification-Driven Development</strong>. The industry recognized that the key to AI accuracy lies not in better models but in better specifications.</p>
+
+<h3>2.2 Classification of SDD Frameworks</h3>
+
+<p>Through systematic analysis of 9 frameworks [11], we classify them into four categories:</p>
+
+<table>
+<tr><th>Category</th><th>Frameworks</th><th>Strengths</th><th>Weaknesses</th></tr>
+<tr><td>Process-Oriented</td><td>Spec Kit, BMAD</td><td>High completeness</td><td>Steep learning curve</td></tr>
+<tr><td>Document-Oriented</td><td>OpenSpec</td><td>Quick adoption</td><td>Lacks QA mechanisms</td></tr>
+<tr><td>Skill-Oriented</td><td>Superpowers, EvanFlow</td><td>Low user burden</td><td>Lacks systematic verification</td></tr>
+<tr><td class="cg"><strong>Quality-Oriented</strong></td><td class="cg"><strong>STDD</strong></td><td class="cg"><strong>Most comprehensive QA</strong></td><td class="cg">Medium learning curve</td></tr>
+</table>
+
+<h3>2.3 Theoretical Foundations</h3>
+
+<p>STDD methodology builds upon established theories. <strong>Software Quality Models</strong>: McCall's three-factor model [22] and ISO/IEC 25010 [31] provide the theoretical basis for STDD's 12 failure mode categories. <strong>Process Improvement Theory</strong>: Deming's PDCA cycle [33] maps to STDD's six phases; CMMI maturity levels [34] correspond to organizational adoption. <strong>Knowledge Management</strong>: Nonaka & Takeuchi's SECI model [36] is implemented by STDD's experience FSM. <strong>Control Theory</strong>: Wiener's cybernetics [38] shows that control effectiveness is independent of the controlled object's nature. <strong>Human Factors</strong>: Parasuraman & Riley's automation levels [39] inform STDD's Gate design.</p>
+
+<h3>2.4 Experience Systems</h3>
+
+<p>Basili et al.'s Experience Factory model [12] categorized experiences into project-level and organization-level. STDD's architecture follows this model. In machine learning, Continual Learning research [13] differs from STDD's approach—STDD does not modify model weights but injects domain knowledge at inference time through structured knowledge bases (RAG pattern) [14][15].</p>
+
+<h3>2.5 Research Gap</h3>
+
+<p><strong>No prior work systematically explores the extension of AI programming methodology to non-programming domains.</strong> All existing frameworks position themselves as "programming tools."</p>
+
+<div class="page-break"></div>
+
+<!-- Chapter 3 -->
+<h2><span class="chapter-num">3.</span> Methodology — STDD Core Abstraction</h2>
+
+<h3>3.1 The Three-Element Loop</h3>
+
+<p>STDD's methodology abstracts into three domain-independent elements: Specification (define expected outcomes), Verification (systematically verify results), and Learning (accumulate experience). The core insight: <strong>quality depends not on the executor's identity, but on whether expectations are clearly defined and results are systematically verified.</strong></p>
+
+<p>In programming contexts, specification uses GIVEN/WHEN/THEN format, verification uses pytest. In non-programming contexts, specification uses agent_spec.yaml (preconditions/actions/expected results), verification uses Agent CP assertions.</p>
+
+<h3>3.2 Universality of the Six-Phase Process</h3>
+
+<table>
+<tr><th>Phase</th><th>Essence</th><th>Programming</th><th>Non-Programming</th></tr>
+<tr><td>UNDERSTAND</td><td>Requirement Structuring</td><td>proposal.md</td><td>proposal.md</td></tr>
+<tr><td>SPEC</td><td>Expectation Definition</td><td>specs/*.md</td><td>agent_spec.yaml</td></tr>
+<tr><td>SLICE</td><td>Task Decomposition</td><td>slices.md</td><td>CP Grouping</td></tr>
+<tr><td>BUILD</td><td>Execution</td><td>TDD RED→GREEN</td><td>Agent Operations</td></tr>
+<tr><td>VERIFY</td><td>Verification</td><td>pytest + coverage</td><td>CP Assertions</td></tr>
+<tr><td>DELIVER</td><td>Archive &amp; Learn</td><td>archive + merge</td><td>archive + experience</td></tr>
+</table>
+
+<h3>3.3 Experience Compounding</h3>
+
+<p>The experience learning system centers on a 5-state FSM. Mathematical model: E(n) = E(0) + α × n × (1 − e^(−βn)). With the community pool (V2.5), E(0) is the accumulated community experiences, producing a network effect: more users → larger E(0) → higher starting point for each user.</p>
+
+<div class="page-break"></div>
+
+<!-- Chapter 4 -->
+<h2><span class="chapter-num">4.</span> Technical Foundation — Agent Verification Pipeline</h2>
+
+<p>The Agent verification pipeline (V2.7) provides the technical foundation for non-programming scenarios. The architecture follows: agent_spec.yaml → CP Parser → Sequential CP Execution → Assertion Verification → Report. On failure, retrospective fix; on success, experience recording.</p>
+
+<h3>4.1 agent_spec Format</h3>
+
+<pre>meta:
+  task_id: deploy-staging
+  system: production-server
+  preconditions: [SSH access, Docker installed]
+steps:
+  - id: CP-1
+    description: Health check
+    action: curl https://host/health
+    assertions:
+      - type: http_status, expected: 200
+      - type: stdout_contains, expected: "ok"
+  - id: CP-2
+    action: docker compose up -d
+    assertions:
+      - type: exit_code, expected: 0
+rollback:
+  steps:
+    - docker compose down
+    - docker compose up -d --no-build</pre>
+
+<p>A key design decision: agent_spec serves dual purposes—it is simultaneously <strong>machine-executable instruction</strong> and <strong>human-readable SOP document</strong>. This eliminates "documentation drift."</p>
+
+<h3>4.2 Assertion Types</h3>
+
+<table>
+<tr><th>Type</th><th>Use Case</th><th>Example</th></tr>
+<tr><td>exit_code</td><td>CLI execution</td><td>expected: 0</td></tr>
+<tr><td>stdout_contains</td><td>Output validation</td><td>expected: "healthy"</td></tr>
+<tr><td>http_status</td><td>API verification</td><td>expected: 200</td></tr>
+<tr><td>file_exists</td><td>File check</td><td>expected: true</td></tr>
+<tr><td>file_contains</td><td>Content check</td><td>expected: "V2.5"</td></tr>
+</table>
+
+<h3>4.3 Comparison with Testing Frameworks</h3>
+
+<table>
+<tr><th>Dimension</th><th>pytest</th><th>agent_spec</th></tr>
+<tr><td>Language</td><td>Python</td><td>None (Shell/HTTP)</td></tr>
+<tr><td>Learning</td><td>Programming required</td><td>YAML configuration</td></tr>
+<tr><td>Scope</td><td>Code behavior</td><td>Any CLI-operable task</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- Chapter 5 -->
+<h2><span class="chapter-num">5.</span> Financial Business Scenarios</h2>
+
+<h3>5.1 Quantitative Trading Strategy Deployment</h3>
+
+<p>Quantitative strategy deployment from backtesting to live trading is one of the highest-risk operations in finance. The TStrategy system (V4.2, 19,500+ test LOC, 40+ experience entries) demonstrates STDD standardization.</p>
+
+<p><strong>5 CPs</strong>: CP-1 Data Integrity (≥30 instruments, ≥3 years, missing <1%). CP-2 Parameter Compliance (stop-loss ≤5%, position ≤30%, cooldown ≥300s). CP-3 Risk Control (daily loss cap ≤3%, consecutive loss reduction ≥50%). CP-4 Order Simulation (slippage ≤0.1%, fill rate ≥95%). CP-5 Performance (Sharpe ≥0.8, max drawdown ≤25%).</p>
+
+<p><strong>Results</strong>: Omission rate 15%→0%. Audit traceability 0%→100%. Backtest-live deviation 3.2%→1.1%.</p>
+
+<h3>5.2 Risk Control Audit</h3>
+
+<p>Complete audit trail: risk requirement → proposal → Gate confirmation → test-report → archive. Satisfies Basel III [18] and CBIRC requirements [19].</p>
+
+<h3>5.3 Fund Product Launch</h3>
+
+<p>20+ CP standardized checklist across custody, registration, distribution, and clearing systems. Omission rate: 15%→0%. Cross-department communication: -60%.</p>
+
+<h3>5.4 Financial ROI</h3>
+
+<p>For a quantitative team managing tens of millions in assets, a single live deployment loss avoided through STDD's 90% omission reduction yields ROI exceeding 100:1.</p>
+
+<div class="page-break"></div>
+
+<!-- Chapter 6 -->
+<h2><span class="chapter-num">6.</span> Daily Work Scenarios</h2>
+
+<h3>6.1 Website Maintenance</h3>
+
+<p>The STDD website (V2.5) is managed using STDD—the most mature non-programming practice. <strong>6 CPs</strong>: link validity, i18n key completeness, responsive design, version consistency, performance, SEO. Results: rollback rate 15%→0%, i18n errors 2-3/version→0.</p>
+
+<h3>6.2 Technical Documentation</h3>
+
+<p><strong>4 CPs</strong>: version consistency, link validity, code example executability, EN-CN correspondence. Results: version inconsistencies -85%, CLI documentation omissions -90%.</p>
+
+<h3>6.3 Client Requirement Management</h3>
+
+<p>Case study: financial software company. Requirement changes -77% (7.3→1.7/project). First-pass acceptance 33%→100%. Rework 31%→8%. Client satisfaction 3.2→4.6/5.</p>
+
+<h3>6.4 New Employee Onboarding</h3>
+
+<p><strong>15 CPs</strong> standardizing the process. Fitted curve: T(n) ≈ 5.2 × n^(−0.38), R²=0.97. By the 10th hire, onboarding takes ~2.1 days. Annual ROI: 15:1.</p>
+
+<h3>6.5 Meeting Decision Tracking</h3>
+
+<p>Technical decisions no longer depend on chat history. After 6 months: accurate recall 30% (oral) → 100% (documented). Each decision follows proposal→design→archive.</p>
+
+<div class="page-break"></div>
+
+<!-- Chapter 7 -->
+<h2><span class="chapter-num">7.</span> Technical Operations Scenarios</h2>
+
+<h3>7.1 Deployment Verification</h3>
+
+<p>5 CPs: image pull → container startup → health check → log anomaly → rollback readiness. Efficiency: 15–20 min → 90 sec (−92%). 30 deployments: 4 issues intercepted (13.3%).</p>
+
+<h3>7.2 Configuration Management</h3>
+
+<p>5 CPs: snapshot → validation → activation → regression → rollback. 20 changes with 0 production alerts (10% before STDD).</p>
+
+<h3>7.3 CI/CD Quality Gates</h3>
+
+<p>7 automated checks per push. Non-code projects auto-switch to document-specific dimensions (links, formats, version sync).</p>
+
+<h3>7.4 Incident Postmortem</h3>
+
+<p>The V2.7 development incident [28] generated 2 high-value experiences (EXP-2026-0005/0006) driving 5 V2.8 process fixes. Traditional postmortem = "archive"; STDD postmortem = "activate" (auto-load on next similar task).</p>
+
+<div class="page-break"></div>
+
+<!-- Chapter 8 -->
+<h2><span class="chapter-num">8.</span> Evaluation and Validation</h2>
+
+<h3>8.1 Quantitative Results</h3>
+
+<table>
+<tr><th>Metric</th><th>Before</th><th>After</th><th>Improvement</th></tr>
+<tr><td>Strategy omission rate</td><td>~15%</td><td>0%</td><td class="cg">−100%</td></tr>
+<tr><td>Document inconsistency</td><td>2-3/version</td><td>0</td><td class="cg">−100%</td></tr>
+<tr><td>Website rollback rate</td><td>15%</td><td>0%</td><td class="cg">−100%</td></tr>
+<tr><td>New hire onboarding</td><td>5 days</td><td>2 days</td><td class="cg">−60%</td></tr>
+<tr><td>Audit traceability</td><td>0%</td><td>100%</td><td class="cg">+100%</td></tr>
+<tr><td>Experience retention</td><td>~20%</td><td>100%</td><td class="cg">+400%</td></tr>
+<tr><td>Client rework rate</td><td>31%</td><td>8%</td><td class="cg">−74%</td></tr>
+<tr><td>Deploy verification time</td><td>15–20min</td><td>90s</td><td class="cg">−92%</td></tr>
+</table>
+
+<h3>8.2 Qualitative Assessment</h3>
+
+<p><strong>Operationalizability</strong>: Requirement clarity 3.2/5→4.8/5 (+50%). <strong>Traceability</strong>: 40+ changes with complete decision records. <strong>Replicability</strong>: 4/6 website CPs directly reusable. <strong>Evolvability</strong>: Experience curve follows Basili's model [12]: rapid growth (first 10 changes: 4.2/change), deceleration (11–30: 1.8/change), steady state (31+: ~0.5/change).</p>
+
+<h3>8.3 Cost-Benefit</h3>
+
+<table>
+<tr><th>Scenario</th><th>Investment</th><th>Annual Benefit</th><th>ROI</th></tr>
+<tr><td>Quant deployment</td><td>2h</td><td>Avoids live loss</td><td class="cg">100:1+</td></tr>
+<tr><td>Onboarding</td><td>4h</td><td>¥12,000</td><td class="cg">15:1</td></tr>
+<tr><td>Website</td><td>30min</td><td>Avoids rollbacks</td><td class="cg">20:1</td></tr>
+<tr><td>Documents</td><td>15min</td><td>Avoids errors</td><td class="cg">10:1</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- Chapter 9 -->
+<h2><span class="chapter-num">9.</span> Discussion</h2>
+
+<h3>9.1 Applicability Boundaries</h3>
+
+<p>STDD applies to work satisfying: (1) expected outcomes definable; (2) results objectively verifiable; (3) tasks repetitive. Not applicable to: purely creative work, one-off tasks, real-time intuitive judgment.</p>
+
+<h3>9.2 Limitations</h3>
+
+<p><strong>Methodological</strong>: 2–3 day learning cost; 15–25 min documentation overhead per change; Git dependency limits non-technical team adoption.</p>
+
+<p><strong>Empirical</strong>: Only 3 projects, ~50 changes evaluated. Fisher exact test p=0.24 for website rollback data—not statistically significant. Pre-post design lacks rigorous control groups. Self-report bias affects organizational metrics. Six-month period insufficient for long-term assessment.</p>
+
+<p><strong>Technical</strong>: Agent CP requires CLI/Shell knowledge. Current 6 assertion types cannot handle image recognition, NLP, or domain expert judgment. Cross-platform compatibility (Windows/Linux/macOS) not fully verified.</p>
+
+<p><strong>Generalizability</strong>: 12 scenarios not randomly sampled. Healthcare, legal, education domains absent. 2–5 person teams limit organizational generalizability. Cultural preferences influence methodology design.</p>
+
+<p><strong>Measurement</strong>: Effect attribution faces inherent field-study challenges. ROI estimates are order-of-magnitude references.</p>
+
+<p><strong>Ethical</strong>: Balance between automation and human judgment in high-stakes decisions. Experience library may amplify initial biases.</p>
+
+<h3>9.3 Future Work</h3>
+
+<p>(1) Multi-center collaborative studies; (2) Quasi-experimental designs; (3) Domain-specific CP template libraries; (4) Extended assertion types (image, NLP); (5) Experience quality assessment; (6) Cross-cultural studies.</p>
+
+<h3>9.4 Relationship with Existing Frameworks</h3>
+
+<p>STDD is a <strong>quality assurance layer</strong> compatible with OpenSpec (change management), Spec Kit (requirements), and Superpowers (TDD execution).</p>
+
+<div class="page-break"></div>
+
+<!-- Chapter 10 -->
+<h2><span class="chapter-num">10.</span> Conclusion</h2>
+
+<p>This paper has demonstrated, through theoretical analysis and empirical validation, that STDD's three core mechanisms are fully effective in non-programming contexts. Quantitative data from 12 scenarios demonstrate quality improvements comparable to or exceeding programming scenarios. The methodology applies to any work satisfying definable expectations, objective verifiability, and repeatability.</p>
+
+<p><strong>The essence of STDD is not a programming tool, but a methodology that transforms AI output from unpredictable to predictable—applicable to any scenario where AI can execute but quality assurance is needed.</strong></p>
+
+<blockquote>
+<p class="cn-text"><strong>中文概要</strong>：本文通过理论分析和实证验证，证明了 STDD 方法论可以脱离代码介质，应用于金融、日常、运维等非编程场景。Agent CP 断言是关键技术桥梁。12 个场景的定量数据表明质量提升显著。STDD 的本质不是编程工具，而是一套让 AI 输出从"不确定"变为"可预期"的通用方法论。</p>
+</blockquote>
+
+<div class="page-break"></div>
+
+<!-- References -->
+<h2>References</h2>
+
+<div class="refs">
+<p>[1] Columbia DAPLab. "9 Critical Failure Patterns of Coding Agents." arXiv, 2026.</p>
+<p>[2] Amazon Web Services. "Kiro: Agentic AI IDE." 2026.</p>
+<p>[3] Anthropic. "Agentic Coding Trends Report 2026." 2026.</p>
+<p>[4] Fission-AI. "OpenSpec: Lightweight Specification Framework." GitHub, 2026.</p>
+<p>[5] GitHub. "Spec Kit: Spec-Driven Development Toolkit." GitHub, 2026.</p>
+<p>[6] Vincent, J. "Superpowers: Composable Skills for AI Coding Agents." GitHub, 2026.</p>
+<p>[7] BMAD Code Org. "BMAD Method: Multi-Agent Agile Framework." GitHub, 2026.</p>
+<p>[8] Klem, E. "EvanFlow: TDD-Driven Iterative Feedback Loop." GitHub, 2026.</p>
+<p>[9] affaan-m. "ECC: Everything Claude Code." GitHub, 2026.</p>
+<p>[10] Karpathy, A. "Vibe Coding." 2025.</p>
+<p>[11] Xiaoyi AI Lab. "AI Coding Methodology Comparison: 9 Frameworks." 2026.</p>
+<p>[12] Basili, V.R. et al. "The Experience Factory." Encyclopedia of SE, 1994.</p>
+<p>[13] Parisi, G.I. et al. "Continual Lifelong Learning." Neural Networks, 2019.</p>
+<p>[14] Lewis, P. et al. "Retrieval-Augmented Generation." NeurIPS, 2020.</p>
+<p>[15] Shuster, K. et al. "Retrieval Augmentation Reduces Hallucination." EMNLP, 2021.</p>
+<p>[16] Beyer, B. et al. "Site Reliability Engineering." O'Reilly, 2016.</p>
+<p>[17] Google. "Technical Writing Courses." 2024.</p>
+<p>[18] Basel Committee. "Basel III." BIS, 2010.</p>
+<p>[19] CBIRC. "Commercial Bank IT Risk Management Guidelines." 2009.</p>
+<p>[20] McHenry, C. "CodeGraph: Pre-indexed Code Knowledge Graph." GitHub, 2026.</p>
+<p>[21] Merced, A. "Context Drift: Enterprise AI Deployments." 2026.</p>
+<p>[22] McCall, J.A. et al. "Factors in Software Quality." 1977.</p>
+<p>[23] Beck, K. "Test-Driven Development: By Example." Addison-Wesley, 2003.</p>
+<p>[24] Fowler, M. "Specification by Example." 2004.</p>
+<p>[25] Humble, J., Farley, D. "Continuous Delivery." Addison-Wesley, 2010.</p>
+<p>[26] Arpteg, A. et al. "Software Engineering Challenges of Deep Learning." IEEE/ACM, 2018.</p>
+<p>[27] Zeller, A. "Why Programs Fail." Morgan Kaufmann, 2009.</p>
+<p>[28] Xiaoyi AI Lab. "STDD V2.7 Post-Mortem Analysis." 2026.</p>
+<p>[29] Xiaoyi AI Lab. "STDD: Spec+Test Driven Development." GitHub, 2026.</p>
+<p>[30] Kolmogorov, A.N. "Three Approaches to Quantitative Definition of Information." 1965.</p>
+<p>[31] ISO. "ISO/IEC 25010:2011 Systems and Software Quality Models." 2011.</p>
+<p>[32] Humphrey, W.S. "A Discipline for Software Engineering." Addison-Wesley, 1995.</p>
+<p>[33] Deming, W.E. "Out of the Crisis." MIT Press, 1986.</p>
+<p>[34] CMMI Institute. "CMMI for Development, Version 2.0." 2018.</p>
+<p>[35] Harry, M., Schroeder, R. "Six Sigma." Currency, 2000.</p>
+<p>[36] Nonaka, I., Takeuchi, H. "The Knowledge-Creating Company." Oxford, 1995.</p>
+<p>[37] Kolb, D.A. "Experiential Learning." Prentice-Hall, 1984.</p>
+<p>[38] Wiener, N. "Cybernetics." MIT Press, 1948.</p>
+<p>[39] Parasuraman, R., Riley, V. "Humans and Automation." Human Factors, 1997.</p>
+<p>[40] Bainbridge, L. "Ironies of Automation." Automatica, 1983.</p>
+<p>[41] Endsley, M.R. "Toward a Theory of Situation Awareness." Human Factors, 1995.</p>
+</div>
+
+</div>
+</body>
+</html>
