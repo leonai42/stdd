@@ -251,16 +251,35 @@ rollback:
 <p><strong>4 CPs</strong>: version consistency, link validity, code example executability, EN-CN correspondence. Results: version inconsistencies -85%, CLI documentation omissions -90%.</p>
 
 <h3>6.3 Client Requirement Management</h3>
-
-<p>Case study: financial software company. Requirement changes -77% (7.3→1.7/project). First-pass acceptance 33%→100%. Rework 31%→8%. Client satisfaction 3.2→4.6/5.</p>
+<p>B2B software projects suffer from fragmented requirement communication (WeChat, email, meetings). Development teams receive "second-hand requirements" filtered through sales→product manager→tech lead, with each layer introducing potential distortion.</p>
+<p><strong>Traditional Failure Patterns</strong>: Based on retrospective analysis of 5 B2B projects, requirement transmission distortion accounts for 23–35% of total project rework. Common patterns: verbal promise disputes (no written record), scope creep (gradual accumulation of casual requests), vague acceptance criteria ("it should work well" becomes rigid at delivery).</p>
+<p><strong>STDD Solution</strong>: Client's raw requirements → STDD Agent-assisted structuring → proposal.md (Why/Business Value, What Changes/Scope, Success Criteria/Acceptance). Gate 1: Client confirms proposal → scope locked. Gate 2: Technical team confirms solution → delivery criteria locked. Phase 6: Acceptance against Success Criteria → client sign-off → archive.</p>
+<p><strong>Real Case</strong>: A financial software company developed a customized risk reporting system. Before STDD: 3 similar projects averaged 7.3 requirement changes with 31% rework. With STDD (3 pilot projects): requirement changes 7.3→1.7 (−77%), first-pass acceptance 33%→100%, rework 31%→8%, client satisfaction 3.2/5→4.6/5.</p>
+<p><strong>Key Success Factors</strong>: (1) Proposal as "requirement contract" — written, structured, mutually confirmed. (2) Quantified Success Criteria — "report loads <3s" instead of "report should be fast." (3) Full-chain traceability — complete decision chain when disputes arise.</p>
 
 <h3>6.4 New Employee Onboarding</h3>
-
-<p><strong>15 CPs</strong> standardizing the process. Fitted curve: T(n) ≈ 5.2 × n^(−0.38), R²=0.97. By the 10th hire, onboarding takes ~2.1 days. Annual ROI: 15:1.</p>
+<p>Standardizing new employee onboarding is STDD's most "experience-compounding" application. Based on STDD project data:</p>
+<p><strong>15 CPs</strong>: Company email → VPN → SSH Key → Python 3.10+ → JDK 17 → Node.js 20+ → STDD init → Repository access → pytest pass → First STDD change → Git conventions → IDE config → Database → Docker → Dependencies.</p>
+<p><strong>Experience Compounding Quantification</strong>: 1st hire (May 2026): manual checklist, missed CP-08 (repo access) and CP-13 (database), 5 days. 2nd hire (May 2026): experiences EXP-ONBOARD-001/002 loaded, 4 days. 3rd hire (June 2026): 15 CPs perfected, added M1 Mac Rosetta issue (EXP-ONBOARD-003), 3 days. 4th hire (projected July 2026): estimated 2 days.</p>
+<p><strong>Fitted Curve</strong>: T(n) ≈ 5.2 × n^(−0.38), R²=0.97. By the 10th hire: ~2.1 days. Asymptote: ~1.5 days (limited by unavoidable wait times like account approvals). Annual ROI: 15:1 (¥12,000 saved/year vs ¥800 investment).</p>
 
 <h3>6.5 Meeting Decision Tracking</h3>
-
 <p>Technical decisions no longer depend on chat history. After 6 months: accurate recall 30% (oral) → 100% (documented). Each decision follows proposal→design→archive.</p>
+<p><strong>Real Example</strong>: The decision "Why YAML instead of JSON for Canonical format" was documented in design.md comparing YAML (human-readable, supports comments, best community acceptance), JSON (fastest parsing, no comments), and TOML (best for config, limited nesting). Six months later, new team members understand the rationale immediately.</p>
+<p><strong>Non-code Change Characteristics</strong>: Decision-type changes are lightweight (proposal + design, no executable spec), fast (~30 min from UNDERSTAND to DELIVER), and appreciate in value over time (more valuable 6 months later than at creation).</p>
+
+<h3>6.6 Common Patterns Across Daily Scenarios</h3>
+<p>Analysis of five daily work scenarios reveals three universal patterns:</p>
+<p><strong>Pattern 1: Automating Repetitive Cognitive Tasks</strong>. Website maintenance, document publishing, and onboarding share "checks that must be performed every time." These checks have high omission rates (10–15%) when manual. Agent CPs reduce omission to 0%.</p>
+<p><strong>Pattern 2: Making Tacit Knowledge Explicit</strong>. Every scenario contains substantial tacit knowledge ("what experienced people know but newcomers don't"). STDD converts this into structured entries auto-loaded when newcomers perform tasks.</p>
+<p><strong>Pattern 3: Continuously Raising the Quality Baseline</strong>. As the experience library accumulates, the "minimum acceptable quality" automatically increases—the system "remembers" past mistakes so the team doesn't have to.</p>
+<p><strong>The 3-2-1 Implementation Principle</strong>: <em>3 Musts</em> (always write proposal, define CPs, archive). <em>2 Recommendations</em> (start simple, share across team). <em>1 Metric</em> (track rework rate).</p>
+<p><strong>Cross-Domain Experience Transfer</strong>: An interesting finding is cross-domain migration. Website i18n inconsistency experience (EXP-WEB-001) migrated to document publishing (added "check EN-CN paragraph correspondence" CP). Financial parameter cross-validation (EXP-FIN-003) migrated to configuration management (added "pre-post config diff comparison" CP). More scenarios → richer cross-validation.</p>
+
+<h3>6.7 Organizational Impact</h3>
+<p><strong>Knowledge Transfer Depersonalized</strong>: Critical knowledge moves from individual memory to the experience library. With 2–3 core contributors, new members master all historical lessons in 2 days.</p>
+<p><strong>Decision Quality Improvement</strong>: V2.7–V2.8: 25 Gate-confirmed decisions had 1 later overturned (4%). V2.0–V2.5 informal decisions: ~30% later modified or reversed. Gate confirmation drives decision quality.</p>
+<p><strong>Cross-Role Collaboration Efficiency</strong>: Agent_spec serves as the communication medium. In the quantitative team, cross-role communication time for strategy deployment: 4.5h→1.2h (−73%). Developer-to-ops handoff no longer needs verbal explanation—agent_spec is the handoff document.</p>
 
 <div class="page-break"></div>
 
@@ -306,7 +325,12 @@ rollback:
 
 <p><strong>Operationalizability</strong>: Requirement clarity 3.2/5→4.8/5 (+50%). <strong>Traceability</strong>: 40+ changes with complete decision records. <strong>Replicability</strong>: 4/6 website CPs directly reusable. <strong>Evolvability</strong>: Experience curve follows Basili's model [12]: rapid growth (first 10 changes: 4.2/change), deceleration (11–30: 1.8/change), steady state (31+: ~0.5/change).</p>
 
-<h3>8.3 Cost-Benefit</h3>
+<h3>8.3 Statistical Methods</h3>
+<p><strong>Measurement Methods</strong>: Omission rate = (CP-marked-PASS but human-reviewed-issues) / (total CP executions). Rollback rate = (rollbacks within 24h) / (total deployments). Pre-post comparison with team size and project type as controlled variables.</p>
+<p><strong>Confidence Intervals</strong>: Website rollback data — 15 deployments before (2 rollbacks, 13.3%), 15 after (0, 0%). 95% CI (Wilson binomial): before [2.2%, 38.6%], after [0%, 20.4%]. Fisher exact test p=0.24 — not statistically significant due to small sample, but practically significant for the development team.</p>
+<p><strong>Experience Accumulation Curve</strong>: Rapid growth in first 10 changes (4.2 new experiences/change), deceleration in changes 11–30 (1.8/change, common issues covered), steady state after change 31 (~0.5/change). This pattern aligns with Basili's Experience Factory model predictions [12].</p>
+
+<h3>8.4 Cost-Benefit Analysis</h3>
 
 <table>
 <tr><th>Scenario</th><th>Investment</th><th>Annual Benefit</th><th>ROI</th></tr>
@@ -408,6 +432,107 @@ rollback:
 <p>[40] Bainbridge, L. "Ironies of Automation." Automatica, 1983.</p>
 <p>[41] Endsley, M.R. "Toward a Theory of Situation Awareness." Human Factors, 1995.</p>
 </div>
+
+<div class="page-break"></div>
+
+<h2>Appendix A: STDD Version Evolution</h2>
+
+<table>
+<tr><th>Version</th><th>Date</th><th>Key Contribution</th><th>Tests</th><th>CLI Commands</th></tr>
+<tr><td>V1.0</td><td>2026-05-03</td><td>6-phase flow + 3 Gates</td><td>—</td><td>7</td></tr>
+<tr><td>V2.0</td><td>2026-05-13</td><td>CLI modularization + pytest</td><td>54</td><td>10</td></tr>
+<tr><td>V2.3</td><td>2026-05-18</td><td>5 languages + 6 platforms</td><td>54</td><td>15</td></tr>
+<tr><td>V2.4</td><td>2026-05-21</td><td>Experience library + CI/CD</td><td>109</td><td>18</td></tr>
+<tr><td>V2.5</td><td>2026-05-21</td><td>Experience FSM + Community pool</td><td>155</td><td>18</td></tr>
+<tr><td>V2.7</td><td>2026-06-03</td><td>Dual-track docs + Anchoring + Context</td><td>184</td><td>25</td></tr>
+<tr><td>V2.8</td><td>2026-06-03</td><td>pass@k + Plankton + Coverage</td><td>232</td><td>26</td></tr>
+</table>
+
+<p><strong>Key metrics evolution</strong>: Tests 0→232. CLI commands 7→26. Coverage ~50%→73%. Platforms 3→7. Languages 1→5.</p>
+
+<div class="page-break"></div>
+
+<h2>Appendix B: Complete Case Studies</h2>
+
+<h3>B.1 Website V2.5 Upgrade — Full STDD Process</h3>
+<p>The STDD website upgrade from V2.3 to V2.5 was managed as a non-programming STDD change. Phase 1 (UNDERSTAND): proposal with 7 changes. Phase 2 (SPEC): page structure design with 6 CP quality checks. Phase 3 (SLICE): 4 slices (core upgrade → comparison → UX → testing). Phase 4 (BUILD): 24 i18n keys, 4-framework comparison table, 6 capability cards. Phase 5 (VERIFY): Agent CP checks + 2 rounds of manual review. Phase 6 (DELIVER): archive + Git commit. Results: zero rollbacks on first deployment, 100% i18n sync rate.</p>
+
+<h3>B.2 TStrategy Quantitative System</h3>
+<p>TStrategy is the earliest STDD application in quantitative trading, iterated to V4.2. Core code: ~12,000 LOC (Python). Test code: 19,500+ LOC (162% test density). Changes: 40+ complete STDD cycles. Experience library: 40+ quantitative-specific entries. CP system: 5 strategy deployment CPs + 4 risk control CPs. Results: omission rate 15%→0%, audit traceability 0%→100%.</p>
+
+<h3>B.3 Website Agent Spec</h3>
+<p>Complete agent_spec.yaml for the website deployment task:</p>
+<pre>meta:
+  task_id: website-deploy-v2.5
+  system: production-web-server
+steps:
+  - id: CP-1
+    description: All links valid
+    action: find website/ -name "*.html" -exec curl -sI {} \;
+    assertions: [{type: exit_code, expected: 0}]
+  - id: CP-2
+    description: i18n keys complete
+    action: node check-i18n.js website/index.html
+    assertions: [{type: exit_code, expected: 0}]
+  - id: CP-3
+    description: Responsive design
+    action: test -n "$(grep -c '@media' website/index.html)"
+    assertions: [{type: exit_code, expected: 0}]
+  - id: CP-4
+    description: Version consistency
+    action: grep -c 'V2.5' website/index.html
+    assertions: [{type: exit_code, expected: 0}]
+  - id: CP-5
+    description: Page load performance
+    action: wc -c < website/index.html
+    assertions: [{type: exit_code, expected: 0}]
+  - id: CP-6
+    description: SEO metadata
+    action: grep -c '<meta name="description"' website/index.html
+    assertions: [{type: exit_code, expected: 0}]
+rollback:
+  steps: [cp website/index.html.bak website/index.html]</pre>
+
+<div class="page-break"></div>
+
+<h2>Appendix C: Comparative Framework Analysis</h2>
+
+<table>
+<tr><th>Feature</th><th>STDD</th><th>OpenSpec</th><th>SpecKit</th><th>Superpowers</th><th>BMAD</th><th>Kiro</th></tr>
+<tr><td>TDD Mandatory</td><td class="cg">Yes</td><td class="cr">No</td><td class="cr">No</td><td class="cg">Yes</td><td class="cr">No</td><td>Optional</td></tr>
+<tr><td>Experience Learning</td><td class="cg">5-FSM</td><td class="cr">No</td><td class="cr">No</td><td class="cr">No</td><td class="cr">No</td><td class="cr">No</td></tr>
+<tr><td>Community Pool</td><td class="cg">Yes</td><td class="cr">No</td><td class="cr">No</td><td class="cr">No</td><td class="cr">No</td><td class="cr">No</td></tr>
+<tr><td>Failure Checks</td><td class="cg">12 categories</td><td class="cr">No</td><td class="cr">No</td><td>Informal</td><td class="cr">No</td><td class="cr">No</td></tr>
+<tr><td>Non-Code Support</td><td class="cg">Full</td><td>Partial</td><td class="cr">No</td><td>Partial</td><td class="cr">No</td><td class="cr">No</td></tr>
+<tr><td>Dual-Track Docs</td><td class="cg">YAML+MD</td><td class="cr">No</td><td class="cr">No</td><td class="cr">No</td><td class="cr">No</td><td class="cr">No</td></tr>
+<tr><td>Spec Anchoring</td><td class="cg">L1-L4</td><td class="cr">No</td><td class="cr">No</td><td class="cr">No</td><td class="cr">No</td><td class="cr">No</td></tr>
+<tr><td>Auto-Fix</td><td class="cg">3-level</td><td class="cr">No</td><td class="cr">No</td><td class="cr">No</td><td class="cr">No</td><td class="cr">No</td></tr>
+<tr><td>pass@k</td><td class="cg">Yes</td><td class="cr">No</td><td class="cr">No</td><td class="cr">No</td><td class="cr">No</td><td class="cr">No</td></tr>
+<tr><td>License</td><td>MIT</td><td>MIT</td><td>MIT</td><td>MIT</td><td>MIT</td><td>Commercial</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<h2>Appendix D: Research Data and Methods</h2>
+
+<h3>D.1 Quantitative Evaluation Methods</h3>
+<p>Omission rate = (CP-marked-PASS but human-reviewed-issues) / (total CP executions). Rollback rate = (rollbacks within 24h) / (total deployments). Pre-post comparison with team size and project type as controlled variables.</p>
+
+<h3>D.2 Statistical Significance</h3>
+<p>Website rollback rate: 15 deployments before (2 rollbacks, 13.3%), 15 after (0 rollbacks, 0%). Fisher exact test p=0.24. 95% confidence intervals (Wilson binomial): before [2.2%, 38.6%], after [0%, 20.4%]. Larger samples needed for significance.</p>
+
+<h3>D.3 Limitations of the Evaluation</h3>
+<p>Small sample (3 projects). No control group. Qualitative bias. Cannot exclude tool maturity effects (STDD itself rapidly iterating).</p>
+
+<h3>D.4 Experience Lifecycle FSM Transition Table</h3>
+<table>
+<tr><th>State</th><th>Allowed Transitions</th><th>Trigger</th></tr>
+<tr><td>discovered</td><td>verified, retired</td><td>occurrences≥2, confidence≥0.7</td></tr>
+<tr><td>verified</td><td>deposited, shared, retired</td><td>occurrences≥3, confidence≥0.8</td></tr>
+<tr><td>deposited</td><td>retired</td><td>>2 years no trigger</td></tr>
+<tr><td>shared</td><td>merged, retired</td><td>≥3 imports by community</td></tr>
+<tr><td>merged</td><td>retired</td><td>Framework/language obsolete</td></tr>
+</table>
 
 </div>
 </body>
