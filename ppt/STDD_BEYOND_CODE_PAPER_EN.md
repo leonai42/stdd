@@ -2,6 +2,7 @@
 
 ## 从代码到流程：Spec+Test 双驱动方法论在非编程领域的扩展与应用研究
 
+**Liang Shi (史亮) · naoziAi (脑子)**  
 **Xiaoyi AI Lab / 小以AI实验室**  
 **June 2026 / 2026年6月**  
 **License: CC BY 4.0**
