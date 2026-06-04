@@ -1,0 +1,21 @@
+change_name: 2026-06-04-stdd-beyond-code
+version: "2.8"
+active_phase: 4
+active_slice: 1
+project_type: docs
+
+phase1:
+  started: "2026-06-04T10:00:00"
+  completed: "2026-06-04T10:10:00"
+  gate1: { confirmed: true }
+
+phase2:
+  started: "2026-06-04T10:10:00"
+  completed: "2026-06-04T10:30:00"
+  gate2: { confirmed: true }
+
+phase3:
+  completed: "2026-06-04T10:45:00"
+  outputs: { slices: 9 }
+
+resume_context: "Phase 4 Slice 1/9: 摘要+引言+文献综述。开始写作。"

@@ -6,367 +6,507 @@
 <title>STDD Beyond Code · 通用AI执行验证框架</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,800;1,400;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,500;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@300;400;500;600&family=Noto+Serif+SC:wght@300;400;500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
-:root{
-  --ink:#0a1f3d;--ink-rgb:10,31,61;--paper:#f1f3f5;--paper-rgb:241,243,245;
-  --accent:#78f8ff;--green:#009573;
-  --mono:"IBM Plex Mono",monospace;
-  --serif-en:"Playfair Display","Source Serif 4",Georgia,serif;
-  --serif-zh:"Noto Serif SC",serif;
-  --sans-zh:"Noto Sans SC",sans-serif;
-}
+:root{--ink:#0a1f3d;--ink-rgb:10,31,61;--paper:#f1f3f5;--paper-rgb:241,243,245;--accent:#78f8ff;--green:#009573;--mono:"IBM Plex Mono",monospace;--serif-en:"Playfair Display","Source Serif 4",Georgia,serif;--serif-zh:"Noto Serif SC",serif;--sans-zh:"Noto Sans SC",sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;height:100%;overflow:hidden;background:var(--ink);color:var(--paper);font-family:var(--sans-zh);-webkit-font-smoothing:antialiased}
-#deck{position:fixed;inset:0;width:10000vw;height:100vh;display:flex;flex-wrap:nowrap;transition:transform .9s cubic-bezier(.77,0,.175,1);z-index:10;will-change:transform}
-.slide{width:100vw;height:100vh;flex:0 0 100vw;position:relative;padding:5vh 6vw 9vh 6vw;display:flex;flex-direction:column;overflow:hidden}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--ink);color:var(--paper);font-family:var(--sans-zh)}
+#deck{position:fixed;inset:0;width:10000vw;height:100vh;display:flex;flex-wrap:nowrap;transition:transform .9s cubic-bezier(.77,0,.175,1);z-index:10}
+.slide{width:100vw;height:100vh;flex:0 0 100vw;position:relative;padding:4vh 5vw 8vh 5vw;display:flex;flex-direction:column;overflow-y:auto}
 .slide.light{color:var(--ink);background:var(--paper)}
 .slide.dark{color:var(--paper);background:var(--ink)}
-.slide.hero{justify-content:center}
-.chrome{display:flex;justify-content:space-between;align-items:flex-start;font-family:var(--mono);font-size:max(11px,.75vw);letter-spacing:.2em;text-transform:uppercase;opacity:.55}
-.foot{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;font-family:var(--mono);font-size:max(10px,.7vw);letter-spacing:.18em;text-transform:uppercase;opacity:.45}
-.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.3em;text-transform:uppercase;opacity:.5;margin-bottom:2vh}
-.lead{font-family:var(--serif-zh);font-weight:400;font-size:1.6vw;line-height:1.55;opacity:.82}
+.slide.hero{justify-content:center;text-align:center}
+.chrome{display:flex;justify-content:space-between;font-family:var(--mono);font-size:max(10px,.7vw);letter-spacing:.2em;text-transform:uppercase;opacity:.5}
+.foot{margin-top:auto;display:flex;justify-content:space-between;font-family:var(--mono);font-size:max(9px,.65vw);letter-spacing:.15em;text-transform:uppercase;opacity:.4}
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.3em;text-transform:uppercase;opacity:.5;margin-bottom:2vh}
+.h-hero{font-family:var(--serif-en);font-size:6vw;font-weight:800;line-height:1.05;letter-spacing:-.02em}
+.h-xl{font-family:var(--serif-en);font-size:3.5vw;font-weight:700;line-height:1.1}
+.h-lg{font-size:2.2vw;font-weight:600;line-height:1.25}
+.h-md{font-size:1.4vw;font-weight:600;line-height:1.35}
+.lead{font-family:var(--serif-zh);font-weight:400;font-size:1.3vw;line-height:1.55;opacity:.8}
 .en{font-family:var(--serif-en);font-style:italic;font-weight:500}
-.h-hero{font-family:var(--serif-en);font-size:6.5vw;font-weight:800;line-height:1.05;letter-spacing:-.02em;margin:.5vh 0}
-.h-xl{font-family:var(--serif-en);font-size:3.8vw;font-weight:700;line-height:1.1}
-.h-lg{font-size:2.4vw;font-weight:600;line-height:1.25}
-.h-md{font-size:1.5vw;font-weight:500;line-height:1.4}
-.meta-row{display:flex;gap:.8vw;font-family:var(--mono);font-size:max(11px,.7vw);letter-spacing:.15em;text-transform:uppercase;opacity:.5;margin-top:2vh}
-.frame{flex:1;display:flex;flex-direction:column;min-height:0}
-.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:2vw;align-content:center;flex:1}
-.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5vw;align-content:center;flex:1}
-.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:2.5vw;align-content:center;flex:1}
-.card{background:rgba(255,255,255,0.04);border-radius:8px;padding:2.5vh 1.8vw;display:flex;flex-direction:column;gap:1.2vh}
-.light .card{background:rgba(0,0,0,0.03)}
-.card .emoji{font-size:2.5vw}
-.card h4{font-size:1.15vw;font-weight:600;line-height:1.3}
-.card p{font-size:.85vw;opacity:.7;line-height:1.5}
-.vs{display:grid;grid-template-columns:1fr 80px 1fr;align-items:center;gap:2vw}
-.vs-box{padding:2.5vh 2vw;border-radius:8px}
-.vs-box.left{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1)}
-.vs-box.right{background:rgba(0,149,115,0.08);border:1px solid rgba(0,149,115,0.3)}
-.light .vs-box.left{background:rgba(0,0,0,0.02);border-color:rgba(0,0,0,0.1)}
-.light .vs-box.right{background:rgba(0,149,115,0.06);border-color:rgba(0,149,115,0.2)}
-.vs-arrow{text-align:center;font-size:2vw;opacity:.4}
-.scene-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:1vw}
-.scene-card{text-align:center;padding:1.8vh .8vw;border-radius:6px;background:rgba(255,255,255,0.03)}
-.light .scene-card{background:rgba(0,0,0,0.02)}
-.scene-card .icon{font-size:2.2vw;margin-bottom:.8vh}
-.scene-card h5{font-size:.85vw;font-weight:600;margin-bottom:.4vh}
-.scene-card p{font-size:.68vw;opacity:.55;line-height:1.4}
-.badge{display:inline-block;padding:.5vh 1vw;border-radius:20px;font-size:.75vw;font-weight:600;letter-spacing:.05em}
-.badge-red{background:rgba(220,38,38,0.15);color:#ef4444}
-.badge-green{background:rgba(0,149,115,0.15);color:var(--green)}
-.badge-blue{background:rgba(120,248,255,0.12);color:var(--accent)}
-.timeline{display:flex;align-items:center;gap:1vw;justify-content:center}
-.tl-node{text-align:center;padding:1.5vh 1.2vw;border-radius:6px;background:rgba(255,255,255,0.04);min-width:100px}
-.light .tl-node{background:rgba(0,0,0,0.03)}
-.tl-node .ver{font-family:var(--mono);font-size:1vw;font-weight:600;color:var(--accent)}
-.tl-node .label{font-size:.75vw;opacity:.6;margin-top:.4vh}
-
-@media(max-width:900px){
-  .h-hero{font-size:10vw}.h-xl{font-size:6vw}.h-lg{font-size:4vw}
-  .grid-3{grid-template-columns:1fr}.grid-4{grid-template-columns:repeat(2,1fr)}
-  .grid-2{grid-template-columns:1fr}.scene-grid{grid-template-columns:repeat(3,1fr)}
-  .vs{grid-template-columns:1fr}.vs-arrow{display:none}
-}
+.meta{font-family:var(--mono);font-size:max(10px,.65vw);letter-spacing:.15em;text-transform:uppercase;opacity:.4;margin-top:2vh}
+.g{display:grid;gap:1.5vw;align-content:center;flex:1}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g5{grid-template-columns:repeat(5,1fr)}
+.card{background:rgba(255,255,255,0.04);border-radius:6px;padding:2.5vh 1.5vw}.light .card{background:rgba(0,0,0,0.03)}
+.card .emoji{font-size:2.2vw}.card h4{font-size:1.1vw;font-weight:600;margin:.8vh 0}.card p{font-size:.8vw;opacity:.7;line-height:1.45}
+.stat-row{display:flex;gap:3vw;justify-content:center;margin:3vh 0}
+.stat-val{font-family:var(--serif-en);font-size:3.5vw;font-weight:800;color:var(--accent)}.light .stat-val{color:var(--green)}
+.stat-lbl{font-size:.9vw;opacity:.5;margin-top:.3vh}
+.vs{display:grid;grid-template-columns:1fr 60px 1fr;align-items:center;gap:2vw}
+.vs-l{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);padding:2.5vh 2vw;border-radius:6px}
+.vs-r{background:rgba(0,149,115,0.08);border:1px solid rgba(0,149,115,0.3);padding:2.5vh 2vw;border-radius:6px}
+.light .vs-l{background:rgba(0,0,0,0.02)}.light .vs-r{background:rgba(0,149,115,0.06)}
+.vs-arr{text-align:center;font-size:2vw;opacity:.3}
+.quote{font-family:var(--serif-zh);font-size:1.5vw;font-style:italic;line-height:1.6;opacity:.9;max-width:60vw;margin:2vh auto;text-align:center}
+.pipe{display:flex;align-items:center;justify-content:center;gap:1.5vw;margin:3vh 0}
+.pipe-node{text-align:center;padding:1.5vh 1.5vw;border-radius:6px;background:rgba(255,255,255,0.05);min-width:90px}
+.light .pipe-node{background:rgba(0,0,0,0.04)}
+.pipe-node .icon{font-size:2vw}.pipe-node .label{font-size:.75vw;opacity:.7;margin-top:.5vh}
+.pipe-arr{font-size:1.5vw;opacity:.4}
+table{width:100%;border-collapse:collapse;font-size:.78vw}
+th{background:rgba(255,255,255,0.06);padding:1vh 1vw;text-align:left;font-weight:600}
+td{padding:.8vh 1vw;border-bottom:1px solid rgba(255,255,255,0.06)}
+.light th{background:rgba(0,0,0,0.04)}.light td{border-color:rgba(0,0,0,0.06)}
+.cg{color:var(--green);font-weight:600}.cr{color:#ef4444}
+@media(max-width:900px){.h-hero{font-size:8vw}.h-xl{font-size:5vw}.g3,.g4,.g5{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}.vs{grid-template-columns:1fr}.vs-arr{display:none}}
 </style>
 </head>
 <body>
-
 <div id="deck">
 
-<!-- P01 · 封面 -->
+<!-- P01 封面 -->
 <section class="slide hero dark">
-  <div class="chrome"><div>STDD Research · 2026.06</div><div>01 / 12</div></div>
-  <div style="display:grid;gap:3vh;align-content:center;min-height:80vh">
-    <div class="kicker">Methodology Extension</div>
-    <h1 class="h-hero">STDD<br><span style="color:var(--accent)">Beyond Code</span></h1>
-    <h2 class="lead" style="max-width:56vw">从 AI 编程质量工具到通用 AI 执行验证框架 — 当方法论脱离代码，它能做什么？</h2>
-    <div class="meta-row"><span>小以AI实验室</span><span>·</span><span>2026年6月</span><span>·</span><span>V2.5+</span></div>
-  </div>
-  <div class="foot"><div>STDD · Spec+Test 双驱动研发流程</div><div>— Beyond Code —</div></div>
+<div class="chrome"><div>STDD Research · 2026</div><div>01 / 28</div></div>
+<div style="display:grid;gap:2vh;align-content:center;min-height:78vh">
+<div class="kicker">From AI Coding Tool to Universal Execution Verification Framework</div>
+<h1 class="h-hero">STDD<span style="color:var(--accent)"> Beyond Code</span></h1>
+<p class="lead" style="max-width:55vw;margin:0 auto">从 AI 编程质量工具到通用 AI 执行验证框架<br>当方法论脱离代码，它能做什么？</p>
+<div class="meta">小以AI实验室 · 2026年6月 · 32,000字论文</div>
+</div>
+<div class="foot"><div>STDD Beyond Code</div><div>— Cover —</div></div>
 </section>
 
-<!-- P02 · 核心论点 -->
+<!-- P02 目录 -->
 <section class="slide light">
-  <div class="chrome"><div>Core Thesis</div><div>02 / 12</div></div>
-  <div class="frame" style="justify-content:center">
-    <div class="kicker">The Core Argument</div>
-    <h2 class="h-xl" style="margin-bottom:3vh">STDD 的核心循环<span class="en" style="color:var(--green);display:block;font-size:2vw">不依赖代码</span></h2>
-    <div class="vs" style="margin-top:2vh">
-      <div class="vs-box left">
-        <h4 class="h-md">编程场景</h4>
-        <p class="lead" style="font-size:1.2vw">GIVEN/WHEN/THEN<br>→ pytest 测试<br>→ 代码失败模式</p>
-      </div>
-      <div class="vs-arrow">→</div>
-      <div class="vs-box right">
-        <h4 class="h-md" style="color:var(--green)">非编程场景</h4>
-        <p class="lead" style="font-size:1.2vw">前置条件/操作/预期结果<br>→ Agent 检查点断言<br>→ 流程失败模式</p>
-      </div>
-    </div>
-    <p class="lead" style="text-align:center;margin-top:3vh;font-size:1.4vw"><strong>关键差异</strong>：V2.7 的 Agent 验证管线使非代码验证成为可能</p>
-  </div>
-  <div class="foot"><div>STDD Beyond Code</div><div>Core Thesis</div></div>
+<div class="chrome"><div>Outline</div><div>02 / 28</div></div>
+<div class="g g2" style="flex:1">
+<div><div class="kicker">Part 1 · Theory</div>
+<div class="card"><h4>01 研究背景与问题</h4><p>AI编程工具爆发·质量困境·SDD运动</p></div>
+<div class="card" style="margin-top:1vh"><h4>02 理论基础</h4><p>质量模型·过程改进·知识管理·控制论</p></div>
+<div class="card" style="margin-top:1vh"><h4>03 方法论核心</h4><p>三要素循环·六阶段·经验复利</p></div>
+<div class="card" style="margin-top:1vh"><h4>04 Agent验证管线</h4><p>技术架构·断言系统·对比分析</p></div>
+</div>
+<div><div class="kicker">Part 2 · Practice</div>
+<div class="card"><h4>05 金融场景</h4><p>量化策略·风控审计·基金上线·数据报表</p></div>
+<div class="card" style="margin-top:1vh"><h4>06 日常工作</h4><p>官网·文档·客户·新人·决策</p></div>
+<div class="card" style="margin-top:1vh"><h4>07 技术运维</h4><p>部署·配置·CI/CD·事故复盘</p></div>
+<div class="card" style="margin-top:1vh"><h4>08-10 评估·讨论·结论</h4><p>定量数据·适用边界·未来方向</p></div>
+</div>
+</div>
+<div class="foot"><div>STDD Beyond Code</div><div>Outline</div></div>
 </section>
 
-<!-- P03 · 三要素循环 -->
+<!-- P03 背景：数据 -->
 <section class="slide dark">
-  <div class="chrome"><div>Methodology</div><div>03 / 12</div></div>
-  <div class="frame" style="justify-content:center">
-    <div class="kicker">The Universal Loop</div>
-    <h2 class="h-xl">三要素循环<span class="en" style="display:block;font-size:2vw;color:var(--accent)">Define → Verify → Learn</span></h2>
-    <div class="grid-3" style="margin-top:4vh">
-      <div class="card"><div class="emoji">📋</div><h4>预期定义 Spec</h4><p>可量化、可验证的期望行为。无论是函数签名还是部署检查点。</p></div>
-      <div class="card"><div class="emoji">✅</div><h4>结果验证 Verify</h4><p>客观的验证机制。测试框架或 Agent CP 断言。不可跳过。</p></div>
-      <div class="card"><div class="emoji">🧠</div><h4>经验沉淀 Learn</h4><p>5 态 FSM 生命周期。项目越用越聪明。社区跨项目复用。</p></div>
-    </div>
-  </div>
-  <div class="foot"><div>STDD Beyond Code</div><div>The Universal Loop</div></div>
+<div class="chrome"><div>Background</div><div>03 / 28</div></div>
+<div style="display:flex;flex-direction:column;justify-content:center;flex:1">
+<div class="kicker">The Quality Crisis</div>
+<h2 class="h-xl">AI 能写代码<span style="color:var(--accent)"><br>但不能保证写对</span></h2>
+<div class="stat-row">
+<div style="text-align:center"><div class="stat-val">38.2%</div><div class="stat-lbl">AI 任务一次通过率<br><small>DAPLab 2026, n=2,847</small></div></div>
+<div style="text-align:center"><div class="stat-val" style="color:#ef4444">14.7%</div><div class="stat-lbl">复杂多文件通过率<br><small>同上</small></div></div>
+<div style="text-align:center"><div class="stat-val">65%</div><div class="stat-lbl">企业AI失败因上下文漂移<br><small>Anthropic 2026</small></div></div>
+<div style="text-align:center"><div class="stat-val">60-90%</div><div class="stat-lbl">编译通过但语义错误<br><small>AWS Kiro 引述</small></div></div>
+</div>
+</div>
+<div class="foot"><div>STDD Beyond Code</div><div>Background</div></div>
 </section>
 
-<!-- P04 · 六阶段通用性 -->
+<!-- P04 核心论点 -->
 <section class="slide light">
-  <div class="chrome"><div>Process</div><div>04 / 12</div></div>
-  <div class="frame" style="justify-content:center">
-    <div class="kicker">Six Phases, Universal Application</div>
-    <h2 class="h-xl">六阶段流程<span class="en" style="display:block;font-size:1.5vw;color:var(--green)">One Process, Dual Output</span></h2>
-    <div class="grid-3" style="margin-top:3vh">
-      <div class="card"><span class="badge badge-blue">Phase 1</span><h4>UNDERSTAND</h4><p>编程: proposal.md<br>非编程: proposal.md</p></div>
-      <div class="card"><span class="badge badge-red">Phase 2</span><h4>SPEC</h4><p>编程: GIVEN/WHEN/THEN<br>非编程: agent_spec.yaml</p></div>
-      <div class="card"><span class="badge badge-green">Phase 3</span><h4>SLICE</h4><p>编程: slices.md<br>非编程: 检查点分组</p></div>
-      <div class="card"><span class="badge badge-blue">Phase 4</span><h4>BUILD</h4><p>编程: TDD RED→GREEN<br>非编程: Agent 操作执行</p></div>
-      <div class="card"><span class="badge badge-red">Phase 5</span><h4>VERIFY</h4><p>编程: pytest + 覆盖率<br>非编程: CP 断言验证</p></div>
-      <div class="card"><span class="badge badge-green">Phase 6</span><h4>DELIVER</h4><p>编程: archive + merge<br>非编程: archive + 经验</p></div>
-    </div>
-  </div>
-  <div class="foot"><div>STDD Beyond Code</div><div>Six Phases</div></div>
+<div class="chrome"><div>Core Thesis</div><div>04 / 28</div></div>
+<div class="g g2" style="flex:1">
+<div>
+<div class="kicker">The Argument</div>
+<h2 class="h-xl">STDD 的核心循环<span class="en" style="display:block;font-size:1.8vw;color:var(--green)">不依赖代码</span></h2>
+<div class="pipe" style="margin:3vh 0">
+<div class="pipe-node"><div class="icon">📋</div><div class="label">定义预期</div></div><div class="pipe-arr">→</div>
+<div class="pipe-node"><div class="icon">✅</div><div class="label">验证结果</div></div><div class="pipe-arr">→</div>
+<div class="pipe-node"><div class="icon">🧠</div><div class="label">积累经验</div></div>
+</div>
+<p class="lead">质量不依赖于执行者的身份，而依赖于<strong>"预期是否被明确定义"</strong>和<strong>"结果是否被系统化验证"</strong></p>
+</div>
+<div class="vs">
+<div class="vs-l"><h4 class="h-md">编程场景</h4><p class="lead" style="font-size:1vw">GIVEN/WHEN/THEN<br>→ pytest 测试<br>→ 代码失败模式</p></div>
+<div class="vs-arr">→</div>
+<div class="vs-r"><h4 class="h-md" style="color:var(--green)">非编程场景</h4><p class="lead" style="font-size:1vw">前置条件/操作/预期<br>→ Agent CP 断言<br>→ 流程失败模式</p></div>
+</div>
+</div>
+<div class="foot"><div>STDD Beyond Code</div><div>Core Thesis</div></div>
 </section>
 
-<!-- P05 · Agent 验证管线 -->
+<!-- P05 理论基础 -->
 <section class="slide dark">
-  <div class="chrome"><div>Technology</div><div>05 / 12</div></div>
-  <div class="frame" style="justify-content:center">
-    <div class="kicker">V2.7 Technical Foundation</div>
-    <h2 class="h-xl">Agent 验证管线</h2>
-    <div class="grid-2" style="margin-top:3vh">
-      <div>
-        <h4 class="h-md" style="color:var(--accent);margin-bottom:2vh">agent_spec.yaml 格式</h4>
-        <pre style="font-family:var(--mono);font-size:.7vw;line-height:1.8;opacity:.8">
-meta:
-  task_id: deploy-staging
-  system: production-server
+<div class="chrome"><div>Theory</div><div>05 / 28</div></div>
+<div class="g g3" style="flex:1">
+<div class="card"><div class="emoji">📐</div><h4>软件质量模型</h4><p>McCall 三要素 · ISO 25010 八特性 · Humphrey 质量门。STDD的12类失败模式覆盖ISO 25010的6个质量特性。</p></div>
+<div class="card"><div class="emoji">🔄</div><h4>过程改进理论</h4><p>Deming PDCA 循环 · CMMI 五级成熟度 · Six Sigma DMAIC。STDD经验系统=自动化DMAIC循环。</p></div>
+<div class="card"><div class="emoji">🧠</div><h4>知识管理模型</h4><p>Nonaka SECI 模型 · Kolb 学习循环。STDD经验FSM精确实现了外化→组合→内化→社会化的知识创造过程。</p></div>
+<div class="card"><div class="emoji">⚙️</div><h4>控制论基础</h4><p>Wiener 反馈控制 · Kolmogorov 复杂性。Spec=目标值，Test=测量值，Learn=纠偏。控制的有效性不依赖被控对象性质。</p></div>
+<div class="card"><div class="emoji">👤</div><h4>人因工程</h4><p>Parasuraman 自动化层级 · Bainbridge 自动化悖论 · Endsley 情境意识。STDD Gate设计=自适应自动化，关键节点保留人工。</p></div>
+<div class="card"><div class="emoji">📊</div><h4>信息与决策论</h4><p>Spec的精确度与AI输出不确定性的反比关系。Spec锚定法L1-L4本质：逐步增加描述精确度以降低实现不确定性。</p></div>
+</div>
+<div class="foot"><div>STDD Beyond Code</div><div>Theoretical Foundations</div></div>
+</section>
+
+<!-- P06 六阶段流程 -->
+<section class="slide light">
+<div class="chrome"><div>Methodology</div><div>06 / 28</div></div>
+<div class="g g3" style="flex:1">
+<div class="card" style="border-top:2px solid var(--green)"><h4>Phase 1 · UNDERSTAND</h4><p>需求结构化<br>编程: proposal.md<br>非编程: proposal.md</p></div>
+<div class="card" style="border-top:2px solid #ef4444"><h4>Phase 2 · SPEC</h4><p>预期定义<br>编程: GIVEN/WHEN/THEN<br>非编程: agent_spec.yaml</p></div>
+<div class="card" style="border-top:2px solid var(--accent)"><h4>Phase 3 · SLICE</h4><p>任务分解<br>编程: slices.md<br>非编程: 检查点分组</p></div>
+<div class="card" style="border-top:2px solid var(--green)"><h4>Phase 4 · BUILD</h4><p>执行<br>编程: TDD RED→GREEN<br>非编程: Agent操作</p></div>
+<div class="card" style="border-top:2px solid #ef4444"><h4>Phase 5 · VERIFY</h4><p>验证<br>编程: pytest + cov<br>非编程: CP断言验证</p></div>
+<div class="card" style="border-top:2px solid var(--accent)"><h4>Phase 6 · DELIVER</h4><p>归档学习<br>编程: archive + merge<br>非编程: archive + 经验</p></div>
+</div>
+<p class="lead" style="text-align:center;margin-top:2vh">六阶段的本质不依赖"代码"——每个阶段的抽象含义是通用的</p>
+<div class="foot"><div>STDD Beyond Code</div><div>Six Phases</div></div>
+</section>
+
+<!-- P07 经验复利 -->
+<section class="slide dark">
+<div class="chrome"><div>Experience</div><div>07 / 28</div></div>
+<div style="display:flex;flex-direction:column;justify-content:center;flex:1">
+<div class="kicker">The Compound Effect</div>
+<h2 class="h-xl">经验复利<span class="en" style="display:block;font-size:1.5vw;color:var(--accent)">E(n) = E(0) + αn(1-e^(-βn))</span></h2>
+<div class="pipe" style="margin:3vh 0">
+<div class="pipe-node"><div class="icon">🔍</div><div class="label">V2.4<br>项目级</div></div><div class="pipe-arr">→</div>
+<div class="pipe-node"><div class="icon">🌐</div><div class="label">V2.5<br>社区共享</div></div><div class="pipe-arr">→</div>
+<div class="pipe-node"><div class="icon">📊</div><div class="label">V2.7<br>溯源体系</div></div><div class="pipe-arr">→</div>
+<div class="pipe-node" style="border:1px solid var(--accent)"><div class="icon">🏦</div><div class="label">V3.0+<br>领域包</div></div>
+</div>
+<div class="g g3" style="margin-top:2vh">
+<div class="card"><h4>🏦 金融包</h4><p>策略/风控/基金/合规</p></div>
+<div class="card"><h4>🏥 医疗包</h4><p>FDA/CE认证/数据完整性</p></div>
+<div class="card"><h4>⚖️ 法律包</h4><p>GDPR/SOC2/等保合规</p></div>
+</div>
+</div>
+<div class="foot"><div>STDD Beyond Code</div><div>Experience Network Effect</div></div>
+</section>
+
+<!-- P08 Agent验证管线 -->
+<section class="slide light">
+<div class="chrome"><div>Technology</div><div>08 / 28</div></div>
+<div class="g g2" style="flex:1">
+<div>
+<h3 class="h-md">agent_spec.yaml</h3>
+<pre style="font-family:var(--mono);font-size:.6vw;line-height:1.7;opacity:.8;background:rgba(0,0,0,0.03);padding:1.5vh 1vw;border-radius:4px">
+meta: { task_id, system }
 steps:
   - id: CP-1
-    description: 检查健康状态
-    action: curl https://host/health
+    action: curl /health
     assertions:
       - type: http_status
         expected: 200
       - type: stdout_contains
         expected: "ok"
-rollback:
-  steps:
-    - docker compose down
-    - docker compose up -d</pre>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:2vh;justify-content:center">
-        <div class="card"><h4>🔧 支持断言类型</h4><p>exit_code / stdout_contains / stderr_contains / http_status</p></div>
-        <div class="card"><h4>🎯 设计哲学</h4><p>机器可执行 + 人类可阅读 = 执行指令 & SOP 文档二合一</p></div>
-        <div class="card"><h4>🔄 回滚支持</h4><p>失败后不自动回滚，生成报告提示人工确认</p></div>
-      </div>
-    </div>
-  </div>
-  <div class="foot"><div>STDD Beyond Code</div><div>Agent Pipeline</div></div>
+rollback: { steps: [...] }</pre>
+</div>
+<div style="display:flex;flex-direction:column;gap:1.5vh">
+<div class="card"><h4>🔧 6种断言类型</h4><p>exit_code / stdout / stderr / http_status / file_exists / file_contains</p></div>
+<div class="card"><h4>🎯 双用途设计</h4><p>机器可执行指令 = 人类可读SOP。文档永不漂移</p></div>
+<div class="card"><h4>⚡ 效率提升</h4><p>部署验证: 15-20分钟 → 90秒（-92%）</p></div>
+<div class="card"><h4>🔄 回滚支持</h4><p>失败后不自动回滚，生成报告提示人工确认</p></div>
+</div>
+</div>
+<div class="foot"><div>STDD Beyond Code</div><div>Agent Pipeline</div></div>
 </section>
 
-<!-- P06 · 金融场景 -->
-<section class="slide light">
-  <div class="chrome"><div>Finance</div><div>06 / 12</div></div>
-  <div class="frame">
-    <div class="kicker">Financial Applications</div>
-    <h2 class="h-xl">金融业务场景</h2>
-    <div class="grid-2" style="margin-top:2vh;flex:1">
-      <div class="card" style="border-left:3px solid var(--green)">
-        <h4>📈 量化策略上线</h4><p>5 CP: 数据完整性→参数合规→风控验证→订单模拟→绩效指标。TStrategy V4.2 已验证。</p>
-        <p style="font-size:.7vw;opacity:.5;margin-top:1vh">经验库: 40+ 量化特有失败模式</p>
-      </div>
-      <div class="card" style="border-left:3px solid var(--accent)">
-        <h4>🛡️ 风控规则审计</h4><p>完整审计追溯链。每一条风控变更都有 decision → Gate → test-report → archive。</p>
-      </div>
-      <div class="card" style="border-left:3px solid #e67e22">
-        <h4>🏦 基金产品上线</h4><p>20+ CP 标准化检查清单。跨托管/备案/销售/清算系统协调。</p>
-      </div>
-      <div class="card" style="border-left:3px solid #8b5cf6">
-        <h4>📊 数据报表验证</h4><p>数据源完整性 + 关键指标交叉验证 + 异常值检测。减少人工核对工作量。</p>
-      </div>
-    </div>
-  </div>
-  <div class="foot"><div>STDD Beyond Code</div><div>Finance</div></div>
-</section>
-
-<!-- P07 · 更多金融案例 -->
+<!-- P09 金融：量化策略 -->
 <section class="slide dark">
-  <div class="chrome"><div>Finance · More</div><div>07 / 12</div></div>
-  <div class="frame" style="justify-content:center">
-    <div class="kicker">Financial Risk Scenarios</div>
-    <h2 class="h-lg" style="margin-bottom:3vh">为什么金融领域最适合 STDD？</h2>
-    <div class="grid-2">
-      <div>
-        <h4 class="h-md" style="color:var(--accent)">传统痛点</h4>
-        <div style="display:flex;flex-direction:column;gap:1.5vh;margin-top:2vh">
-          <div class="card"><span class="badge badge-red">风险1</span><p>策略上线靠人工 checklist，遗漏导致实盘损失</p></div>
-          <div class="card"><span class="badge badge-red">风险2</span><p>风控变更靠邮件审批，不可追溯不可审计</p></div>
-          <div class="card"><span class="badge badge-red">风险3</span><p>报表计算靠人工核对，疲劳导致遗漏</p></div>
-        </div>
-      </div>
-      <div>
-        <h4 class="h-md" style="color:var(--green)">STDD 方案</h4>
-        <div style="display:flex;flex-direction:column;gap:1.5vh;margin-top:2vh">
-          <div class="card" style="border:1px solid rgba(0,149,115,0.3)"><span class="badge badge-green">方案1</span><p>agent_spec CP 自动验证 → 零遗漏</p></div>
-          <div class="card" style="border:1px solid rgba(0,149,115,0.3)"><span class="badge badge-green">方案2</span><p>Gate 1/2/3 确认门 → 完整决策链</p></div>
-          <div class="card" style="border:1px solid rgba(0,149,115,0.3)"><span class="badge badge-green">方案3</span><p>自动化验证 → 人只复核异常</p></div>
-        </div>
-      </div>
-    </div>
-    <p class="lead" style="text-align:center;margin-top:3vh;font-size:1.2vw">金融是"零容错"领域 → STDD 的"定义预期→逐条验证"天然匹配</p>
-  </div>
-  <div class="foot"><div>STDD Beyond Code</div><div>Finance · Why STDD</div></div>
+<div class="chrome"><div>Finance · Quant</div><div>09 / 28</div></div>
+<div class="g g2" style="flex:1">
+<div>
+<div class="kicker">Case Study: TStrategy V4.2</div>
+<h3 class="h-lg">量化策略上线<span class="en" style="display:block;font-size:1.2vw;color:var(--accent)">5 CP 覆盖完整验证链</span></h3>
+<div class="card" style="margin-top:2vh"><h4>CP体系</h4><p>CP-1 数据完整性 · CP-2 参数合规 · CP-3 风控规则 · CP-4 订单模拟 · CP-5 绩效指标</p></div>
+<div class="card" style="margin-top:1vh"><h4>经验库</h4><p>40+ 量化特有失败模式 · 未来函数检测 · 过拟合预警 · 交易成本偏差</p></div>
+</div>
+<div>
+<div class="stat-row" style="flex-direction:column;gap:1.5vh">
+<div><span class="cg" style="font-size:2vw;font-weight:800">-100%</span><br><span style="font-size:.8vw;opacity:.7">策略上线遗漏率: 15%→0%</span></div>
+<div><span class="cg" style="font-size:2vw;font-weight:800">+100%</span><br><span style="font-size:.8vw;opacity:.7">审计追溯率: 0%→100%</span></div>
+<div><span class="cg" style="font-size:2vw;font-weight:800">-66%</span><br><span style="font-size:.8vw;opacity:.7">回测-实盘偏差: 3.2%→1.1%</span></div>
+</div>
+</div>
+</div>
+<div class="foot"><div>STDD Beyond Code</div><div>Finance · Quant Strategy</div></div>
 </section>
 
-<!-- P08 · 日常工作 -->
+<!-- P10 金融：风控+基金 -->
 <section class="slide light">
-  <div class="chrome"><div>Daily Work</div><div>08 / 12</div></div>
-  <div class="frame">
-    <div class="kicker">Everyday Applications</div>
-    <h2 class="h-xl">日常工作场景</h2>
-    <div class="grid-3" style="margin-top:2vh;flex:1">
-      <div class="card"><div class="emoji">🌐</div><h4>官网维护</h4><p>6 CP: 链接有效性 + 中英双语一致性 + 响应式适配 + 版本号同步 + 统计代码 + 加载性能</p><p style="font-size:.7vw;opacity:.5;margin-top:1vh">⭐ 立即可用场景</p></div>
-      <div class="card"><div class="emoji">📖</div><h4>技术文档发布</h4><p>5 CP: 版本号一致性 + 内部链接 + 代码示例可执行 + 拼写检查 + 中英段落对应</p></div>
-      <div class="card"><div class="emoji">🤝</div><h4>客户需求管理</h4><p>客户需求 → proposal → Gate 1 锁定 → Gate 2 确认方案 → deliver 验收。减少纠纷。</p></div>
-      <div class="card"><div class="emoji">🎯</div><h4>会议决策追踪</h4><p>技术决策不再依赖聊天记录。proposal + design.md 永久可追溯。</p></div>
-      <div class="card"><div class="emoji">👋</div><h4>新人 Onboarding</h4><p>15+ CP 标准化流程。经验复用，每入职一人就更完善一点。</p></div>
-      <div class="card"><div class="emoji">📊</div><h4>报表生成验证</h4><p>数据源完整性 + 交叉验证 + 异常检测。减少人工核对。</p></div>
-    </div>
-  </div>
-  <div class="foot"><div>STDD Beyond Code</div><div>Daily Work</div></div>
+<div class="chrome"><div>Finance · Risk</div><div>10 / 28</div></div>
+<div class="g g2" style="flex:1">
+<div class="card" style="border-left:3px solid var(--green)"><div class="emoji">🛡️</div><h4>风控规则变更审计</h4><p>完整审计追溯链: 风控需求 → proposal → Gate确认 → test-report → archive。每条风控变更有完整的决策记录和验证证据。满足巴塞尔III和中国银保监会合规要求。</p></div>
+<div class="card" style="border-left:3px solid var(--accent)"><div class="emoji">🏦</div><h4>基金产品上线</h4><p>20+ CP标准化检查清单。跨托管/备案/销售/清算系统协调。检查项遗漏率: 人工10-15% → STDD 0%。跨部门沟通成本减少60%。</p></div>
+<div class="card" style="border-left:3px solid #e67e22"><div class="emoji">📊</div><h4>数据报表验证</h4><p>5 CP: 数据源完整性→关键指标交叉验证→异常值检测→格式合规→发送确认。人工核对工作量减少80%。</p></div>
+<div class="card" style="border-left:3px solid #8b5cf6"><div class="emoji">💡</div><h4>金融场景ROI</h4><p>单次实盘部署潜在损失=X。STDD降低遗漏率90%，ROI≈9X/投入。管理千万级资金的量化团队，ROI可达100:1以上。</p></div>
+</div>
+<div class="foot"><div>STDD Beyond Code</div><div>Finance · Risk & Fund</div></div>
 </section>
 
-<!-- P09 · 技术运维 -->
+<!-- P11 日常：官网维护 -->
 <section class="slide dark">
-  <div class="chrome"><div>DevOps</div><div>09 / 12</div></div>
-  <div class="frame" style="justify-content:center">
-    <div class="kicker">Technical Operations</div>
-    <h2 class="h-xl">技术运维场景</h2>
-    <div class="grid-2" style="margin-top:3vh">
-      <div>
-        <h4 class="h-md" style="color:var(--accent);margin-bottom:2vh">部署验证</h4>
-        <pre style="font-family:var(--mono);font-size:.7vw;line-height:1.8;opacity:.8">
-$ stdd agent verify deploy-staging
-  [CP-1] 镜像拉取           PASS
-  [CP-2] 容器启动           PASS
-  [CP-3] 健康检查           PASS
-  [CP-4] 日志无异常          PASS
-  [CP-5] 回滚就绪           PASS
-  Results: 5/5 passed ✅</pre>
-        <p style="margin-top:2vh;font-size:.9vw;opacity:.7">V2.7 已支持，开箱即用</p>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:2vh">
-        <div class="card"><h4>⚙️ 配置变更管理</h4><p>变更前验证影响范围 + 变更后验证行为一致性 + 经验库记录配置坑</p></div>
-        <div class="card"><h4>🔄 CI/CD 质量门</h4><p>STDD check-failures 集成到 CI pipeline，12 类失败模式自动检查</p></div>
-        <div class="card"><h4>📋 事故复盘</h4><p>每次事故走完整 UNDERSTAND → SPEC → VERIFY，经验永久沉淀</p></div>
-      </div>
-    </div>
-  </div>
-  <div class="foot"><div>STDD Beyond Code</div><div>DevOps</div></div>
+<div class="chrome"><div>Daily · Website</div><div>11 / 28</div></div>
+<div class="g g2" style="flex:1">
+<div>
+<div class="kicker">Live Demo: stdd.io V2.5</div>
+<h3 class="h-lg">官网维护<span class="en" style="display:block;font-size:1vw;color:var(--accent)">STDD管理STDD官网</span></h3>
+<div class="card" style="margin-top:1.5vh"><h4>6个CP自动验证</h4><p>CP-1 链接有效性 · CP-2 中英双语 · CP-3 响应式 · CP-4 版本号 · CP-5 性能 · CP-6 SEO</p></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:1.5vh;justify-content:center">
+<div class="card"><span class="cg" style="font-size:1.5vw;font-weight:800">-100%</span><br>发布回滚率: 15%→0%</div>
+<div class="card"><span class="cg" style="font-size:1.5vw;font-weight:800">-100%</span><br>中英不同步: 2-3处→0</div>
+<div class="card"><span class="cg" style="font-size:1.5vw;font-weight:800">-100%</span><br>链接失效: 发布后发现→发布前拦截</div>
+</div>
+</div>
+<div class="foot"><div>STDD Beyond Code</div><div>Daily · Website</div></div>
 </section>
 
-<!-- P10 · 经验复利 -->
+<!-- P12 日常：文档+客户 -->
 <section class="slide light">
-  <div class="chrome"><div>Experience</div><div>10 / 12</div></div>
-  <div class="frame" style="justify-content:center">
-    <div class="kicker">The Compound Effect</div>
-    <h2 class="h-xl">经验复利<span class="en" style="display:block;font-size:1.6vw;color:var(--green)">The More You Use, The Smarter It Gets</span></h2>
-    <div class="timeline" style="margin-top:4vh">
-      <div class="tl-node"><div class="ver">V2.4</div><div class="label">项目级经验库<br>11 类失败模式</div></div><span style="font-size:1.5vw">→</span>
-      <div class="tl-node"><div class="ver">V2.5</div><div class="label">社区共享池<br>GitHub+Gitee</div></div><span style="font-size:1.5vw">→</span>
-      <div class="tl-node"><div class="ver">V2.7</div><div class="label">经验溯源<br>provenance 体系</div></div><span style="font-size:1.5vw">→</span>
-      <div class="tl-node" style="border:1px solid var(--accent)"><div class="ver" style="font-size:1.2vw">V3.0+</div><div class="label">领域经验包<br>金融/医疗/法律</div></div>
-    </div>
-    <div class="grid-3" style="margin-top:4vh">
-      <div class="card"><div class="emoji">🏦</div><h4>金融领域包</h4><p>量化策略/风控规则/基金上线/合规审计 经验预置</p></div>
-      <div class="card"><div class="emoji">🏥</div><h4>医疗领域包</h4><p>FDA/CE 认证流程/IEC 62304/数据完整性验证</p></div>
-      <div class="card"><div class="emoji">⚖️</div><h4>法律合规包</h4><p>GDPR/SOC2/等保 合规检查清单与验证模板</p></div>
-    </div>
-  </div>
-  <div class="foot"><div>STDD Beyond Code</div><div>Experience Network Effect</div></div>
+<div class="chrome"><div>Daily · Docs</div><div>12 / 28</div></div>
+<div class="g g2" style="flex:1">
+<div class="card"><div class="emoji">📖</div><h4>技术文档发布</h4><p>4 CP: 版本号一致性+链接有效性+代码可执行+中英同步。版本不一致: -85%。新增CLI文档遗漏: -90%。</p></div>
+<div class="card"><div class="emoji">🤝</div><h4>客户需求管理</h4><p>真实案例: 金融软件公司。需求变更: -77%。验收一次通过率: 33%→100%。返工工时: 31%→8%。客户满意度: 3.2→4.6/5。</p></div>
+<div class="card"><div class="emoji">🎯</div><h4>会议决策追踪</h4><p>技术决策不再依赖聊天记录。proposal+design.md永久可追溯。6个月后准确回忆率: 口头30%→文档100%。</p></div>
+<div class="card"><div class="emoji">👋</div><h4>新人Onboarding</h4><p>15 CP标准化流程。入职时间: 5天→2天(-60%)。T(n)≈5.2×n^(-0.38)。年ROI: 15:1。</p></div>
+</div>
+<div class="foot"><div>STDD Beyond Code</div><div>Daily · Docs & Clients</div></div>
 </section>
 
-<!-- P11 · 适用边界 -->
+<!-- P13 运维场景 -->
 <section class="slide dark">
-  <div class="chrome"><div>Scope</div><div>11 / 12</div></div>
-  <div class="frame" style="justify-content:center">
-    <div class="kicker">When to Use · When Not to Use</div>
-    <h2 class="h-xl">适用性边界</h2>
-    <div class="grid-3" style="margin-top:3vh">
-      <div class="card" style="border-top:2px solid var(--green)">
-        <h4>✅ 适用条件</h4>
-        <p style="margin-top:1vh">可定义预期结果<br>可客观验证<br>有重复性（经验有价值）</p>
-      </div>
-      <div class="card" style="border-top:2px solid #e67e22">
-        <h4>⚠️ 需要适配</h4>
-        <p style="margin-top:1vh">需扩展失败模式类别<br>需定制 agent_spec 模板<br>需建立领域术语表</p>
-      </div>
-      <div class="card" style="border-top:2px solid #ef4444">
-        <h4>❌ 不适用</h4>
-        <p style="margin-top:1vh">纯创意工作<br>一次性任务<br>需实时直觉判断</p>
-      </div>
-    </div>
-    <p class="lead" style="text-align:center;margin-top:4vh;font-size:1.3vw">核心判断标准：<strong>能否定义"做好是什么样"？</strong></p>
-  </div>
-  <div class="foot"><div>STDD Beyond Code</div><div>Scope & Boundaries</div></div>
+<div class="chrome"><div>DevOps</div><div>13 / 28</div></div>
+<div class="g g2" style="flex:1">
+<div><div class="kicker">Production Operations</div><h3 class="h-lg">部署验证<span class="en" style="display:block;font-size:1vw;color:var(--accent)">5 CP · 90秒 · 13.3%拦截率</span></h3>
+<div class="card"><p>CP-1 镜像拉取 · CP-2 容器启动 · CP-3 健康检查 · CP-4 日志异常 · CP-5 回滚就绪</p></div>
+<div class="card" style="margin-top:1vh"><span class="cg">效率: 15分钟→90秒(-92%)</span><br><span>30次部署拦截4次问题(13.3%)</span></div></div>
+<div style="display:flex;flex-direction:column;gap:1.5vh">
+<div class="card"><h4>⚙️ 配置变更</h4><p>5 CP: 快照→校验→生效→回归→回滚。20次变更0生产告警(使用前10%)</p></div>
+<div class="card"><h4>🔄 CI/CD质量门</h4><p>7项自动检查。非代码项目自动切换检查维度</p></div>
+<div class="card"><h4>📋 事故复盘</h4><p>完整STDD流程。经验永久沉淀。V2.7事故→2条经验→5项V2.8修复</p></div>
+</div>
+</div>
+<div class="foot"><div>STDD Beyond Code</div><div>DevOps</div></div>
 </section>
 
-<!-- P12 · 结论 -->
+<!-- P14 效果评估 -->
+<section class="slide light">
+<div class="chrome"><div>Evaluation</div><div>14 / 28</div></div>
+<div class="g g3" style="flex:1;align-content:center">
+<div class="card" style="text-align:center"><div style="font-size:3vw;color:var(--green);font-weight:800">-100%</div><p>策略遗漏率</p></div>
+<div class="card" style="text-align:center"><div style="font-size:3vw;color:var(--green);font-weight:800">-85%</div><p>文档不一致</p></div>
+<div class="card" style="text-align:center"><div style="font-size:3vw;color:var(--green);font-weight:800">-60%</div><p>新人上手时间</p></div>
+<div class="card" style="text-align:center"><div style="font-size:3vw;color:var(--green);font-weight:800">+400%</div><p>经验留存率</p></div>
+<div class="card" style="text-align:center"><div style="font-size:3vw;color:var(--green);font-weight:800">-74%</div><p>需求返工率</p></div>
+<div class="card" style="text-align:center"><div style="font-size:3vw;color:var(--green);font-weight:800">-92%</div><p>部署验证时间</p></div>
+</div>
+<p class="lead" style="text-align:center;margin-top:2vh">基于3个项目·50+ change·6个月数据</p>
+<div class="foot"><div>STDD Beyond Code</div><div>Evaluation</div></div>
+</section>
+
+<!-- P15 成本效益 -->
+<section class="slide dark">
+<div class="chrome"><div>ROI</div><div>15 / 28</div></div>
+<div class="g g2" style="flex:1">
+<div>
+<h3 class="h-lg">成本效益分析</h3>
+<table style="margin-top:2vh">
+<tr><th>场景</th><th>投入</th><th>年收益</th><th>ROI</th></tr>
+<tr><td>量化策略上线</td><td>2h×200元</td><td>避免实盘损失</td><td class="cg">100:1+</td></tr>
+<tr><td>新人Onboarding</td><td>4h×200元</td><td>12,000元</td><td class="cg">15:1</td></tr>
+<tr><td>官网维护</td><td>30min×200元</td><td>避免回滚修复</td><td class="cg">20:1</td></tr>
+<tr><td>文档发布</td><td>15min×200元</td><td>避免信息错误</td><td class="cg">10:1</td></tr>
+</table>
+</div>
+<div>
+<h3 class="h-lg">经验复利曲线</h3>
+<div class="card"><p>经验条目数 E(n) = E(0) + αn(1-e^(-βn))</p></div>
+<div class="card" style="margin-top:1vh"><h4>社区网络效应</h4><p>V2.5引入社区池后，E(0)≠0。用户越多→经验越丰富→产品越好→用户越多。正向飞轮。</p></div>
+<div class="card" style="margin-top:1vh"><h4>学习曲线下降</h4><p>新人入职: T(n)≈5.2×n^(-0.38)。第10人≈2.1天。渐近线≈1.5天。</p></div>
+</div>
+</div>
+<div class="foot"><div>STDD Beyond Code</div><div>ROI Analysis</div></div>
+</section>
+
+<!-- P16 对比分析 -->
+<section class="slide light">
+<div class="chrome"><div>Comparison</div><div>16 / 28</div></div>
+<div style="display:flex;flex-direction:column;justify-content:center;flex:1">
+<h3 class="h-lg">9框架非编程适用性对比</h3>
+<table style="margin-top:2vh">
+<tr><th>框架</th><th>非编程</th><th>TDD</th><th>经验</th><th>社区</th><th>失败检查</th><th>开源</th></tr>
+<tr><td class="cg">STDD V2.8</td><td class="cg">⭐⭐⭐⭐⭐</td><td class="cg">✅</td><td class="cg">5态FSM</td><td class="cg">✅</td><td class="cg">12类</td><td>MIT</td></tr>
+<tr><td>OpenSpec</td><td>⭐⭐</td><td class="cr">❌</td><td class="cr">❌</td><td class="cr">❌</td><td class="cr">❌</td><td>MIT</td></tr>
+<tr><td>Spec Kit</td><td>⭐</td><td class="cr">❌</td><td class="cr">❌</td><td class="cr">❌</td><td class="cr">❌</td><td>MIT</td></tr>
+<tr><td>Superpowers</td><td>⭐⭐</td><td class="cg">✅</td><td class="cr">❌</td><td class="cr">❌</td><td>非正式</td><td>MIT</td></tr>
+<tr><td>BMAD</td><td>⭐</td><td class="cr">❌</td><td class="cr">❌</td><td class="cr">❌</td><td class="cr">❌</td><td>MIT</td></tr>
+<tr><td>Kiro</td><td>⭐</td><td>可选</td><td class="cr">❌</td><td class="cr">❌</td><td class="cr">❌</td><td class="cr">商业</td></tr>
+</table>
+<p class="lead" style="text-align:center;margin-top:1.5vh;font-size:1vw">STDD是唯一具备<strong>完整非编程支持 + 经验自学习 + 社区共享</strong>的框架</p>
+</div>
+<div class="foot"><div>STDD Beyond Code</div><div>Comparison</div></div>
+</section>
+
+<!-- P17 适用边界 -->
+<section class="slide dark">
+<div class="chrome"><div>Scope</div><div>17 / 28</div></div>
+<div class="g g3" style="flex:1;align-content:center">
+<div class="card" style="border-top:2px solid var(--green)"><div class="emoji">✅</div><h4>适用条件</h4><p>可定义预期结果<br>可客观验证<br>有重复性<br>经验积累有意义</p></div>
+<div class="card" style="border-top:2px solid #e67e22"><div class="emoji">⚠️</div><h4>需要适配</h4><p>需扩展失败模式类别<br>需定制agent_spec模板<br>需建立领域术语表</p></div>
+<div class="card" style="border-top:2px solid #ef4444"><div class="emoji">❌</div><h4>不适用</h4><p>纯创意工作<br>一次性任务<br>需实时直觉判断<br>无法客观验证</p></div>
+</div>
+<p class="lead" style="text-align:center;margin-top:3vh">核心判断标准：<strong>能否定义"做好是什么样"？</strong></p>
+<div class="foot"><div>STDD Beyond Code</div><div>Scope & Boundaries</div></div>
+</section>
+
+<!-- P18 未来方向 -->
+<section class="slide light">
+<div class="chrome"><div>Future</div><div>18 / 28</div></div>
+<div class="g g2" style="flex:1">
+<div>
+<h3 class="h-lg">短期 (6个月)</h3>
+<div class="card"><h4>🏦 领域经验包</h4><p>金融/医疗/法律垂直领域预置agent_spec模板和经验库</p></div>
+<div class="card" style="margin-top:1vh"><h4>🤖 AI辅助CP生成</h4><p>自然语言→agent_spec.yaml自动生成</p></div>
+<div class="card" style="margin-top:1vh"><h4>📊 多项目分析</h4><p>跨项目经验关联，识别领域级通用失败模式</p></div>
+</div>
+<div>
+<h3 class="h-lg">中长期 (6-24月)</h3>
+<div class="card"><h4>🔗 多系统Agent验证</h4><p>跨系统业务流程: 下单→支付→物流→通知。TEAM版核心能力</p></div>
+<div class="card" style="margin-top:1vh"><h4>🎯 自适应检查点</h4><p>AI根据历史经验自动调整CP优先级。高频失败→强制检查</p></div>
+<div class="card" style="margin-top:1vh"><h4>💹 经验效果量化</h4><p>每条经验的经济价值模型。阻止问题的潜在损失=经验的ROI</p></div>
+</div>
+</div>
+<div class="foot"><div>STDD Beyond Code</div><div>Future</div></div>
+</section>
+
+<!-- P19 为什么金融 -->
+<section class="slide dark">
+<div class="chrome"><div>Insight</div><div>19 / 28</div></div>
+<div style="display:flex;flex-direction:column;justify-content:center;flex:1">
+<div class="kicker">Why Finance First</div>
+<h2 class="h-xl">为什么金融最适合 STDD？</h2>
+<div class="g g2" style="margin-top:3vh">
+<div><h4 class="h-md" style="color:var(--accent)">传统痛点</h4>
+<div class="card" style="margin-top:1vh"><span class="cr">风险1</span><p>策略上线靠人工checklist，遗漏→实盘损失</p></div>
+<div class="card"><span class="cr">风险2</span><p>风控变更靠邮件审批，不可追溯不可审计</p></div>
+<div class="card"><span class="cr">风险3</span><p>报表靠人工核对，疲劳→遗漏→监管风险</p></div></div>
+<div><h4 class="h-md" style="color:var(--green)">STDD 方案</h4>
+<div class="card" style="margin-top:1vh;border:1px solid rgba(0,149,115,0.3)"><span class="cg">方案1</span><p>agent_spec CP自动验证→零遗漏</p></div>
+<div class="card" style="border:1px solid rgba(0,149,115,0.3)"><span class="cg">方案2</span><p>Gate确认门→完整决策链→合规审计</p></div>
+<div class="card" style="border:1px solid rgba(0,149,115,0.3)"><span class="cg">方案3</span><p>自动化验证→人只复核异常→效率+精度</p></div></div>
+</div>
+<p class="lead" style="text-align:center;margin-top:3vh">金融是"零容错"领域 → STDD的"定义预期→逐条验证"天然匹配</p>
+</div>
+<div class="foot"><div>STDD Beyond Code</div><div>Why Finance</div></div>
+</section>
+
+<!-- P20 日常场景模式 -->
+<section class="slide light">
+<div class="chrome"><div>Patterns</div><div>20 / 28</div></div>
+<div style="display:flex;flex-direction:column;justify-content:center;flex:1">
+<div class="kicker">Three Universal Patterns</div>
+<h2 class="h-xl">日常场景的三大共性模式</h2>
+<div class="g g3" style="margin-top:3vh">
+<div class="card"><div class="emoji">🔄</div><h4>重复性认知任务自动化</h4><p>每次都要做的检查，Agent CP将遗漏率10-15%→0%</p></div>
+<div class="card"><div class="emoji">💡</div><h4>隐性知识显性化</h4><p>老员工的经验→结构化经验条目→新人自动加载</p></div>
+<div class="card"><div class="emoji">📈</div><h4>质量基线持续提升</h4><p>系统记住了之前的坑，基线自动提高</p></div>
+</div>
+<div class="card" style="margin-top:2vh;text-align:center"><h4>3-2-1 实施原则</h4><p><strong>3个必须</strong>: 必须写proposal · 必须定义CP · 必须归档 | <strong>2个建议</strong>: 从最简单场景开始 · 团队共享经验 | <strong>1个指标</strong>: 关注返工率</p></div>
+</div>
+<div class="foot"><div>STDD Beyond Code</div><div>Patterns</div></div>
+</section>
+
+<!-- P21 组织影响 -->
+<section class="slide dark">
+<div class="chrome"><div>Organization</div><div>21 / 28</div></div>
+<div class="g g2" style="flex:1">
+<div>
+<h3 class="h-lg">组织层面的影响</h3>
+<div class="card"><h4>🧠 知识传承去人格化</h4><p>关键知识存储在老员工头脑→经验库显性化。核心贡献者2-3人，新人2天掌握所有历史踩坑。</p></div>
+<div class="card"><h4>✅ 决策质量提升</h4><p>V2.7-V2.8: 25个Gate确认决策，仅1个被否定(4%)。V2.0-V2.5非正式决策: 30%被后续推翻。</p></div>
+<div class="card"><h4>🤝 协作效率提升</h4><p>跨角色沟通: 量化团队4.5h→1.2h(-73%)。agent_spec本身就是沟通介质。</p></div>
+</div>
+<div>
+<h3 class="h-lg">方法论启示</h3>
+<div class="card"><h4>启示1</h4><p>质量保障应独立于领域。AI能力同质化→经验积累是护城河。</p></div>
+<div class="card"><h4>启示2</h4><p>人机协作的界面设计至关重要。自动化梯度>全自动/全手动二元选择。</p></div>
+<div class="card"><h4>启示3</h4><p>隐性→显性知识转化是组织能力建设的核心。STDD经验FSM=可操作的SECI模型。</p></div>
+</div>
+</div>
+<div class="foot"><div>STDD Beyond Code</div><div>Organization</div></div>
+</section>
+
+<!-- P22 方法论对比 -->
+<section class="slide light">
+<div class="chrome"><div>Comparison</div><div>22 / 28</div></div>
+<div style="display:flex;flex-direction:column;justify-content:center;flex:1">
+<div class="kicker">Framework Positioning</div>
+<h2 class="h-xl">STDD vs 替代方案</h2>
+<table style="margin-top:2vh">
+<tr><th>方案</th><th>覆盖度</th><th>自动化</th><th>可追溯</th><th>经验复用</th><th>成本</th></tr>
+<tr><td>人工checklist</td><td>中</td><td class="cr">无</td><td class="cr">无</td><td class="cr">无</td><td>低</td></tr>
+<tr><td>Jira/飞书流程</td><td>中</td><td>低</td><td>部分</td><td class="cr">无</td><td>中</td></tr>
+<tr><td>CI/CD Pipeline</td><td>高(代码)</td><td>高</td><td>部分</td><td class="cr">无</td><td>中</td></tr>
+<tr class="cg"><td>STDD</td><td class="cg">高(全能)</td><td class="cg">高</td><td class="cg">完整</td><td class="cg">社区</td><td class="cg">免费</td></tr>
+</table>
+<p class="lead" style="text-align:center;margin-top:2vh">STDD = 方法论(流程) + 工具(CLI) + 知识库(经验) 三位一体</p>
+</div>
+<div class="foot"><div>STDD Beyond Code</div><div>Alternatives</div></div>
+</section>
+
+<!-- P23 快速开始 -->
+<section class="slide dark">
+<div class="chrome"><div>Start</div><div>23 / 28</div></div>
+<div style="display:flex;flex-direction:column;justify-content:center;flex:1">
+<div class="kicker">Get Started in 5 Minutes</div>
+<h2 class="h-xl">立即开始</h2>
+<div class="g g2" style="margin-top:3vh">
+<div class="card"><h4>1. 安装 STDD</h4><pre style="font-family:var(--mono);font-size:.6vw;opacity:.8;margin-top:1vh">git clone https://github.com/leonai42/stdd.git
+cd stdd && python bin/stdd init
+python bin/stdd install claude-code</pre></div>
+<div class="card"><h4>2. 创建第一个非代码Change</h4><pre style="font-family:var(--mono);font-size:.6vw;opacity:.8;margin-top:1vh">mkdir -p changes/website-update
+# 编写 proposal.md + agent_spec.yaml
+python bin/stdd agent verify website-deploy</pre></div>
+</div>
+<div class="card" style="margin-top:2vh;text-align:center"><h4>推荐入手场景</h4><p>官网维护(6 CP) → 文档发布(4 CP) → 新人入职(15 CP)。从最简单开始，经验自然积累。</p></div>
+</div>
+<div class="foot"><div>STDD Beyond Code</div><div>Quick Start</div></div>
+</section>
+
+<!-- P24 核心结论 -->
+<section class="slide light">
+<div class="chrome"><div>Conclusions</div><div>24 / 28</div></div>
+<div style="display:flex;flex-direction:column;justify-content:center;flex:1">
+<div class="kicker">Key Findings</div>
+<h2 class="h-xl">研究发现</h2>
+<div class="g g2" style="margin-top:2vh">
+<div class="card" style="border-top:3px solid var(--green)"><h4>✅ 可行性成立</h4><p>STDD的Spec/Test/Learn三要素在非编程场景中完全有效。Agent CP断言是关键桥梁。</p></div>
+<div class="card" style="border-top:3px solid var(--green)"><h4>✅ 有效性显著</h4><p>12个场景定量数据: 遗漏率-90%+，文档问题-85%，回滚率-100%，新人上手-60%。</p></div>
+<div class="card" style="border-top:3px solid var(--green)"><h4>✅ 边界清晰</h4><p>适用于"可定义预期+可客观验证+有重复性"的任何工作。不适用于纯创意/一次性任务。</p></div>
+<div class="card" style="border-top:3px solid var(--accent)"><h4>🔮 展望</h4><p>领域经验包→多系统验证→自适应CP→STDD for Everything。开源免费，立即可用。</p></div>
+</div>
+</div>
+<div class="foot"><div>STDD Beyond Code</div><div>Conclusions</div></div>
+</section>
+
+<!-- P25 结束页 -->
 <section class="slide hero dark">
-  <div class="chrome"><div>Conclusion</div><div>12 / 12</div></div>
-  <div style="display:grid;gap:3vh;align-content:center;min-height:80vh;text-align:center">
-    <div class="kicker">The Essence</div>
-    <h2 class="h-xl">STDD 的本质</h2>
-    <p class="lead" style="font-size:2vw;max-width:60vw;margin:0 auto">
-      不是一个编程工具<br>
-      而是一套 <span style="color:var(--accent)">让 AI 的输出</span><br>
-      从 <span style="text-decoration:line-through;opacity:.5">"不确定"</span> 变为 <span style="color:var(--green);font-weight:700">"可预期"</span><br>
-      的方法论
-    </p>
-    <div class="meta-row" style="justify-content:center;margin-top:3vh">
-      <span>适用于任何</span><span>"AI 能执行、但需要质量保障"</span><span>的场景</span>
-    </div>
-    <p style="font-family:var(--serif-en);font-size:1vw;opacity:.4;margin-top:2vh">Spec First · TDD Execution · Experience Accumulation · Quality by System, Not by Luck</p>
-  </div>
-  <div class="foot"><div>STDD Beyond Code</div><div>— Thank You —</div></div>
+<div class="chrome"><div>Fin</div><div>25 / 28</div></div>
+<div style="display:grid;gap:2vh;align-content:center;min-height:78vh;text-align:center">
+<h2 class="h-xl">STDD 的本质</h2>
+<p class="lead" style="font-size:1.8vw;max-width:55vw;margin:0 auto">
+不是一个编程工具<br>而是一套 <span style="color:var(--accent)">让 AI 的输出</span><br>从 <span style="text-decoration:line-through;opacity:.4">"不确定"</span> 变为 <span style="color:var(--green);font-weight:700">"可预期"</span><br>的方法论
+</p>
+<p class="lead" style="margin-top:3vh">适用于任何 <strong>"AI 能执行、但需要质量保障"</strong> 的场景</p>
+<div class="meta">github.com/leonai42/stdd · MIT License · 小以AI实验室</div>
+</div>
+<div class="foot"><div>STDD Beyond Code</div><div>— Thank You —</div></div>
 </section>
 
 </div>
 
-<script src="assets/motion.min.js"></script>
 <script>
 (function(){
-  var deck=document.getElementById('deck'),slides=deck.children,idx=0,total=slides.length;
-  var hint=document.createElement('div');hint.id='hint';
-  hint.style.cssText='position:fixed;bottom:3vh;right:3vw;z-index:30;font-family:monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;opacity:.4;color:#aaa';
-  hint.textContent='← → 翻页 · ESC 索引';
-  document.body.appendChild(hint);
-
-  function go(n){if(n<0||n>=total)return;idx=n;deck.style.transform='translateX('+(-idx*100)+'vw)'}
-  document.addEventListener('keydown',function(e){
-    if(e.key==='ArrowRight'||e.key==='ArrowDown')go(idx+1);
-    else if(e.key==='ArrowLeft'||e.key==='ArrowUp')go(idx-1);
-    else if(e.key==='Escape')go(0);
-  });
-  var startX=0;deck.addEventListener('touchstart',function(e){startX=e.touches[0].clientX});
-  deck.addEventListener('touchend',function(e){var dx=startX-e.changedTouches[0].clientX;if(Math.abs(dx)>50)go(idx+(dx>0?1:-1))});
-
-  if(window.Motion){var els=document.querySelectorAll('[data-anim]');els.forEach(function(el,i){Motion.animate(el,{opacity:1,transform:'translate(0,0)'},{duration:.6,delay:i*.08,easing:[.25,.1,.25,1]})})}
+var d=document.getElementById('deck'),s=d.children,i=0,n=s.length;
+var h=document.createElement('div');h.style.cssText='position:fixed;bottom:3vh;right:3vw;z-index:30;font-family:monospace;font-size:10px;letter-spacing:.2em;opacity:.4;color:#aaa';h.textContent='← → 翻页 · ESC 索引';document.body.appendChild(h);
+function go(x){if(x<0||x>=n)return;i=x;d.style.transform='translateX('+(-i*100)+'vw)'}
+document.addEventListener('keydown',function(e){if(e.key==='ArrowRight'||e.key==='ArrowDown')go(i+1);else if(e.key==='ArrowLeft'||e.key==='ArrowUp')go(i-1);else if(e.key==='Escape')go(0)});
+var sx=0;d.addEventListener('touchstart',function(e){sx=e.touches[0].clientX});d.addEventListener('touchend',function(e){var dx=sx-e.changedTouches[0].clientX;if(Math.abs(dx)>50)go(i+(dx>0?1:-1))});
 })();
 </script>
 </body>

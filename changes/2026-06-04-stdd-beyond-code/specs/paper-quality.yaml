@@ -1,0 +1,65 @@
+# agent_spec — 论文 + PPT 质量验证
+# V2.8 非编程 Change demo
+
+meta:
+  task_id: paper-quality-check
+  system: local-filesystem
+  description: "验证 STDD Beyond Code 论文和 PPT 的质量标准"
+
+steps:
+  # ── 论文质量 ──
+  - id: CP-1
+    description: "论文字数 ≥30,000 字"
+    action: "wc -m ppt/STDD_BEYOND_CODE_PAPER.md"
+    assertions:
+      - type: exit_code
+        expected: 0
+      - type: stdout_contains
+        expected: ""  # 人工核对输出 ≥30000
+
+  - id: CP-2
+    description: "章节完整性 — 10章 + 摘要 + 参考文献"
+    action: "grep -c '^## ' ppt/STDD_BEYOND_CODE_PAPER.md"
+    assertions:
+      - type: exit_code
+        expected: 0
+
+  - id: CP-3
+    description: "引用文献 ≥30 篇"
+    action: "grep -c '\[[0-9]\+\]' ppt/STDD_BEYOND_CODE_PAPER.md"
+    assertions:
+      - type: exit_code
+        expected: 0
+
+  - id: CP-4
+    description: "文件存在且非空"
+    action: "test -s ppt/STDD_BEYOND_CODE_PAPER.md"
+    assertions:
+      - type: exit_code
+        expected: 0
+
+  # ── PPT 质量 ──
+  - id: CP-5
+    description: "PPT 页数 ≥25 页"
+    action: "grep -c '<section class=' ppt/beyond-code.html"
+    assertions:
+      - type: exit_code
+        expected: 0
+
+  - id: CP-6
+    description: "PPT 文件存在且非空"
+    action: "test -s ppt/beyond-code.html"
+    assertions:
+      - type: exit_code
+        expected: 0
+
+  # ── 指南文档 ──
+  - id: CP-7
+    description: "场景指南文件完整"
+    action: "test -s STDD_BEYOND_CODE.md"
+    assertions:
+      - type: exit_code
+        expected: 0
+
+rollback:
+  steps: []
