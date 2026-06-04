@@ -1,11 +1,10 @@
 # 从代码到流程：Spec+Test 双驱动方法论在非编程领域的扩展与应用研究
 ## From Code to Process: Extending Spec+Test Driven Development Methodology to Non-Programming Domains
 
-**Liang Shi (史亮) · naoziAi (脑子)**  
+**Liang Shi (史亮)**  
 **Xiaoyi AI Lab / 小以AI实验室**  
-**June 2026 / 2026年6月**  
-**arXiv: 待分配 / To be assigned**  
-**许可 / License: CC BY 4.0**
+**2026年6月 · arXiv: 待分配 · CC BY 4.0**  
+*在线用户名: naoziAi (脑子)*
 
 ---
 
