@@ -243,6 +243,17 @@ def main() -> None:
     p_batch.add_argument("action", nargs="?", choices=["list", "close", "status"],
                          default="status", help="操作 (默认: status)")
 
+    # V2.9.2: guard — project-level enforcement gate
+    p_guard = subparsers.add_parser("guard", help="项目级强制门 (V2.9.2)", parents=[parent])
+    p_guard.add_argument("action", nargs="?", choices=["check", "status", "init"],
+                         default="check", help="操作 (默认: check)")
+    p_guard.add_argument("--platform", default="claude-code",
+                         help="目标平台 (默认: claude-code)")
+    p_guard.add_argument("--strict", action="store_true",
+                         help="严格模式：allow_bypass 也阻止")
+    p_guard.add_argument("--quiet", "-q", action="store_true",
+                         help="静默模式")
+
     # V2.7: experience list — add provenance filter
     p_exp_list.add_argument("--provenance", help="按来源过滤 (ci-detected / ai-inferred / human-reported / community-imported)")
 
@@ -290,6 +301,8 @@ def main() -> None:
         # V2.9 new commands
         "upgrade": "stdd.cli.commands.upgrade.cmd_upgrade",
         "batch": "stdd.cli.commands.batch.cmd_batch",
+        # V2.9.2 new commands
+        "guard": "stdd.cli.commands.guard.cmd_guard",
     }
 
     if args.command in commands:

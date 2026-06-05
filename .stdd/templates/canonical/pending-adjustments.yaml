@@ -1,0 +1,19 @@
+# pending-adjustments.yaml — 设计偏离记录（Canonical YAML，AI 主读文档）
+# V2.9.2 新增：Phase 4 BUILD 中记录的设计偏离，Phase 5 VERIFY 汇总并生成 design-adjustments.yaml
+# 这是"新需求闭环"的起点——design-adjustments 将作为修订输入重新驱动 Phase 2
+
+meta:
+  change_id: ""               # 所属 change
+  created: ""                 # ISO 8601
+  updated: ""                 # 最后更新时间
+
+adjustments:
+  - id: ADJ-001               # 全局唯一
+    original_design_ref: ""   # 原始设计引用（design.md 或 spec.yaml 的段落）
+    actual_change: ""         # 实际做了什么调整
+    reason: ""                # 为什么需要调整
+    impact_scope: ""          # 影响范围（capability / 接口 / 测试）
+    severity: minor           # minor | major
+    affected_capabilities: [] # 受影响的 capability 名称列表
+    exp_id: ""                # 如命中经验库模式，引用 EXP-ID（可选）
+    resolved: false           # Phase 5 汇总时标记为已处理

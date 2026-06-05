@@ -7,6 +7,18 @@
 
 ---
 
+## V2.9.2: 项目级强制门 / Project-Level Enforcement Gate
+
+> **本项目的 `enforce_stdd: true`。所有代码修改（Edit/Write）必须先通过 STDD 流程启动。**
+> **This project has `enforce_stdd: true`. All code modifications MUST go through STDD workflow first.**
+>
+> 如果你收到修改代码的请求，请先回复用户：
+> "本项目启用了 STDD 强制门。请先运行 /stdd-understand 启动变更流程。"
+>
+> 如果用户明确要求绕过 STDD（如紧急热修复），请在修改完成后补充 `pending-adjustments.yaml` 记录。
+
+---
+
 ## 核心原则 / Core Principles
 
 STDD 是一套 Spec+Test 双驱动的研发流程，通过 6 个阶段将需求转化为高质量交付。

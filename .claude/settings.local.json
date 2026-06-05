@@ -106,7 +106,9 @@
       "Bash(git -C D:/mycode/stdd tag -l)",
       "Bash(cp -r changes/2026-06-05-stdd-v2.9-core/specs/version-upgrade specs/)",
       "Bash(cp -r changes/2026-06-05-stdd-v2.9-core/specs/lightweight-mode specs/)",
-      "Bash(cp -r changes/2026-06-05-stdd-v2.9-core/specs/batch-management specs/)"
+      "Bash(cp -r changes/2026-06-05-stdd-v2.9-core/specs/batch-management specs/)",
+      "Bash(stdd upgrade *)",
+      "Read(//c/Users/HUAWEI/**)"
     ]
   }
 }

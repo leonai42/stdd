@@ -96,7 +96,10 @@ description: "STDD Phase 4: TDD 实现 — 按切片执行 RED→GREEN→REFACTO
 2. 读取 `.stdd/standards/<language>.md`（如 `python.md`）
 3. 学习：命名规范、类型注解要求、异步规则、错误处理模式、测试规范
 4. **V2.9: 加载 `.stdd/rules/`**：读取 `.stdd/rules/common/*.md` 和 `.stdd/rules/<language>/*.md`，将 TDD、安全、Git 工作流等规则注入编码上下文
-5. **V2.9: 执行代码结构摘要**：`python bin/stdd structure delta <change>` — 记录本 change 的代码结构变化，为长期自积累代码知识打基础
+5. **V2.9: 执行代码结构摘要**：
+   - 执行 `python bin/stdd structure delta <change>` 记录本 change 的代码结构变化
+   - 这将生成/更新项目级的代码结构索引，随项目成长变得越来越有价值
+   - 后续 Phase 6 DELIVER 时执行 `stdd structure merge` 合并入主干
 
 ### Step 0.5: 加载匹配经验
 
@@ -237,14 +240,14 @@ description: "STDD Phase 4: TDD 实现 — 按切片执行 RED→GREEN→REFACTO
 如果在实现过程中发现 spec/design 需要调整：
 
 **小的偏离**（不改变接口和行为语义）：
-- 记录到 `pending-adjustments.md`
-- 检查偏离是否命中经验库中的已知模式 → 如命中，记录到 pending-adjustments 并引用 EXP-ID
+- 记录到 `pending-adjustments.yaml`（V2.9.2: Canonical YAML 格式，按 `.stdd/templates/canonical/pending-adjustments.yaml` 模板）
+- 检查偏离是否命中经验库中的已知模式 → 如命中，引用 EXP-ID
 - 继续执行（两种模式行为一致）
 
 **大的偏离**（改变接口或行为语义）：
 
 *普通模式*：
-- 记录到 `pending-adjustments.md`
+- 记录到 `pending-adjustments.yaml`
 - **暂停自动迭代，向用户报告**：
 
 ```
@@ -263,9 +266,9 @@ description: "STDD Phase 4: TDD 实现 — 按切片执行 RED→GREEN→REFACTO
 ```
 
 *长程模式*：
-- 自动记录到 `pending-adjustments.md`，包含：原始设计引用、实际调整内容、调整原因、影响范围
+- 自动记录到 `pending-adjustments.yaml`（按 Canonical YAML 模板），包含：原始设计引用、实际调整内容、调整原因、影响范围
 - 继续执行，不暂停（按预授权 A1 策略）
-- 调整将在 Phase 5 的 `design-adjustments.md` 中汇总
+- 调整将在 Phase 5 汇总为 `design-adjustments.yaml`，作为修订需求重新驱动 Phase 2
 
 **技术阻塞**：
 

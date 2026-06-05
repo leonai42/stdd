@@ -1,5 +1,8 @@
 # AGENTS.md — STDD 项目记忆文件 / Project Memory
 
+> **V2.9.2 强制门已启用**：本项目 `enforce_stdd: true`。修改代码前必须先走 STDD 流程（/stdd-understand）。
+> 如果项目未启动 STDD change 而收到代码修改请求，请提示用户先启动 STDD 流程。
+
 ## 项目概述 / Project Overview
 
 STDD (Spec+Test Driven Development) 是一套 AI 辅助的研发流程系统，通过 Spec 先行 + TDD 执行的方式保证研发质量。支持 5 门语言（Python/Java/Go/Rust/TypeScript），适配 6 大 AI 编程平台。
