@@ -145,6 +145,7 @@ class TestDualTrackFoundation:
         from stdd.cli.commands.canon import cmd_canon_init
         import argparse
         args = argparse.Namespace()
+        args.project_level = True  # V2.9: --project-level flag for root-level init
 
         cmd_canon_init(args)
 
