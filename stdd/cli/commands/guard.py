@@ -5,11 +5,15 @@ import argparse
 from pathlib import Path
 
 
-def _find_active_change(project_root: Path) -> Path:
-    """Find the most recent .stdd.yaml with in_progress status in changes/."""
+# V2.9.2: Phases where code editing is permitted
+_EDITABLE_PHASES = {"build", "verify"}
+
+
+def _find_active_change(project_root: Path) -> tuple:
+    """Find the most recent active change. Returns (change_dir, phase) or (None, None)."""
     changes_dir = project_root / "changes"
     if not changes_dir.is_dir():
-        return None
+        return None, None
 
     for change_dir in sorted(
         [d for d in changes_dir.iterdir() if d.is_dir()],
@@ -20,9 +24,15 @@ def _find_active_change(project_root: Path) -> Path:
         if stdd_yaml.exists():
             import yaml
             data = yaml.safe_load(stdd_yaml.read_text(encoding="utf-8"))
-            if data and data.get("status") in ("active", "in_progress"):
-                return change_dir
-    return None
+            if data:
+                status = data.get("status", "")
+                phase = data.get("phase", "")
+                # Active: understand/spec/slice/build/verify in_progress or pending
+                if status in ("active", "in_progress", "pending") or phase in (
+                    "understand", "spec", "slice", "build", "verify"
+                ):
+                    return change_dir, phase
+    return None, None
 
 
 def cmd_guard_check(args: argparse.Namespace) -> int:
@@ -30,7 +40,7 @@ def cmd_guard_check(args: argparse.Namespace) -> int:
     project_root = Path.cwd()
 
     # Check if enforce_stdd is enabled
-    enforce = True  # Default: check is active
+    enforce = True
     config_file = project_root / ".stdd" / "config.d" / "project.yaml"
     if config_file.exists():
         import yaml
@@ -38,15 +48,23 @@ def cmd_guard_check(args: argparse.Namespace) -> int:
         enforce = config.get("enforce_stdd", True)
 
     if not enforce:
-        return 0  # Enforcement disabled — allow
+        return 0  # Enforcement disabled
 
-    # Find active change
-    active = _find_active_change(project_root)
-    if active:
-        # In a valid STDD flow
+    # Find active change and check phase
+    active_dir, phase = _find_active_change(project_root)
+
+    if active_dir and phase in _EDITABLE_PHASES:
+        # Phase 4 (build) or Phase 5 (verify) — editing is expected
         if not getattr(args, "quiet", False):
-            print(f"  [STDD Guard] Active change: {active.name}")
+            print(f"  [STDD Guard] Active: {active_dir.name} (phase: {phase}) — allowed")
         return 0
+
+    # Block with specific reason
+    platform = getattr(args, "platform", "cli")
+    if active_dir:
+        reason = f"当前 Phase '{phase}' 不允许代码修改。只有 Phase 4 (build) 和 Phase 5 (verify) 允许编辑。"
+    else:
+        reason = "无 active change。请通过 /stdd-understand 启动变更流程。"
 
     # Check for allow_bypass
     allow_bypass = False
@@ -57,26 +75,23 @@ def cmd_guard_check(args: argparse.Namespace) -> int:
 
     strict = getattr(args, "strict", False)
     if allow_bypass and not strict:
-        print("  [STDD Guard] No active change, but allow_bypass is enabled.")
-        print("  [STDD Guard] Consider starting a change via /stdd-understand.")
+        print(f"  [STDD Guard] {reason}")
+        print("  [STDD Guard] allow_bypass is enabled — allowing anyway.")
         return 0
 
-    # Block: no active change, enforce is on
-    platform = getattr(args, "platform", "cli")
+    # Block
     if platform == "claude-code":
-        print("  [STDD Guard] Uncontrolled code modification detected!")
-        print("  [STDD Guard] This project requires all changes to go through STDD.")
-        print("  [STDD Guard] Please start a change via: /stdd-understand <description>")
+        print("  [STDD Guard] ⛔ Code modification blocked!")
+        print(f"  [STDD Guard] {reason}")
     else:
-        print("  [STDD Guard] No active STDD change found.")
-        print("  [STDD Guard] Run 'stdd new <name>' or use /stdd-understand to start.")
+        print(f"  [STDD Guard] {reason}")
     return 1
 
 
 def cmd_guard_status(args: argparse.Namespace) -> None:
     """Display current STDD guard status."""
     project_root = Path.cwd()
-    active = _find_active_change(project_root)
+    active_dir, phase = _find_active_change(project_root)
 
     config_file = project_root / ".stdd" / "config.d" / "project.yaml"
     enforce = True
@@ -87,13 +102,16 @@ def cmd_guard_status(args: argparse.Namespace) -> None:
         enforce = config.get("enforce_stdd", True)
         allow_bypass = config.get("allow_bypass", False)
 
-    print(f"  STDD Guard Status:")
+    editable = phase in _EDITABLE_PHASES if phase else False
+    print("  STDD Guard Status:")
     print(f"    enforce_stdd:  {enforce}")
     print(f"    allow_bypass:  {allow_bypass}")
-    if active:
-        print(f"    active change: {active.name}")
+    print(f"    editable phases: {sorted(_EDITABLE_PHASES)}")
+    if active_dir:
+        status = "✅ 可编辑" if editable else "🔒 只读"
+        print(f"    active change: {active_dir.name} (phase: {phase}) — {status}")
     else:
-        print(f"    active change: None (uncontrolled)")
+        print("    active change: None — 🔒 只读")
 
 
 def cmd_guard_init(args: argparse.Namespace) -> None:
@@ -146,6 +164,48 @@ def cmd_guard_init(args: argparse.Namespace) -> None:
         print(f"  [STDD Guard] See docs for manual guard configuration.")
 
 
+def cmd_guard_disable(args: argparse.Namespace) -> None:
+    """Temporarily remove the guard hook (reversible with 'enable')."""
+    project_root = Path.cwd()
+    import json
+    settings_file = project_root / ".claude" / "settings.local.json"
+
+    if not settings_file.exists():
+        print("  [STDD Guard] No settings.local.json found. Nothing to disable.")
+        return
+
+    settings = json.loads(settings_file.read_text(encoding="utf-8"))
+    hooks = settings.get("hooks", {}).get("PreToolUse", [])
+
+    removed = False
+    new_hooks = []
+    for hook in hooks:
+        if "stdd guard" in str(hook.get("hooks", [])):
+            removed = True
+        else:
+            new_hooks.append(hook)
+
+    if removed:
+        settings["hooks"]["PreToolUse"] = new_hooks
+        if not new_hooks:
+            del settings["hooks"]["PreToolUse"]
+            if not settings["hooks"]:
+                del settings["hooks"]
+        settings_file.write_text(
+            json.dumps(settings, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        print("  [STDD Guard] Hook disabled. Run 'stdd guard enable' to re-enable.")
+    else:
+        print("  [STDD Guard] No guard hook found. Already disabled.")
+
+
+def cmd_guard_enable(args: argparse.Namespace) -> None:
+    """Re-enable the guard hook after disable."""
+    # Reuse init logic
+    cmd_guard_init(args)
+
+
 def cmd_guard(args: argparse.Namespace) -> None:
     """Entry point for guard command."""
     action = getattr(args, "action", "check")
@@ -158,6 +218,10 @@ def cmd_guard(args: argparse.Namespace) -> None:
         cmd_guard_status(args)
     elif action == "init":
         cmd_guard_init(args)
+    elif action == "disable":
+        cmd_guard_disable(args)
+    elif action == "enable":
+        cmd_guard_enable(args)
     else:
         print(f"  Unknown guard action: {action}")
         sys.exit(1)

@@ -110,5 +110,18 @@
       "Bash(stdd upgrade *)",
       "Read(//c/Users/HUAWEI/**)"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "stdd guard --check --platform claude-code"
+          }
+        ]
+      }
+    ]
   }
 }

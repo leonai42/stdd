@@ -245,7 +245,7 @@ def main() -> None:
 
     # V2.9.2: guard — project-level enforcement gate
     p_guard = subparsers.add_parser("guard", help="项目级强制门 (V2.9.2)", parents=[parent])
-    p_guard.add_argument("action", nargs="?", choices=["check", "status", "init"],
+    p_guard.add_argument("action", nargs="?", choices=["check", "status", "init", "disable", "enable"],
                          default="check", help="操作 (默认: check)")
     p_guard.add_argument("--platform", default="claude-code",
                          help="目标平台 (默认: claude-code)")
