@@ -54,6 +54,10 @@ def cmd_new(args: argparse.Namespace) -> None:
         "change_id": dir_name,
         "status": "active",
         "current_phase": "understand",
+        "mode": "standard",           # V2.9: standard | lightweight | thorough
+        "task_type": "code",          # V2.9: code | documentation | configuration | data-migration | dependency-upgrade
+        "complexity_score": None,     # V2.9: set by Phase 1 Step 3.5
+        "score_confidence": None,     # V2.9: preliminary | confirmed
         "phases": {
             "understand": {"status": "pending"},
             "spec": {"status": "pending"},

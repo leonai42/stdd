@@ -228,6 +228,19 @@ def main() -> None:
     p_fix.add_argument("--level", type=int, choices=[1, 2, 3], default=1, help="修复级别 (1=静默 2=建议 3=报告)")
     # --dry-run inherited from parent parser
 
+    # V2.9: upgrade — version upgrade management
+    p_upgrade = subparsers.add_parser("upgrade", help="升级 STDD 版本 (V2.9)", parents=[parent])
+    p_upgrade.add_argument("--check", action="store_true", help="仅检查版本差异，不执行升级")
+    p_upgrade.add_argument("--all", action="store_true", help="对所有已注册项目执行操作")
+    p_upgrade.add_argument("--lock", action="store_true", help="锁定当前项目在当前版本")
+    p_upgrade.add_argument("--unlock", action="store_true", help="解锁当前项目")
+    p_upgrade.add_argument("--yes", "-y", action="store_true", help="跳过确认提示")
+
+    # V2.9: batch — lightweight change batch management
+    p_batch = subparsers.add_parser("batch", help="轻量变更批次管理 (V2.9)", parents=[parent])
+    p_batch.add_argument("action", nargs="?", choices=["list", "close", "status"],
+                         default="status", help="操作 (默认: status)")
+
     # V2.7: experience list — add provenance filter
     p_exp_list.add_argument("--provenance", help="按来源过滤 (ci-detected / ai-inferred / human-reported / community-imported)")
 
@@ -238,6 +251,11 @@ def main() -> None:
         sys.exit(1)
 
     setup_logging(args.verbose)
+
+    # V2.9: Startup version check (non-blocking, skip for upgrade command itself)
+    if args.command != "upgrade":
+        from .utils import try_version_check
+        try_version_check(Path.cwd())
 
     # 将 dry_run 附加到 args 供各命令使用
     commands = {
@@ -267,6 +285,9 @@ def main() -> None:
         "skill": "stdd.cli.commands.skill._dispatch",
         # V2.8 new commands
         "fix": "stdd.cli.commands.fix._dispatch",
+        # V2.9 new commands
+        "upgrade": "stdd.cli.commands.upgrade.cmd_upgrade",
+        "batch": "stdd.cli.commands.batch.cmd_batch",
     }
 
     if args.command in commands:

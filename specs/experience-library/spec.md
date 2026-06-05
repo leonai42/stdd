@@ -127,3 +127,6 @@
 - **THEN** test-report SHALL 包含"经验库更新"章节
 - **AND** SHALL 列出"已有经验更新：2 条"和"新经验记录：1 条"
 - **AND** Gate 3 确认时 SHALL 展示经验库变更摘要
+---
+## V2.9 变更: 2026-06-05-stdd-v2.9-core
+- 详见 archive/2026-06-05-stdd-v2.9-core/

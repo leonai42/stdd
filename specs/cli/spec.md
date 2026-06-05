@@ -238,3 +238,6 @@ status 命令 SHALL 显示当前 change 的长程/普通模式状态。
 - **WHEN** 用户执行 `stdd diff my-change`
 - **THEN** 系统 SHALL 报告"无 test-plan.md"
 - **AND** 系统 SHALL 以非零退出码退出
+---
+## V2.9 变更: 2026-06-05-stdd-v2.9-core
+- 详见 archive/2026-06-05-stdd-v2.9-core/

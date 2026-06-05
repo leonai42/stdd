@@ -866,3 +866,65 @@ class TestExperienceLifecycle:
         index = yaml.safe_load((exp_dir / ".experience-index.yaml").read_text(encoding="utf-8"))
         assert "discovered" not in index["by_lifecycle"].get("discovered", []) or eid not in index["by_lifecycle"].get("discovered", [])
         assert eid in index["by_lifecycle"].get("verified", [])
+
+
+class TestExperienceGracefulDegradation:
+    """TC-EXP-001, TC-EXP-002: Graceful degradation when experiences dir missing or empty."""
+
+    def test_list_no_experiences_dir_returns_empty(self, tmp_path, monkeypatch):
+        """TC-EXP-001: New project without .stdd/experiences/ dir returns empty list, no crash."""
+        # Create .stdd/ and config but NOT experiences/ dir
+        (tmp_path / ".stdd" / "config.d").mkdir(parents=True)
+        (tmp_path / ".stdd" / "config.d" / "experience.yaml").write_text("""
+experience:
+  dir: .stdd/experiences
+  auto_record:
+    enabled: true
+    min_confidence: 0.5
+""")
+        monkeypatch.chdir(tmp_path)
+
+        from stdd.cli.commands.experience import cmd_experience
+        import sys
+        from io import StringIO
+
+        args = _make_args("list", category=None, language=None,
+                          lifecycle=None, severity=None, format="json")
+        old_stdout = sys.stdout
+        sys.stdout = StringIO()
+        # Should NOT raise FileNotFoundError
+        cmd_experience(args)
+        output = sys.stdout.getvalue()
+        sys.stdout = old_stdout
+
+        data = json.loads(output)
+        assert isinstance(data, list)
+        assert len(data) == 0
+
+    def test_list_empty_experiences_dir_returns_zero(self, tmp_path, monkeypatch):
+        """TC-EXP-002: Empty experiences directory shows 0 entries."""
+        # Create empty experiences dir (no EXP-*.md files, no .experience-index.yaml)
+        (tmp_path / ".stdd" / "experiences").mkdir(parents=True)
+        (tmp_path / ".stdd" / "config.d").mkdir(parents=True)
+        (tmp_path / ".stdd" / "config.d" / "experience.yaml").write_text("""
+experience:
+  dir: .stdd/experiences
+  auto_record:
+    enabled: true
+    min_confidence: 0.5
+""")
+        monkeypatch.chdir(tmp_path)
+
+        from stdd.cli.commands.experience import cmd_experience
+        import sys
+        from io import StringIO
+
+        args = _make_args("list", category=None, language=None,
+                          lifecycle=None, severity=None, format="text")
+        old_stdout = sys.stdout
+        sys.stdout = StringIO()
+        cmd_experience(args)
+        output = sys.stdout.getvalue()
+        sys.stdout = old_stdout
+
+        assert "0/0" in output

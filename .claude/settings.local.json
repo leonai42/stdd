@@ -94,7 +94,19 @@
       "Edit(V2.5_FEATURES.md)",
       "Write(STDD_ANCHORING.md)",
       "Edit(STDD_ANCHORING.md)",
-      "Bash(awk '{printf \"%-45s %6s %6s %6s\\\\n\", $1, $2, $3, $4}')"
+      "Bash(awk '{printf \"%-45s %6s %6s %6s\\\\n\", $1, $2, $3, $4}')",
+      "Read(//d/mycode/**)",
+      "Bash(grep -rn \"\\\\\"/home/\\\\|\\\\\"/tmp/\\\\|\\\\\"/usr/\" /d/mycode/stdd/stdd/cli/commands/fix.py /d/mycode/stdd/stdd/cli/commands/structure.py)",
+      "Bash(mkdir -p /d/mycode/stdd/.claude/skills/fppt)",
+      "Bash(cp /d/mycode/fppt/SKILL.md /d/mycode/stdd/.claude/skills/fppt/SKILL.md)",
+      "Bash(git -C D:/mycode/stdd log --all --oneline -- .stdd/)",
+      "Bash(git -C D:/mycode/stdd log --all --diff-filter=A --name-only --pretty=format:\"--- %h %s ---\" -- .stdd/version*)",
+      "Bash(git -C D:/mycode/stdd log --all --diff-filter=A --name-only --pretty=format:\"--- %h %s ---\" -- '*.yaml' -- .stdd/)",
+      "Bash(git -C D:/mycode/stdd log --all --oneline --name-only -- '*.yaml' -- '.stdd/')",
+      "Bash(git -C D:/mycode/stdd tag -l)",
+      "Bash(cp -r changes/2026-06-05-stdd-v2.9-core/specs/version-upgrade specs/)",
+      "Bash(cp -r changes/2026-06-05-stdd-v2.9-core/specs/lightweight-mode specs/)",
+      "Bash(cp -r changes/2026-06-05-stdd-v2.9-core/specs/batch-management specs/)"
     ]
   }
 }

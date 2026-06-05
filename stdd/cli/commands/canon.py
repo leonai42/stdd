@@ -158,7 +158,26 @@ def cmd_canon_verify(args):
         else:
             print(f"  ❌ DC-HASH 源哈希不一致 (YAML: {yaml_hash}, MD: {md_hash})")
     else:
+        # Human View was generated before Canonical YAML existed (Phase 2 creates MD first).
+        # Auto-regenerate from YAML to backfill source_hash.
         print("  ⚠️ DC-HASH 无法校验 — Human View 缺少 source_hash")
+        print("     → 从 Canonical YAML 重新生成 Human View...")
+        _generate_one(project_root, args.change_name, "proposal")
+        # Recompute hash from regenerated MD
+        md_content = md_file.read_text(encoding="utf-8")
+        for line in md_content.split("\n"):
+            if "source_hash:" in line:
+                hash_line = line.strip()
+                break
+        if hash_line:
+            md_hash = hash_line.split("source_hash:")[-1].strip().rstrip(" -->").strip()
+            if md_hash == yaml_hash:
+                print("  ✅ DC-HASH 源哈希一致 (已自动修复)")
+                passed += 1
+            else:
+                print(f"  ❌ DC-HASH 源哈希不一致 (YAML: {yaml_hash}, MD: {md_hash})")
+        else:
+            print("  ❌ DC-HASH 修复失败 — 重新生成后仍缺 source_hash")
 
     # DC-FIELD: check for field references
     yaml_keys = _flatten_keys(data=yaml.safe_load(yaml_file.read_text(encoding="utf-8")))

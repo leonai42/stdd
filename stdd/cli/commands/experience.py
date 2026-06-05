@@ -171,6 +171,7 @@ def _load_index(exp_dir: Path) -> dict:
 
 
 def _save_index(exp_dir: Path, index: dict) -> None:
+    _ensure_dir(exp_dir)
     index_path = _get_index_path(exp_dir)
     lock_path = index_path.with_suffix(".lock")
     tmp_path = index_path.with_suffix(".tmp")

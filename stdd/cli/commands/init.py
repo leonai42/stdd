@@ -3,6 +3,61 @@ import sys
 import shutil
 from pathlib import Path
 
+# ── 模块级常量：供 upgrade.py 等模块导入复用 ──
+
+DIRS = [
+    ".stdd/skills",
+    ".stdd/templates",
+    ".stdd/standards",
+    ".stdd/config.d",
+    ".stdd/platforms/claude-code/skills",
+    ".stdd/platforms/workbuddy/skills",
+    ".stdd/platforms/trae/skills",
+    "changes",
+    "specs",
+    "archive",
+]
+
+FILES_TO_COPY = [
+    ".stdd/config.d/project.yaml",
+    ".stdd/config.d/gates.yaml",
+    ".stdd/config.d/long_range.yaml",
+    ".stdd/config.d/quality.yaml",
+    ".stdd/skills/understand.md",
+    ".stdd/skills/spec.md",
+    ".stdd/skills/slice.md",
+    ".stdd/skills/build.md",
+    ".stdd/skills/verify.md",
+    ".stdd/skills/deliver.md",
+    ".stdd/templates/proposal.md",
+    ".stdd/templates/design.md",
+    ".stdd/templates/spec.md",
+    ".stdd/templates/test-plan.md",
+    ".stdd/templates/tasks.md",
+    ".stdd/templates/slices.md",
+    ".stdd/templates/design-adjustments.md",
+    ".stdd/templates/test-report.md",
+    ".stdd/standards/python.md",
+    "STDD.md",
+    "AGENTS.md",
+]
+
+# Config files that should be MERGED (not overwritten) during upgrade.
+CONFIG_MERGE_FILES = [
+    ".stdd/config.d/project.yaml",
+]
+
+# All config files under config.d/
+CONFIG_ALL_FILES = [
+    ".stdd/config.d/project.yaml",
+    ".stdd/config.d/gates.yaml",
+    ".stdd/config.d/long_range.yaml",
+    ".stdd/config.d/quality.yaml",
+]
+
+# Platforms with skills directories under .stdd/platforms/
+PLATFORMS = ["claude-code", "workbuddy", "trae"]
+
 
 def cmd_init(args: argparse.Namespace) -> None:
     project_root = Path.cwd()
@@ -11,42 +66,9 @@ def cmd_init(args: argparse.Namespace) -> None:
     logger = get_logger()
     stdd_source = get_stdd_source()
 
-    dirs = [
-        ".stdd/skills",
-        ".stdd/templates",
-        ".stdd/standards",
-        ".stdd/config.d",
-        ".stdd/platforms/claude-code/skills",
-        ".stdd/platforms/workbuddy/skills",
-        ".stdd/platforms/trae/skills",
-        "changes",
-        "specs",
-        "archive",
-    ]
+    dirs = DIRS
+    files_to_copy = FILES_TO_COPY
 
-    files_to_copy = [
-        ".stdd/config.d/project.yaml",
-        ".stdd/config.d/gates.yaml",
-        ".stdd/config.d/long_range.yaml",
-        ".stdd/config.d/quality.yaml",
-        ".stdd/skills/understand.md",
-        ".stdd/skills/spec.md",
-        ".stdd/skills/slice.md",
-        ".stdd/skills/build.md",
-        ".stdd/skills/verify.md",
-        ".stdd/skills/deliver.md",
-        ".stdd/templates/proposal.md",
-        ".stdd/templates/design.md",
-        ".stdd/templates/spec.md",
-        ".stdd/templates/test-plan.md",
-        ".stdd/templates/tasks.md",
-        ".stdd/templates/slices.md",
-        ".stdd/templates/design-adjustments.md",
-        ".stdd/templates/test-report.md",
-        ".stdd/standards/python.md",
-        "STDD.md",
-        "AGENTS.md",
-    ]
     dry_run = getattr(args, "dry_run", False)
     if dry_run:
         print(" [DRY-RUN] 将执行以下操作:")
@@ -62,7 +84,7 @@ def cmd_init(args: argparse.Namespace) -> None:
                     print(f"   复制: {f}")
             else:
                 print(f"   (缺失源文件: {f})")
-        for platform in ["claude-code", "workbuddy", "trae"]:
+        for platform in PLATFORMS:
             platform_skills = stdd_source / ".stdd" / "platforms" / platform / "skills"
             if platform_skills.exists():
                 for skill_file in platform_skills.iterdir():
@@ -88,7 +110,7 @@ def cmd_init(args: argparse.Namespace) -> None:
             else:
                 skipped += 1
 
-    for platform in ["claude-code", "workbuddy", "trae"]:
+    for platform in PLATFORMS:
         platform_skills = stdd_source / ".stdd" / "platforms" / platform / "skills"
         if platform_skills.exists():
             for skill_file in platform_skills.iterdir():

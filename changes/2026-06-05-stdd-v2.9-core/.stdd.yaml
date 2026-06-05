@@ -1,0 +1,12 @@
+phase: verify
+status: completed
+change_id: "2026-06-05-stdd-v2.9-core"
+created_at: "2026-06-05"
+mode: standard
+confirmed_at: "2026-06-05T12:00:00"
+gate3_confirmed_at: "2026-06-05T12:15:00"
+long_range:
+  enabled: true
+  mode: "full_auto"
+  pre_auth_completed: true
+  pre_auth_timestamp: "2026-06-05T12:05:00"
