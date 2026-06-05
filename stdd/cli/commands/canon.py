@@ -7,14 +7,44 @@ from pathlib import Path
 from datetime import datetime
 
 
-def _get_canon_dir(project_root: Path) -> Path:
+def _get_canon_dir(project_root: Path, change_name: str = None) -> Path:
+    """Get canonical directory. Defaults to changes/<change>/canonical/ (V2.9)."""
+    if change_name:
+        return project_root / "changes" / change_name / "canonical"
     return project_root / "canonical"
+
+
+def _find_current_change(project_root: Path) -> str:
+    """Find the most recent change directory name."""
+    changes_dir = project_root / "changes"
+    if not changes_dir.is_dir():
+        return None
+    # Return most recently modified change that has a .stdd.yaml
+    candidates = sorted(
+        [d for d in changes_dir.iterdir() if d.is_dir() and (d / ".stdd.yaml").exists()],
+        key=lambda d: d.stat().st_mtime,
+        reverse=True,
+    )
+    return candidates[0].name if candidates else None
 
 
 def cmd_canon_init(args):
     """Initialize canonical/ directory structure."""
     project_root = Path.cwd()
-    canon = _get_canon_dir(project_root)
+    use_project_level = getattr(args, "project_level", False)
+
+    if use_project_level:
+        canon = _get_canon_dir(project_root)
+        print("  canonical/ initialized at project root (--project-level)")
+    else:
+        change_name = getattr(args, "change", None)
+        if not change_name:
+            change_name = _find_current_change(project_root)
+        if not change_name:
+            print("  No active change found. Use --project-level or specify --change")
+            sys.exit(1)
+        canon = _get_canon_dir(project_root, change_name)
+        print(f"  canonical/ initialized at changes/{change_name}/canonical/")
 
     dirs = [
         canon / "proposals",

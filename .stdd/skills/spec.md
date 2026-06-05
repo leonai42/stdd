@@ -205,7 +205,13 @@ AND: <附加结果>      →   额外的 Assert
 1. 写入 `design.md`
 2. 写入 `specs/<capability>/spec.md`（每个 capability 一个文件）
 3. 写入 `test-plan.md`
-4. 更新 `.stdd.yaml`（phase: spec → completed, confirmed_at 时间戳）
+4. **V2.9: 生成 Canonical YAML**：
+   - 执行 `python bin/stdd proposal init <change>` 生成 `proposal.yaml`
+   - 执行 `python bin/stdd canon init --change <change>` 创建 canonical 目录结构
+   - 为每个 capability 生成 `agent_spec.yaml`
+   - 执行 `python bin/stdd canon generate --all` 生成带 source_hash 的 Human View
+5. 更新 `.stdd.yaml`（phase: spec → completed, confirmed_at 时间戳）
+6. **V2.9: 生成 Phase Context**：写入 `phase-context.md`，包含本 Phase 的关键决策、用户关注点、产出物清单
 
 ### Step 8: 【强制】执行模式选择（Gate 2 之后）
 

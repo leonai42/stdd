@@ -188,6 +188,8 @@ def main() -> None:
     p_canon = subparsers.add_parser("canon", help="双轨制文档管理 (V2.7)", parents=[parent])
     canon_subs = p_canon.add_subparsers(dest="subcommand", help="子命令")
     p_canon_init = canon_subs.add_parser("init", help="初始化 canonical/ 目录", parents=[parent])
+    p_canon_init.add_argument("--change", help="change 名称 (默认: 最近的 change)")
+    p_canon_init.add_argument("--project-level", action="store_true", help="在项目根目录创建 (默认: changes/<change>/canonical/)")
     p_canon_gen = canon_subs.add_parser("generate", help="从 Canonical 生成 Human View", parents=[parent])
     p_canon_gen.add_argument("change_name", nargs="?", help="change 名称")
     p_canon_gen.add_argument("--type", choices=["proposal", "design", "spec"], default="proposal")

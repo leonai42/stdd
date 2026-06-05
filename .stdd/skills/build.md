@@ -88,13 +88,15 @@ description: "STDD Phase 4: TDD 实现 — 按切片执行 RED→GREEN→REFACTO
 
 ---
 
-### Step 0: 学习开发规范
+### Step 0: 学习开发规范与项目规则
 
 在开始编码之前，**必须先读取开发规范**：
 
 1. 读取 `.stdd/config.d/project.yaml` → 获取 `project.language`
 2. 读取 `.stdd/standards/<language>.md`（如 `python.md`）
 3. 学习：命名规范、类型注解要求、异步规则、错误处理模式、测试规范
+4. **V2.9: 加载 `.stdd/rules/`**：读取 `.stdd/rules/common/*.md` 和 `.stdd/rules/<language>/*.md`，将 TDD、安全、Git 工作流等规则注入编码上下文
+5. **V2.9: 执行代码结构摘要**：`python bin/stdd structure delta <change>` — 记录本 change 的代码结构变化，为长期自积累代码知识打基础
 
 ### Step 0.5: 加载匹配经验
 
