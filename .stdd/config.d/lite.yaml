@@ -1,0 +1,145 @@
+# STDD V2.9 — 轻量模式配置
+
+# 复杂度评分阈值
+scoring:
+  # 评分维度权重
+  dimensions:
+    file_count: 1       # 1-3→0, 3-8→1, 8-20→2, 20+→3
+    line_count: 1       # <50→0, 50-200→1, 200-1000→2, 1000+→3
+    capability_count: 1 # 1→0, 2-3→1, 4+→2
+    risk_level: 2       # 低→0, 中→2, 高→4
+    data_api: 1         # 无→0, 有→2
+    security: 1         # 无→0, 有→3
+
+  # 模式阈值
+  thresholds:
+    lightweight_max: 3   # 0-3 → lightweight
+    standard_max: 7      # 4-7 → standard
+                          # 8+  → thorough
+
+# 各模式下的 Phase 缩放
+scaling:
+  lightweight:
+    spec:
+      skip_design: true
+      skip_test_plan: true
+      skip_anchoring: true
+      skip_experience_load: true
+      canonical: "proposal_only"
+      gate2: "auto_pass"
+    slice:
+      skip: true
+      implicit_slice_count: 1
+    build:
+      red: "focused"        # 1-2 聚焦测试
+      green: "minimal"
+      refactor: "skip"
+      per_slice_verify: "skip"
+      load_rules: false
+      phase_context: false
+    verify:
+      review_agents: 1      # 单 agent inline review
+      test_scope: "existing_plus_new"
+      failure_modes: ["a", "b", "c", "e", "f"]  # 核心 5 类
+      pass_k: "skip"
+      plankton: "on_failure_only"
+      experience_record: "new_pattern_only"
+      gate3: "mandatory"
+    deliver:
+      archive: "batch_append"
+      canonical_merge: "proposal_only"
+      version_tag: "git_commit"
+
+  standard:
+    # Standard mode = V2.8 default behavior (no changes)
+    spec:
+      skip_design: false
+      skip_test_plan: false
+      skip_anchoring: false
+      skip_experience_load: false
+      canonical: "all"
+      gate2: "mandatory"
+    slice:
+      skip: false
+    build:
+      red: "full_tc"
+      green: "full"
+      refactor: "standard"
+      per_slice_verify: true
+      load_rules: true
+      phase_context: true
+    verify:
+      review_agents: 3
+      test_scope: "full"
+      failure_modes: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"]
+      pass_k: 1
+      plankton: "on_failure_only"
+      experience_record: true
+      gate3: "mandatory"
+    deliver:
+      archive: "standard"
+      canonical_merge: "all"
+      version_tag: "git_commit_tag"
+
+  thorough:
+    # Thorough mode = standard + subagents + pass@k=3/5
+    spec:
+      skip_design: false
+      skip_test_plan: false
+      skip_anchoring: false
+      skip_experience_load: false
+      canonical: "all"
+      gate2: "mandatory"
+    slice:
+      skip: false
+      advanced_analysis: true
+    build:
+      red: "full_tc_pass_k"
+      green: "full"
+      refactor: "standard"
+      per_slice_verify: true
+      load_rules: true
+      phase_context: true
+    verify:
+      review_agents: 3
+      subagent_security: true
+      subagent_perf: true
+      test_scope: "full_multi_version"
+      failure_modes: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"]
+      pass_k: 3
+      plankton: "proactive"
+      experience_record: true
+      gate3: "mandatory"
+    deliver:
+      archive: "full"
+      canonical_merge: "all"
+      version_tag: "git_commit_tag_release_notes"
+
+# 批次管理配置
+batch:
+  strategy: monthly           # monthly | weekly | count_based
+  max_items: 20               # count_based 模式下自动闭合阈值
+  auto_close: true            # 周期结束时自动闭合
+
+# 非代码任务类型验证策略
+task_types:
+  code:
+    verify_tool: "pytest"
+    lint_tool: "ruff"
+    tc_concept: "代码级 TC"
+  documentation:
+    verify_tool: "markdownlint"
+    lint_tool: "markdownlint"
+    tc_concept: "规则清单"
+  configuration:
+    verify_tool: "yamllint"
+    lint_tool: "yamllint"
+    tc_concept: "配置 diff"
+  data-migration:
+    verify_tool: "custom"
+    lint_tool: "custom"
+    tc_concept: "数据校验脚本"
+  dependency-upgrade:
+    verify_tool: "pip-audit"
+    lint_tool: "safety"
+    tc_concept: "CI pipeline"

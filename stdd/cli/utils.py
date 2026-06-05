@@ -73,3 +73,80 @@ def read_config(project_root: Path) -> Dict[str, Any]:
 def fix_windows_encoding() -> None:
     if sys.stdout.encoding != "utf-8" and hasattr(sys.stdout, "buffer"):
         sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+
+# ── Version utilities (V2.9) ──
+
+def get_source_version() -> Optional[str]:
+    """Read stdd_version from STDD source's config.d/project.yaml."""
+    try:
+        source = get_stdd_source()
+        config = read_config(source)
+        return config.get("stdd_version")
+    except Exception:
+        return None
+
+
+def get_project_version(project_root: Path) -> Optional[str]:
+    """Read version from .stdd/version.yaml (preferred) or fallback to project.yaml."""
+    version_file = project_root / ".stdd" / "version.yaml"
+    if version_file.exists():
+        try:
+            import yaml
+            data = yaml.safe_load(version_file.read_text(encoding="utf-8"))
+            if data and "stdd_version" in data:
+                return data["stdd_version"]
+        except Exception:
+            pass
+    # Fallback to legacy project.yaml
+    config = read_config(project_root)
+    return config.get("stdd_version")
+
+
+def compare_versions(v1: str, v2: str) -> int:
+    """Compare semantic version strings. Returns -1, 0, or 1.
+
+    Supports '2.7', '2.8.0', 'v2.9' style formats.
+    """
+    def _parse(v: str) -> tuple:
+        v = v.strip().lstrip("v").lstrip("V").strip("'").strip('"')
+        parts = v.split(".")
+        return tuple(int(x) for x in parts if x.isdigit())
+
+    a = _parse(v1)
+    b = _parse(v2)
+    max_len = max(len(a), len(b))
+    a = a + (0,) * (max_len - len(a))
+    b = b + (0,) * (max_len - len(b))
+    if a < b:
+        return -1
+    elif a > b:
+        return 1
+    return 0
+
+
+def try_version_check(project_root: Path) -> None:
+    """Check project vs source version, print notice if outdated.
+    Never raises — any exception is silently ignored.
+    """
+    try:
+        if not (project_root / ".stdd").is_dir():
+            return
+
+        # Check lock status
+        version_file = project_root / ".stdd" / "version.yaml"
+        if version_file.exists():
+            import yaml
+            data = yaml.safe_load(version_file.read_text(encoding="utf-8"))
+            if data and data.get("locked", False):
+                return  # Locked project — skip
+
+        source_ver = get_source_version()
+        proj_ver = get_project_version(project_root)
+
+        if source_ver and proj_ver and compare_versions(proj_ver, source_ver) < 0:
+            print(f"  [STDD] 有新版本可用: {source_ver} (当前: {proj_ver})")
+            print("  [STDD] 运行 'stdd upgrade --check' 查看详情，"
+                  "或 'stdd upgrade --lock' 锁定版本")
+    except Exception:
+        pass  # Never block execution
