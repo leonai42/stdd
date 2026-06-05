@@ -1,8 +1,0 @@
-change_name: 2026-06-03-stdd-website-v2.5
-version: "2.5"
-active_phase: 4
-active_slice: 1
-phase1:
-  started: "2026-06-03T23:50:00"
-  completed: "2026-06-03T23:52:00"
-  gate1: { confirmed: true, confirmed_at: "2026-06-03T23:52:00" }

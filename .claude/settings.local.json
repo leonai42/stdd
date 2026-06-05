@@ -108,7 +108,10 @@
       "Bash(cp -r changes/2026-06-05-stdd-v2.9-core/specs/lightweight-mode specs/)",
       "Bash(cp -r changes/2026-06-05-stdd-v2.9-core/specs/batch-management specs/)",
       "Bash(stdd upgrade *)",
-      "Read(//c/Users/HUAWEI/**)"
+      "Read(//c/Users/HUAWEI/**)",
+      "Bash(git rebase *)",
+      "Bash(cat .git/rebase-merge/msgnum)",
+      "Bash(cat .git/rebase-merge/end)"
     ]
   },
   "hooks": {
