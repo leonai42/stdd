@@ -1,0 +1,20 @@
+# design-adjustments.yaml — 设计调整汇总（Canonical YAML，AI 主读文档）
+# V2.9.2 新增：Phase 5 VERIFY 汇总 pending-adjustments.yaml，生成此文件
+# 此文件是"闭环"的关键——它作为修订后的需求输入，重新驱动 Phase 2-5
+# 如果 requires_re_spec 为 true，AI 应在下一轮迭代中回到 Phase 2 修订 spec.yaml
+
+meta:
+  change_id: ""               # 所属 change
+  created: ""                 # ISO 8601
+  total_adjustments: 0        # 调整总数
+  requires_re_spec: false     # 是否需要回到 Phase 2 重新 spec
+  requires_re_build: false    # 是否需要回到 Phase 4 重新实现
+
+adjustments:
+  - id: ADJ-001               # 引用 pending-adjustments.yaml 中的 ID
+    category: ""              # spec_change | design_change | test_change | boundary_discovery
+    original: ""              # 原始设计/实现
+    adjusted: ""              # 调整后的设计/实现
+    reason: ""                # 调整原因
+    affected_capabilities: [] # 受影响的 capability
+    resolved_in_phase: ""     # 在哪个 Phase 解决的

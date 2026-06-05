@@ -1,0 +1,21 @@
+# spec.yaml — 行为规格（Canonical YAML，AI 主读文档）
+# V2.9.2 新增：替代 spec.md 为 AI 首要消费的行为规格
+# 适用范围：coding 任务
+
+meta:
+  capability: ""              # capability 名称
+  change_id: ""               # 所属 change
+  created: ""                 # ISO 8601
+  confidence: high            # high | medium | low（AI 标注的整体置信度）
+
+requirements:
+  - id: REQ-001               # 全局唯一
+    description: ""           # 需求描述
+    scenarios:
+      - id: SC-001            # 全局唯一，对应 TC-ID
+        confidence: high      # high | medium | low
+        evidence: ""          # 证据来源（引用 proposal.yaml 段落）
+        given: ""             # 前置条件
+        when: ""              # 触发动作
+        then: ""              # 预期结果（SHALL 强制行为）
+        and: []               # 附加条件（最多 5 条）

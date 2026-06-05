@@ -443,17 +443,17 @@ L 级问题：仅在 test-report 的附录中列出，不阻塞。
 
 ---
 
-#### Step 4: 汇总设计调整
+#### Step 4: 汇总设计调整（V2.9.2: Canonical YAML）
 
-1. 检查 `pending-adjustments.md`（Phase 3-4 期间记录的偏离）
+1. 读取 `pending-adjustments.yaml`（Phase 3-4 期间记录的偏离）
 2. 对比最终实现与 Phase 2 原始文档的差异
-3. 识别以下类型的调整：
-   - spec Scenario 增删改
-   - design 技术方案变更
-   - test-plan TC 案例调整
-   - 实现中发现的边界情况补充
+3. 识别调整类型：spec 增删改 / design 变更 / test-plan 调整 / 边界情况
+4. **读取模板 `.stdd/templates/canonical/design-adjustments.yaml`**
+5. **生成 `design-adjustments.yaml`**（Canonical YAML，AI 可精确消费）
+6. 从 YAML 渲染 `design-adjustments.md`（Human View）
+7. 如果 `requires_re_spec: true`，标记此 change 需要回到 Phase 2 重新 spec
 
-如果有任何调整，读取模板 `.stdd/templates/design-adjustments.md` 并生成 `design-adjustments.md`
+> **闭环机制**：design-adjustments.yaml 本质上是"修订后的需求"。Phase 6 DELIVER 归档后，如有 requires_re_spec，AI 应将其作为新一轮的 proposal 输入，重新走 Phase 2-5。
 
 ---
 

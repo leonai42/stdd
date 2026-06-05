@@ -1,8 +1,12 @@
-# agent_spec.yaml — 单系统 Agent 验证规格
-# V2.7 引入
+# agent_spec.yaml — Agent 验证规格（Canonical YAML，AI 主读文档）
+# V2.7 引入，V2.9.2 增强：支持 coding 和 non-coding 两种任务类型
+# coding 任务：与 spec.yaml 配合使用（spec.yaml 驱动 TDD，agent_spec.yaml 驱动验证）
+# non-coding 任务：agent_spec.yaml 即为主要规格文档（CP 检查点 = "规格"）
 
 meta:
   task_id: ""                  # 任务标识
+  change_id: ""                # V2.9.2: 所属 change
+  task_type: code              # V2.9.2: code | documentation | configuration | data-migration | dependency-upgrade
   system: ""                   # 目标系统描述
   preconditions:               # 执行前必须满足的条件
     - ""
@@ -10,10 +14,16 @@ meta:
 steps:
   - id: CP-1                   # 检查点编号
     description: ""            # 检查点描述
-    action: ""                 # 执行的操作（CLI 命令 / HTTP 请求）
+    action: ""                 # 执行的操作（CLI 命令 / HTTP 请求 / 文件操作）
     assertions:
       - type: exit_code        # exit_code | stdout_contains | stderr_contains | http_status
-        expected: 0           # 预期值
+        expected: 0            # 预期值
+      # V2.9.2: non-coding 专用 assertion 类型
+      # - type: file_exists    → expected: true/false
+      # - type: yaml_valid     → expected: true/false
+      # - type: link_alive     → expected: true/false
+      # - type: schema_valid   → expected: true/false (JSON/YAML schema 校验)
+      # - type: diff_empty     → expected: true/false (git diff 无意外变更)
 
   - id: CP-2
     description: ""
