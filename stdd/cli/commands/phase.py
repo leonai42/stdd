@@ -72,10 +72,26 @@ def cmd_phase(args: argparse.Namespace) -> None:
             print(f"  Already at final phase: {_PHASE_LABELS.get(current, current)}")
             sys.exit(0)
 
-        # Mark current phase completed
         phases = data.setdefault("phases", {})
+
+        # V2.9.4: Gate phases require explicit gate confirmation before advancing
+        _GATE_PHASES = {"understand": "Gate 1", "spec": "Gate 2", "verify": "Gate 3"}
+        if current in _GATE_PHASES:
+            gate_name = _GATE_PHASES[current]
+            current_phase_data = phases.get(current, {})
+            if not current_phase_data.get("confirmed_at"):
+                print(f"  ❌ 当前 Phase 需要 {gate_name} 确认后才能推进。")
+                print(f"     请先完成 {gate_name} 确认:")
+                print(f"       - 对话确认: 在 Phase 结束时等待用户确认")
+                print(f"       - 文件确认: 创建 GATE{list(_GATE_PHASES.keys()).index(current)+1}_APPROVED 文件")
+                print(f"       - CLI 确认: stdd gate approve --gate {list(_GATE_PHASES.keys()).index(current)+1}")
+                sys.exit(1)
+
+        # Mark current phase completed
         phases.setdefault(current, {})["status"] = "completed"
-        phases.setdefault(current, {})["confirmed_at"] = datetime.now().isoformat()
+        # Only auto-set confirmed_at for non-gate phases
+        if current not in _GATE_PHASES:
+            phases.setdefault(current, {})["confirmed_at"] = datetime.now().isoformat()
 
         # Advance to next
         nxt = _PHASE_ORDER[idx + 1]
