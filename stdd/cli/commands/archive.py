@@ -26,12 +26,10 @@ def cmd_archive(args: argparse.Namespace) -> None:
         with open(state_file, "r", encoding="utf-8") as f:
             state = yaml.safe_load(f) or {}
         if state.get("phases", {}).get("verify", {}).get("status") != "completed":
-            print("   Phase 5 (VERIFY) 尚未完成，确认要归档吗？")
-            if not args.yes:
-                resp = input("输入 y 继续: ")
-                if resp.lower() != "y":
-                    print("已取消")
-                    sys.exit(0)
+            print("   ❌ Phase 5 (VERIFY) 尚未完成，无法归档。")
+            print("     请先完成 VERIFY: 运行测试、失败模式检查、Gate 3 确认。")
+            print("     用 'stdd phase advance' 推进到 verify，完成后再次归档。")
+            sys.exit(1)
 
     archive_dir = project_root / "archive" / change_dir.name
     if archive_dir.exists():

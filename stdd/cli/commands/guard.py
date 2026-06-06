@@ -1,18 +1,29 @@
-"""STDD guard CLI — intelligent enforcement gate (V2.9.3).
+"""STDD guard CLI — intelligent enforcement gate (V2.9.4).
 
-V2.9.3: Upgraded from boolean gate to scope-aware classifier.
-Instead of just allow/block, the guard now assesses change scope and
-recommends the appropriate mode: batch (micro-fixes) vs full STDD flow
-(medium+ changes). This prevents the "everything goes through batch"
-degeneration while keeping micro-fixes frictionless.
+V2.9.4: Phase integrity checks prevent bypass via manual YAML editing.
+Guard now verifies that the current phase was legitimately reached
+(previous phases completed, gates confirmed) before allowing edits.
+Also supports task_type-aware phase permissions (documentation tasks
+need to edit during spec/slice phases).
 """
 
 import sys
 import argparse
 from pathlib import Path
 
+_PHASE_ORDER = ["understand", "spec", "slice", "build", "verify", "deliver"]
+_GATE_PHASES = {"understand", "spec", "verify"}  # phases that require gate confirmation
 
-# V2.9.3: Phases where code editing is permitted
+# V2.9.3: Phases where code editing is permitted (task_type-aware in V2.9.4)
+_EDITABLE_PHASES_BY_TYPE = {
+    "code": {"build", "verify"},
+    "documentation": {"understand", "spec", "slice", "build", "verify"},
+    "configuration": {"understand", "spec", "slice", "build", "verify"},
+    "data-migration": {"build", "verify"},
+    "dependency-upgrade": {"build", "verify"},
+}
+
+# Fallback for backward compatibility
 _EDITABLE_PHASES = {"build", "verify"}
 
 # V2.9.3: Scope classification
@@ -158,6 +169,46 @@ def _find_active_change(project_root: Path) -> tuple:
     return None, None
 
 
+def _check_phase_integrity(data: dict, current_phase: str) -> tuple:
+    """Check that the current phase was legitimately reached.
+
+    Returns (ok: bool, reason: str).
+    A phase is legitimate if all previous phases have status=="completed"
+    AND all required gate phases have confirmed_at timestamps.
+    """
+    if current_phase not in _PHASE_ORDER:
+        return False, f"Unknown phase: {current_phase}"
+
+    idx = _PHASE_ORDER.index(current_phase)
+    phases = data.get("phases", {})
+
+    # Check all previous phases are completed
+    for i in range(idx):
+        prev = _PHASE_ORDER[i]
+        prev_status = phases.get(prev, {}).get("status", "pending")
+        if prev_status != "completed":
+            return False, (
+                f"Phase 完整性异常：当前 phase='{current_phase}' 但 "
+                f"Phase '{prev}' 状态为 '{prev_status}'（应为 'completed'）。"
+                " 请用 'stdd phase advance' 逐步推进，不要手动修改 .stdd.yaml。"
+            )
+
+    # Check required gate phases have confirmed_at
+    for gp in _GATE_PHASES:
+        gp_idx = _PHASE_ORDER.index(gp)
+        if gp_idx < idx:  # this gate should have been passed
+            gp_data = phases.get(gp, {})
+            if not gp_data.get("confirmed_at"):
+                return False, (
+                    f"Gate 缺失：Phase '{gp}' 经过了 Gate "
+                    f"({['Gate 1','Gate 2','Gate 3'][['understand','spec','verify'].index(gp)]})"
+                    " 但未确认 (confirmed_at 为空)。"
+                    " 请先完成 Gate 确认。"
+                )
+
+    return True, ""
+
+
 # ---- V2.9.3: Scope assessment & recommendation ----
 
 def _assess_and_recommend(project_root: Path,
@@ -299,11 +350,31 @@ def cmd_guard_check(args: argparse.Namespace) -> int:
     # find active change
     active_dir, phase = _find_active_change(project_root)
 
-    # Full STDD change in editable phase → always allow
-    if active_dir and phase in _EDITABLE_PHASES:
-        if not getattr(args, "quiet", False):
-            print(f"  [STDD Guard] Active change: {active_dir.name} (phase: {phase}) — ✅")
-        return 0
+    # Full STDD change: check phase integrity + task_type permissions
+    if active_dir:
+        stdd_yaml = active_dir / ".stdd.yaml"
+        if stdd_yaml.exists():
+            import yaml
+            change_data = yaml.safe_load(stdd_yaml.read_text(encoding="utf-8")) or {}
+            task_type = change_data.get("task_type", "code") or "code"
+
+            # V2.9.4: Phase integrity check
+            integrity_ok, integrity_reason = _check_phase_integrity(change_data, phase)
+            if not integrity_ok:
+                if getattr(args, "platform", "cli") == "claude-code":
+                    import sys as _sys
+                    print(f"  [STDD Guard] 🚫 {integrity_reason}", file=_sys.stderr)
+                else:
+                    print(f"  [STDD Guard] 🚫 {integrity_reason}")
+                return 2
+
+            # V2.9.4: task_type-aware editable phases
+            editable = _EDITABLE_PHASES_BY_TYPE.get(task_type, _EDITABLE_PHASES)
+            if phase in editable:
+                if not getattr(args, "quiet", False):
+                    print(f"  [STDD Guard] Active change: {active_dir.name} "
+                          f"(phase: {phase}, task: {task_type}) — ✅")
+                return 0
 
     # Check for open batch → intelligent assessment
     batch_dir, batch_data = _find_open_batch(project_root)
@@ -377,14 +448,27 @@ def cmd_guard_status(args: argparse.Namespace) -> None:
         project_root, batch_dir=batch_dir, batch_data=batch_data, enforce=enforce
     )
 
+    task_type = "code"
     editable = (phase in _EDITABLE_PHASES if phase else False) or (batch_dir is not None)
-    print("  STDD Guard Status (V2.9.3 智能门禁):")
+    if active_dir:
+        stdd_yaml = active_dir / ".stdd.yaml"
+        if stdd_yaml.exists():
+            change_data = yaml.safe_load(stdd_yaml.read_text(encoding="utf-8")) or {}
+            task_type = change_data.get("task_type", "code") or "code"
+            editable_phases = _EDITABLE_PHASES_BY_TYPE.get(task_type, _EDITABLE_PHASES)
+            editable = phase in editable_phases
+            integrity_ok, _ = _check_phase_integrity(change_data, phase)
+
+    print("  STDD Guard Status (V2.9.4 智能门禁):")
     print(f"    enforce_stdd:  {enforce}")
     print(f"    allow_bypass:  {allow_bypass}")
-    print(f"    editable phases: {sorted(_EDITABLE_PHASES)}")
+    print(f"    task_type:      {task_type}")
+    print(f"    editable phases: {sorted(_EDITABLE_PHASES_BY_TYPE.get(task_type, _EDITABLE_PHASES))}")
     print(f"    changed files:  {assessment['file_count']}")
     print(f"    scope:          {assessment['scope']}")
     print(f"    recommended:    {assessment['mode']}")
+    if active_dir and not editable:
+        print(f"    phase integrity: {'✅' if integrity_ok else '❌ BYPASS DETECTED'}")
 
     if batch_dir:
         desc = (batch_data or {}).get("description", "") if batch_data else ""
