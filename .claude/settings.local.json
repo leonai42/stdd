@@ -113,7 +113,8 @@
       "Skill(claude-api)",
       "Bash(bash *)",
       "Bash(mkdir -p /tmp/stdd-canon-test/changes/2026-06-05-test-change)",
-      "Bash(stdd batch *)"
+      "Bash(stdd batch *)",
+      "Bash(stdd hooks *)"
     ]
   },
   "hooks": {
@@ -127,6 +128,9 @@
           }
         ]
       }
-    ]
+    ],
+    "SessionStart": "python .stdd/hooks/session-start.py",
+    "PreCompact": "python .stdd/hooks/pre-compact.py",
+    "Stop": "python .stdd/hooks/session-end.py"
   }
 }

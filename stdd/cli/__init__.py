@@ -122,6 +122,7 @@ def main() -> None:
     p_state = subparsers.add_parser("state", help="查看/恢复跨 Session 状态", parents=[parent])
     p_state.add_argument("name", nargs="?", help="change 目录名（默认使用最近的）")
     p_state.add_argument("--resume", action="store_true", help="显示恢复上下文")
+    p_state.add_argument("--compact", "-c", action="store_true", help="紧凑单行输出（跨平台，省 token）")
     p_state.add_argument("--set", help="设置恢复字段（格式：KEY=VALUE）")
 
     # gate (V2.5 新增)

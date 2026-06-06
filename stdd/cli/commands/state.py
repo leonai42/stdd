@@ -77,6 +77,34 @@ def cmd_state(args: argparse.Namespace) -> None:
         state_file = change_dir / ".stdd.yaml"
         data = yaml.safe_load(state_file.read_text(encoding="utf-8")) or {}
 
+        # --compact: single-line machine-readable output, cross-platform
+        if getattr(args, "compact", False):
+            phase = data.get("active_phase", "?")
+            active_slice = data.get("active_slice", "N/A")
+            last_action = data.get("last_action", "unknown")
+            freshness = data.get("state_freshness", {})
+            saved_head = freshness.get("git_head", "")
+
+            import subprocess
+            try:
+                result = subprocess.run(
+                    ["git", "rev-parse", "--short", "HEAD"],
+                    capture_output=True, text=True, cwd=project_root,
+                    timeout=5,
+                )
+                current_head = result.stdout.strip()
+            except Exception:
+                current_head = ""
+
+            if saved_head and current_head and saved_head != current_head:
+                fresh = "STALE"
+            else:
+                fresh = "FRESH"
+
+            print(f"change={change_dir.name} phase={phase} slice={active_slice} "
+                  f"last=\"{last_action}\" freshness={fresh}")
+            return
+
         print(f"\n  ══════════════════════════════════════")
         print(f"    STDD Resume Context")
         print(f"  ══════════════════════════════════════")
