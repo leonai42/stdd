@@ -39,7 +39,7 @@ _MICRO_SIGNALS = [
     "快速", "quick", "改个", "小调整",
 ]
 _SMALL_SIGNALS = [
-    "调整", "优化", "改进", "更新", "UI", "界面",
+    "调整", "优化", "改进", "更新", "ui", "界面",
     "improve", "tweak", "update", "adjust", "enhance",
     "日志", "格式", "展示", "显示", "配置", "清理",
 ]
@@ -52,7 +52,7 @@ _LARGE_SIGNALS = [
     "重写", "rewrite", "架构", "architecture",
     "大改", "overhaul", "子系统", "system",
     "新模块", "新增模块", "新功能",
-    "API", "接口", "集成", "integration",
+    "api", "接口", "集成", "integration",
     "引擎", "engine", "平台", "platform",
 ]
 
