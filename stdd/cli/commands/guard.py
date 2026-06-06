@@ -150,7 +150,7 @@ def _find_active_change(project_root: Path) -> tuple:
             data = yaml.safe_load(stdd_yaml.read_text(encoding="utf-8"))
             if data:
                 status = data.get("status", "")
-                phase = data.get("phase", "")
+                phase = data.get("current_phase") or data.get("phase", "")
                 if status in ("active", "in_progress", "pending") or phase in (
                     "understand", "spec", "slice", "build", "verify"
                 ):
