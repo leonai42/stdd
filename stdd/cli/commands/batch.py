@@ -91,7 +91,7 @@ def _create_batch(project_root: Path, strategy: str = "monthly") -> Path:
         "description": "",
         "created_at": now.strftime("%Y-%m-%dT%H:%M:%S"),
         "closed_at": None,
-        "max_items": 20,
+        "max_items": 5,
         "items": [],
     }, allow_unicode=True, default_flow_style=False), encoding="utf-8")
 
@@ -155,6 +155,24 @@ def _cmd_batch_open(project_root: Path, description: str = "", strategy: str = "
             print(f"     如果是较大改动，建议: /stdd-understand")
             return
 
+    # V2.9.4: Warn if an active STDD change exists (batch should not replace full flow)
+    import yaml as _yaml
+    changes_dir = project_root / "changes"
+    if changes_dir.is_dir():
+        for cd in sorted(
+            [d for d in changes_dir.iterdir() if d.is_dir() and d.name != "_batch"],
+            key=lambda d: d.stat().st_mtime, reverse=True,
+        ):
+            stdd_yaml = cd / ".stdd.yaml"
+            if stdd_yaml.exists():
+                cd_data = _yaml.safe_load(stdd_yaml.read_text(encoding="utf-8")) or {}
+                phase = cd_data.get("current_phase") or cd_data.get("phase", "")
+                if phase in ("build", "verify") and cd_data.get("status") == "active":
+                    print(f"  ⚠️  检测到进行中的 change: {cd.name} (phase: {phase})")
+                    print(f"     建议在此 change 中完成修改，而非单独开 batch。")
+                    print(f"     继续创建 batch 请确认。")
+                    break
+
     # Close existing open batch if any
     existing = _find_open_batch(project_root)
     if existing:
@@ -180,19 +198,41 @@ def _cmd_batch_open(project_root: Path, description: str = "", strategy: str = "
 
 
 def _cmd_batch_add(project_root: Path, description: str) -> None:
-    """Add an item to the current open batch."""
+    """Add an item to the current open batch.
+
+    V2.9.4: Refuses if >3 files have been modified since batch opened,
+    suggesting upgrade to a full STDD change instead.
+    """
     batch = _find_open_batch(project_root)
     if batch is None:
         print("  当前无打开的批次。请先 'stdd batch open \"描述\"'")
         return
 
     import yaml
+    import subprocess
     stdd_yaml = batch / ".stdd.yaml"
     data = yaml.safe_load(stdd_yaml.read_text(encoding="utf-8"))
 
+    # V2.9.4: Check git diff scope — refuse if too many files changed
+    try:
+        result = subprocess.run(
+            ["git", "diff", "--name-only", "HEAD"],
+            capture_output=True, text=True, cwd=str(project_root), timeout=5,
+        )
+        if result.returncode == 0:
+            changed = [f for f in result.stdout.strip().split("\n") if f]
+            if len(changed) > 3:
+                print(f"  🚫 已修改 {len(changed)} 个文件，超出 batch 适用范围。")
+                print(f"     batch 适合 ≤3 个文件的微修复。")
+                print(f"     请用 'stdd new <name>' 创建 change 走完整 STDD 流程。")
+                return
+    except Exception:
+        pass  # git not available — skip check
+
     items = data.get("items", [])
-    if len(items) >= data.get("max_items", 20):
-        print(f"  批次已满 ({data['max_items']} 项)，请先 close 再 open 新批次。")
+    max_items = data.get("max_items", 5)
+    if len(items) >= max_items:
+        print(f"  批次已满 ({max_items} 项)，请升级为 change 或先 close 再 open 新批次。")
         return
 
     items.append({
@@ -202,7 +242,7 @@ def _cmd_batch_add(project_root: Path, description: str) -> None:
     data["items"] = items
     stdd_yaml.write_text(yaml.dump(data, allow_unicode=True, default_flow_style=False), encoding="utf-8")
 
-    print(f"  ✅ [{len(items)}/{data['max_items']}] {description}")
+    print(f"  ✅ [{len(items)}/{max_items}] {description}")
 
 
 def _cmd_batch_archive(project_root: Path) -> None:

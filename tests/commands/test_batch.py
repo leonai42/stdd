@@ -168,7 +168,7 @@ class TestBatchNoBatch:
         cmd_batch(_make_args("open", "修bug"))
         cmd_batch(_make_args("add", "fix: typo"))
         captured = capsys.readouterr()
-        assert "[1/20]" in captured.out or "[2/20]" in captured.out
+        assert "[1/5]" in captured.out
 
     def test_archive_moves_batch(self, tmp_path, monkeypatch):
         """Archive should move closed batch to archive/."""
@@ -177,11 +177,9 @@ class TestBatchNoBatch:
 
         from stdd.cli.commands.batch import cmd_batch
         cmd_batch(_make_args("open", "测试归档"))
-        cmd_batch(_make_args("close"))
+        cmd_batch(_make_args("close", force=True))
         cmd_batch(_make_args("archive"))
 
         # After archive, batch should be in archive/
         archive_dir = tmp_path / "archive"
         assert archive_dir.exists()
-
-        assert "无" in captured.out
