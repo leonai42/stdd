@@ -119,12 +119,24 @@ def cmd_canon_init(args):
         canon = _get_canon_dir(project_root, change_name)
         print(f"  canonical/ initialized at changes/{change_name}/canonical/")
 
+    # V2.9.4: Read task_type to skip irrelevant spec dirs
+    task_type = "code"
+    if change_name:
+        stdd_yaml_path = project_root / "changes" / change_name / ".stdd.yaml"
+        if stdd_yaml_path.exists():
+            try:
+                change_data = yaml.safe_load(stdd_yaml_path.read_text(encoding="utf-8"))
+                task_type = change_data.get("task_type", "code") or "code"
+            except Exception:
+                pass
+
     dirs = [
         canon / "proposals",
         canon / "designs",
-        canon / "specs" / "code",
         canon / "specs" / "agent",
     ]
+    if task_type == "code":
+        dirs.append(canon / "specs" / "code")
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
 
@@ -143,16 +155,17 @@ def cmd_canon_init(args):
             )
             templates_created.append(f"proposals/{change_name}.yaml")
 
-        # Create code spec template
-        code_spec_file = canon / "specs" / "code" / f"{change_name}.yaml"
-        if not code_spec_file.exists():
-            code_spec_file.write_text(
-                CANONICAL_CODE_SPEC_TEMPLATE.format(
-                    change_name=change_name, created_at=created_at
-                ),
-                encoding="utf-8",
-            )
-            templates_created.append(f"specs/code/{change_name}.yaml")
+        # Create code spec template (only for coding tasks)
+        if task_type == "code":
+            code_spec_file = canon / "specs" / "code" / f"{change_name}.yaml"
+            if not code_spec_file.exists():
+                code_spec_file.write_text(
+                    CANONICAL_CODE_SPEC_TEMPLATE.format(
+                        change_name=change_name, created_at=created_at
+                    ),
+                    encoding="utf-8",
+                )
+                templates_created.append(f"specs/code/{change_name}.yaml")
 
         # Create agent spec template
         agent_spec_file = canon / "specs" / "agent" / f"{change_name}.yaml"

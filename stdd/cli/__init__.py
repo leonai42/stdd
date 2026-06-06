@@ -57,6 +57,9 @@ def main() -> None:
     # new
     p_new = subparsers.add_parser("new", help="创建新的 change 目录骨架", parents=[parent])
     p_new.add_argument("name", help="change 名称（如 fix-login-bug）")
+    p_new.add_argument("--task-type", dest="task_type", default="code",
+                       choices=["code", "documentation", "configuration", "data-migration", "dependency-upgrade"],
+                       help="任务类型 (默认: code)")
 
     # validate
     p_validate = subparsers.add_parser("validate", help="验证 change 结构", parents=[parent])
@@ -245,11 +248,13 @@ def main() -> None:
                          default="status", help="操作 (默认: status)")
     p_batch.add_argument("description", nargs="?", default="",
                          help="批次描述 (open/add 时使用)")
+    p_batch.add_argument("--force", action="store_true",
+                         help="强制闭合 (跳过近空批次保护)")
     p_batch.add_argument("--strategy", choices=["monthly", "weekly", "count_based"],
                          default="monthly", help="批次策略 (默认: monthly)")
 
-    # V2.9.2: guard — project-level enforcement gate
-    p_guard = subparsers.add_parser("guard", help="项目级强制门 (V2.9.2)", parents=[parent])
+    # V2.9.3: guard — intelligent enforcement gate
+    p_guard = subparsers.add_parser("guard", help="项目级智能门禁 (V2.9.3)", parents=[parent])
     p_guard.add_argument("action", nargs="?", choices=["check", "status", "init", "disable", "enable"],
                          default="check", help="操作 (默认: check)")
     p_guard.add_argument("--check", dest="action", action="store_const", const="check",
@@ -260,6 +265,13 @@ def main() -> None:
                          help="严格模式：allow_bypass 也阻止")
     p_guard.add_argument("--quiet", "-q", action="store_true",
                          help="静默模式")
+
+    # V2.9.4: phase — advance and check change phase
+    p_phase = subparsers.add_parser("phase", help="变更阶段管理 (V2.9.4)", parents=[parent])
+    p_phase.add_argument("phase_action", nargs="?", choices=["status", "advance", "set"],
+                         default="status", help="操作 (默认: status)")
+    p_phase.add_argument("name", nargs="?", help="change 目录名（默认: 最近的）")
+    p_phase.add_argument("target_phase", nargs="?", help="目标阶段 (set 时使用)")
 
     # V2.7: experience list — add provenance filter
     p_exp_list.add_argument("--provenance", help="按来源过滤 (ci-detected / ai-inferred / human-reported / community-imported)")
@@ -308,8 +320,9 @@ def main() -> None:
         # V2.9 new commands
         "upgrade": "stdd.cli.commands.upgrade.cmd_upgrade",
         "batch": "stdd.cli.commands.batch.cmd_batch",
-        # V2.9.2 new commands
+        # V2.9.3+ new commands
         "guard": "stdd.cli.commands.guard.cmd_guard",
+        "phase": "stdd.cli.commands.phase.cmd_phase",
     }
 
     if args.command in commands:

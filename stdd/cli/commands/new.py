@@ -55,7 +55,7 @@ def cmd_new(args: argparse.Namespace) -> None:
         "status": "active",
         "current_phase": "understand",
         "mode": "standard",           # V2.9: standard | lightweight | thorough
-        "task_type": "code",          # V2.9: code | documentation | configuration | data-migration | dependency-upgrade
+        "task_type": getattr(args, "task_type", "code") or "code",  # V2.9.4: from --task-type
         "complexity_score": None,     # V2.9: set by Phase 1 Step 3.5
         "score_confidence": None,     # V2.9: preliminary | confirmed
         "phases": {

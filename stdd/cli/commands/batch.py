@@ -318,12 +318,36 @@ def _cmd_batch_list(project_root: Path) -> None:
         print(f"    {b.name}  [{status}] ({n_items}项) {desc[:40]}")
 
 
-def _cmd_batch_close(project_root: Path) -> None:
-    """Close the current open batch."""
+def _cmd_batch_close(project_root: Path, force: bool = False) -> None:
+    """Close the current open batch.
+
+    V2.9.4: Warns if batch has ≤1 item and has been open <1 hour, unless --force.
+    """
+    import yaml
     batch = _find_open_batch(project_root)
     if batch is None:
         print("  当前无打开的批次可闭合")
         return
+
+    # V2.9.4: Lightweight guard — warn if closing a near-empty young batch
+    if not force:
+        stdd_yaml = batch / ".stdd.yaml"
+        if stdd_yaml.exists():
+            data = yaml.safe_load(stdd_yaml.read_text(encoding="utf-8"))
+            items = data.get("items", [])
+            created_str = data.get("created_at", "")
+            if len(items) <= 1 and created_str:
+                try:
+                    created = datetime.fromisoformat(created_str)
+                    age_minutes = (datetime.now() - created).total_seconds() / 60
+                    if age_minutes < 60:
+                        print(f"  ⚠️  批次仅 {len(items)} 项、才开了 {int(age_minutes)} 分钟。")
+                        print(f"     batch 适合收纳多个小修复，不建议频繁开关。")
+                        print(f"     如果确认要闭合，请用 'stdd batch close --force'。")
+                        return
+                except ValueError:
+                    pass
+
     _close_batch(batch)
 
 
@@ -347,7 +371,7 @@ def cmd_batch(args: argparse.Namespace) -> None:
     elif action == "archive":
         _cmd_batch_archive(project_root)
     elif action == "close":
-        _cmd_batch_close(project_root)
+        _cmd_batch_close(project_root, force=getattr(args, "force", False))
     elif action == "list":
         _cmd_batch_list(project_root)
     else:  # status
