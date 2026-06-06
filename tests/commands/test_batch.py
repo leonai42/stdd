@@ -5,9 +5,10 @@ import yaml
 from pathlib import Path
 
 
-def _make_args(action="status"):
+def _make_args(action="status", description="", strategy="monthly", force=False):
     return argparse.Namespace(
-        command="batch", action=action, dry_run=False, verbose=0,
+        command="batch", action=action, description=description,
+        strategy=strategy, force=force, dry_run=False, verbose=0,
     )
 
 
@@ -136,5 +137,51 @@ class TestBatchNoBatch:
         from stdd.cli.commands.batch import cmd_batch
         cmd_batch(_make_args("close"))
         captured = capsys.readouterr()
+        assert "无打开的批次" in captured.out
+
+    def test_open_validates_micro_scope(self, tmp_path, monkeypatch, capsys):
+        """Open batch with micro-fix description should succeed."""
+        _setup_batch_env(tmp_path)
+        monkeypatch.chdir(tmp_path)
+
+        from stdd.cli.commands.batch import cmd_batch
+        cmd_batch(_make_args("open", "修复一个typo"))
+        captured = capsys.readouterr()
+        assert "批次已打开" in captured.out
+
+    def test_open_rejects_large_scope(self, tmp_path, monkeypatch, capsys):
+        """Open batch with large change description should be rejected."""
+        _setup_batch_env(tmp_path)
+        monkeypatch.chdir(tmp_path)
+
+        from stdd.cli.commands.batch import cmd_batch
+        cmd_batch(_make_args("open", "重写系统架构API"))
+        captured = capsys.readouterr()
+        assert "batch 不适合大型变更" in captured.out
+
+    def test_add_item_to_open_batch(self, tmp_path, monkeypatch, capsys):
+        """Add item to open batch."""
+        _setup_batch_env(tmp_path)
+        monkeypatch.chdir(tmp_path)
+
+        from stdd.cli.commands.batch import cmd_batch
+        cmd_batch(_make_args("open", "修bug"))
+        cmd_batch(_make_args("add", "fix: typo"))
+        captured = capsys.readouterr()
+        assert "[1/20]" in captured.out or "[2/20]" in captured.out
+
+    def test_archive_moves_batch(self, tmp_path, monkeypatch):
+        """Archive should move closed batch to archive/."""
+        _setup_batch_env(tmp_path)
+        monkeypatch.chdir(tmp_path)
+
+        from stdd.cli.commands.batch import cmd_batch
+        cmd_batch(_make_args("open", "测试归档"))
+        cmd_batch(_make_args("close"))
+        cmd_batch(_make_args("archive"))
+
+        # After archive, batch should be in archive/
+        archive_dir = tmp_path / "archive"
+        assert archive_dir.exists()
 
         assert "无" in captured.out

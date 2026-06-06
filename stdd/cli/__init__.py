@@ -276,6 +276,17 @@ def main() -> None:
     # V2.7: experience list — add provenance filter
     p_exp_list.add_argument("--provenance", help="按来源过滤 (ci-detected / ai-inferred / human-reported / community-imported)")
 
+    # V2.9.4: work — track related work during a change
+    p_work = subparsers.add_parser("work", help="关联工作记录 (V2.9.4)", parents=[parent])
+    p_work.add_argument("work_action", nargs="?", choices=["add", "list"],
+                        default="list", help="操作 (默认: list)")
+    p_work.add_argument("name", nargs="?", help="change 目录名（默认: 最近的）")
+    p_work.add_argument("--type", dest="work_type", default="other",
+                        choices=["bugfix", "test", "experience", "doc", "other"],
+                        help="工作类型")
+    p_work.add_argument("description", nargs="?", default="", help="描述")
+    p_work.add_argument("--commit", dest="commit_hash", default="", help="关联 commit hash")
+
     args = parser.parse_args()
 
     if not args.command:
@@ -323,6 +334,7 @@ def main() -> None:
         # V2.9.3+ new commands
         "guard": "stdd.cli.commands.guard.cmd_guard",
         "phase": "stdd.cli.commands.phase.cmd_phase",
+        "work": "stdd.cli.commands.work.cmd_work",
     }
 
     if args.command in commands:

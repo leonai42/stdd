@@ -119,6 +119,40 @@ def _count_changed_files(project_root: Path) -> int:
     return 0
 
 
+def _check_file_type_mismatch(project_root: Path, task_type: str) -> tuple:
+    """Check if modified files match the task_type.
+
+    Returns (mismatch: bool, reason: str).
+    For documentation/configuration tasks, warns if too many code files modified.
+    Code tasks are universal — no mismatch possible.
+    """
+    if task_type == "code":
+        return False, ""
+
+    import subprocess
+    try:
+        result = subprocess.run(
+            ["git", "diff", "--name-only", "HEAD"],
+            capture_output=True, text=True, cwd=str(project_root),
+            timeout=5,
+        )
+        if result.returncode != 0:
+            return False, ""
+
+        files = [f for f in result.stdout.strip().split("\n") if f]
+        code_files = [f for f in files if f.endswith(('.py', '.go', '.java', '.rs', '.ts', '.js'))]
+        code_ratio = len(code_files) / len(files) if files else 0
+
+        if len(code_files) >= 3 and code_ratio > 0.5:
+            return True, (
+                f"⚠️  task_type='{task_type}' 但已修改 {len(code_files)} 个代码文件 "
+                f"({int(code_ratio * 100)}%)。建议转为 code change 或新开 code change 管理代码修改。"
+            )
+    except Exception:
+        pass
+    return False, ""
+
+
 def _count_batch_files_so_far(project_root: Path) -> int:
     """Estimate files touched in current batch by counting tracked changes."""
     return _count_changed_files(project_root)
@@ -371,6 +405,13 @@ def cmd_guard_check(args: argparse.Namespace) -> int:
             # V2.9.4: task_type-aware editable phases
             editable = _EDITABLE_PHASES_BY_TYPE.get(task_type, _EDITABLE_PHASES)
             if phase in editable:
+                # V2.9.4: file type mismatch check for active change
+                mismatch, mismatch_reason = _check_file_type_mismatch(project_root, task_type)
+                if mismatch:
+                    if not getattr(args, "quiet", False):
+                        print(f"  [STDD Guard] {mismatch_reason}")
+                    # Non-blocking warning for now
+
                 if not getattr(args, "quiet", False):
                     print(f"  [STDD Guard] Active change: {active_dir.name} "
                           f"(phase: {phase}, task: {task_type}) — ✅")
@@ -379,6 +420,13 @@ def cmd_guard_check(args: argparse.Namespace) -> int:
     # Check for open batch → intelligent assessment
     batch_dir, batch_data = _find_open_batch(project_root)
     if batch_dir:
+        # V2.9.4: file type mismatch check for batch
+        mismatch, mismatch_reason = _check_file_type_mismatch(project_root, "code")
+        if mismatch:
+            if not getattr(args, "quiet", False):
+                print(f"  [STDD Guard] {mismatch_reason}")
+            # Non-blocking — warn only
+
         assessment = _assess_and_recommend(
             project_root, batch_dir=batch_dir, batch_data=batch_data, enforce=enforce
         )
