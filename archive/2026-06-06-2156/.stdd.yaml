@@ -1,0 +1,12 @@
+batch_id: 2026-06-06-2156
+batch_type: monthly
+closed_at: '2026-06-06T22:00:01.649389'
+created_at: '2026-06-06T21:56:38'
+description: 'Stage C: 英文人类版白皮书翻译'
+items:
+- added_at: '2026-06-06T22:00:01.256774'
+  description: 'Stage C: 英文人类版 (812行)'
+- added_at: '2026-06-06T22:00:01.459778'
+  description: 'Stage D: 英文AI检索版 (174行)'
+max_items: 20
+mode: batch

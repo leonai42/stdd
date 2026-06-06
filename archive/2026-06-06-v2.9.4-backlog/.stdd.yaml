@@ -1,0 +1,33 @@
+change_id: 2026-06-06-v2.9.4-backlog
+complexity_score: null
+current_phase: deliver
+design_adjustments:
+  count: 0
+last_modified: '2026-06-06T23:17:28.997345'
+mode: standard
+phases:
+  build:
+    confirmed_at: '2026-06-06T23:17:28.775542'
+    status: completed
+  deliver:
+    status: in_progress
+  slice:
+    confirmed_at: '2026-06-06T23:13:47.760389'
+    status: completed
+  spec:
+    confirmed_at: '2026-06-06T23:13:47.548407'
+    status: completed
+  understand:
+    confirmed_at: '2026-06-06T23:00:00'
+    status: completed
+  verify:
+    confirmed_at: '2026-06-06T23:17:28.997345'
+    status: completed
+score_confidence: null
+status: archived
+task_type: code
+traceability:
+  spec_scenarios: 0
+  tc_cases: 0
+  test_functions: 0
+version: '2.0'

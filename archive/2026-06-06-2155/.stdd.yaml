@@ -1,0 +1,10 @@
+batch_id: 2026-06-06-2155
+batch_type: monthly
+closed_at: '2026-06-06T21:56:13.041203'
+created_at: '2026-06-06T21:55:03'
+description: 'Stage B: 生成中文AI版白皮书'
+items:
+- added_at: '2026-06-06T21:56:12.861952'
+  description: 'Stage B: 中文AI检索版 (259行)'
+max_items: 20
+mode: batch

@@ -1,0 +1,10 @@
+batch_id: 2026-06-06-2201
+batch_type: monthly
+closed_at: '2026-06-06T22:06:07.758956'
+created_at: '2026-06-06T22:01:07'
+description: 'Stage C: 英文人类版完整翻译'
+items:
+- added_at: '2026-06-06T22:06:07.533535'
+  description: 'Stage C: 英文人类版完整翻译 (2,239行, 完全对应中文版)'
+max_items: 20
+mode: batch

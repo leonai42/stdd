@@ -1,0 +1,10 @@
+batch_id: '2026-06-06'
+batch_type: monthly
+closed_at: '2026-06-06T01:14:39.553063'
+created_at: '2026-06-06T01:14:16'
+description: 记录 meta-infra-change 困境观察
+items:
+- added_at: '2026-06-06T01:14:39.340318'
+  description: 记录 meta-infra-change 困境到 memory
+max_items: 20
+mode: batch

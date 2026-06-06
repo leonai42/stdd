@@ -1,0 +1,28 @@
+change_id: 2026-06-06-v2.9.4-polish
+complexity_score: 5
+current_phase: build
+design_adjustments:
+  count: 0
+mode: standard
+phases:
+  build:
+    status: in_progress
+  deliver:
+    status: pending
+  slice:
+    status: completed
+  spec:
+    status: completed
+  understand:
+    status: completed
+  verify:
+    status: pending
+resume_context: V2.9.4 打磨：14项改进一次性修复
+score_confidence: confirmed
+status: archived
+task_type: code
+traceability:
+  spec_scenarios: 0
+  tc_cases: 0
+  test_functions: 0
+version: '2.0'

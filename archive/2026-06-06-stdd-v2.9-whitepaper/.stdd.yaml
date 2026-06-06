@@ -1,0 +1,36 @@
+active_slice: 5/5
+change_id: 2026-06-06-stdd-v2.9-whitepaper
+complexity_score: 7
+current_phase: deliver
+design_adjustments:
+  count: 0
+last_action: 'VERIFY 完成: CP-COVERAGE 27/27 CLI, 6/6 配置, 6/6 Phase 全部通过。5 项用户反馈修复。'
+long_range:
+  enabled: true
+  mode: full_auto
+  pre_auth_completed: true
+mode: thorough
+phases:
+  build:
+    status: completed
+  deliver:
+    status: in_progress
+  slice:
+    status: completed
+  spec:
+    confirmed_at: '2026-06-06T20:30:00'
+    status: completed
+  understand:
+    confirmed_at: '2026-06-06T20:00:00'
+    status: completed
+  verify:
+    status: completed
+resume_context: 'VERIFY phase: 检查 CLI 覆盖率、源码一致性、术语一致性'
+score_confidence: confirmed
+status: archived
+task_type: documentation
+traceability:
+  spec_scenarios: 0
+  tc_cases: 0
+  test_functions: 0
+version: 2.9.3

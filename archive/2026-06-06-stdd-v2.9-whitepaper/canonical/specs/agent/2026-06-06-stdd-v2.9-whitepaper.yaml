@@ -1,0 +1,104 @@
+# agent_spec.yaml — 白皮书编写任务验证规格
+
+meta:
+  task_id: "stdd-v2.9-whitepaper"
+  change_id: "2026-06-06-stdd-v2.9-whitepaper"
+  created: "2026-06-06T20:00:00+08:00"
+  task_type: documentation
+  system: "STDD V2.9.3 白皮书编写"
+  description: "编写 STDD V2.9 详尽白皮书，中文人类版 + 中文AI版 + 英文人类版 + 英文AI版"
+
+preconditions:
+  - "STDD V2.9.3 全代码库已摸底"
+  - "proposal.md 已通过 Gate 1 确认"
+  - "白皮书大纲（design.md 详细 TOC）已确认"
+
+steps:
+  - id: CP-COVERAGE
+    description: "验证白皮书覆盖完整性"
+    action: "统计白皮书中出现的 CLI 命令数、配置模块数、Phase 数"
+    assertions:
+      - type: "count_check"
+        target: "CLI 命令覆盖率"
+        expect: "28/28"
+      - type: "count_check"
+        target: "配置模块覆盖率"
+        expect: "6/6 (project/gates/long_range/quality/experience/lite)"
+      - type: "count_check"
+        target: "Phase 覆盖"
+        expect: "6/6"
+
+  - id: CP-CN-HUMAN
+    description: "中文人类版完成"
+    action: "检查 STDD_WHITEPAPER_V2.9_CN.md 存在且包含全部 64 章"
+    assertions:
+      - type: "file_exists"
+        target: "STDD_WHITEPAPER_V2.9_CN.md"
+      - type: "content_check"
+        target: "64 个章节标题"
+        description: "每个 Part 的章节数量与 TOC 一致"
+
+  - id: CP-CN-AI
+    description: "中文 AI 版生成"
+    action: "AI 工具从 CN 人类版提取生成紧凑版本"
+    assertions:
+      - type: "file_exists"
+        target: "STDD_WHITEPAPER_V2.9_CN_AI.md"
+      - type: "content_check"
+        target: "关键信息完整性"
+        description: "所有 CLI 命令名、关键字段名、术语定义不丢失"
+
+  - id: CP-EN-HUMAN
+    description: "英文人类版完成"
+    action: "中文人类版定稿后翻译为英文"
+    assertions:
+      - type: "file_exists"
+        target: "STDD_WHITEPAPER_V2.9_EN.md"
+      - type: "content_check"
+        target: "术语一致性"
+        description: "中英文术语对照与 Ch01 术语表一致"
+
+  - id: CP-EN-AI
+    description: "英文 AI 版生成"
+    action: "AI 工具从 EN 人类版提取生成紧凑版本"
+    assertions:
+      - type: "file_exists"
+        target: "STDD_WHITEPAPER_V2.9_EN_AI.md"
+
+  - id: CP-CLI-ACCURACY
+    description: "CLI 命令信息准确"
+    action: "逐命令比对 stdd/cli/__init__.py 中的 flag 定义与白皮书描述"
+    assertions:
+      - type: "count_check"
+        target: "命令数"
+        expect: "28/28"
+      - type: "content_check"
+        target: "每个命令的 flag 与源码一致"
+
+  - id: CP-CONFIG-ACCURACY
+    description: "配置字段信息准确"
+    action: "逐文件比对 .stdd/config.d/*.yaml 与白皮书描述"
+    assertions:
+      - type: "content_check"
+        target: "6 个配置模块字段与源码一致"
+
+  - id: CP-CROSS-REF
+    description: "章节交叉引用有效"
+    action: "检查所有内部链接和交叉引用指向正确的章节"
+    assertions:
+      - type: "content_check"
+        target: "无死链或错误引用"
+
+  - id: CP-TERMINOLOGY
+    description: "术语一致性"
+    action: "检查全文术语使用与 Ch01 术语表一致"
+    assertions:
+      - type: "content_check"
+        target: "关键术语在全书中的使用一致"
+
+expected_outcomes:
+  - "4 个白皮书文件存在于项目根目录"
+  - "28 个 CLI 命令全部覆盖"
+  - "6 个配置模块全部覆盖"
+  - "6 个 Phase 全部覆盖"
+  - "所有可自动检查的验证点通过"

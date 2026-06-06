@@ -1,0 +1,9 @@
+designs: {}
+proposals:
+  2026-06-06-stdd-v2.9-whitepaper: proposals/2026-06-06-stdd-v2.9-whitepaper.yaml
+specs:
+  agent:
+    2026-06-06-stdd-v2.9-whitepaper: specs/agent/2026-06-06-stdd-v2.9-whitepaper.yaml
+  code:
+    2026-06-06-stdd-v2.9-whitepaper: specs/code/2026-06-06-stdd-v2.9-whitepaper.yaml
+version: '2.9'
