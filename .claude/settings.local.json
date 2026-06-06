@@ -109,9 +109,11 @@
       "Bash(cp -r changes/2026-06-05-stdd-v2.9-core/specs/batch-management specs/)",
       "Bash(stdd upgrade *)",
       "Read(//c/Users/HUAWEI/**)",
-      "Bash(git rebase *)",
-      "Bash(cat .git/rebase-merge/msgnum)",
-      "Bash(cat .git/rebase-merge/end)"
+      "Bash(stdd guard *)",
+      "Skill(claude-api)",
+      "Bash(bash *)",
+      "Bash(mkdir -p /tmp/stdd-canon-test/changes/2026-06-05-test-change)",
+      "Bash(stdd batch *)"
     ]
   },
   "hooks": {
@@ -121,7 +123,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "stdd guard --check --platform claude-code"
+            "command": "stdd guard check --platform claude-code"
           }
         ]
       }

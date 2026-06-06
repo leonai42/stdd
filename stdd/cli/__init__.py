@@ -240,13 +240,19 @@ def main() -> None:
 
     # V2.9: batch — lightweight change batch management
     p_batch = subparsers.add_parser("batch", help="轻量变更批次管理 (V2.9)", parents=[parent])
-    p_batch.add_argument("action", nargs="?", choices=["list", "close", "status"],
+    p_batch.add_argument("action", nargs="?", choices=["open", "add", "close", "archive", "list", "status"],
                          default="status", help="操作 (默认: status)")
+    p_batch.add_argument("description", nargs="?", default="",
+                         help="批次描述 (open/add 时使用)")
+    p_batch.add_argument("--strategy", choices=["monthly", "weekly", "count_based"],
+                         default="monthly", help="批次策略 (默认: monthly)")
 
     # V2.9.2: guard — project-level enforcement gate
     p_guard = subparsers.add_parser("guard", help="项目级强制门 (V2.9.2)", parents=[parent])
     p_guard.add_argument("action", nargs="?", choices=["check", "status", "init", "disable", "enable"],
                          default="check", help="操作 (默认: check)")
+    p_guard.add_argument("--check", dest="action", action="store_const", const="check",
+                         help="等价于 'check' 位置参数 — 兼容 hook 命令")
     p_guard.add_argument("--platform", default="claude-code",
                          help="目标平台 (默认: claude-code)")
     p_guard.add_argument("--strict", action="store_true",

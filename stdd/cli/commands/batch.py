@@ -1,8 +1,36 @@
-"""STDD batch CLI — lightweight change batch management (V2.9)."""
+"""STDD batch CLI — lightweight change batch management (V2.9.3).
+
+Batch mode solves the "N micro-changes" problem during debugging/hotfix
+sessions. Instead of creating a separate change for each small fix, the
+user opens a batch, makes all related edits (guard allows them), adds
+each fix as an item, then closes and archives a single batch record.
+
+V2.9.3: batch open now validates description scope against guard's
+classifier. Descriptions signaling large changes (重构/架构/新模块)
+are rejected with a suggestion to use full STDD.
+
+Usage:
+    stdd batch open "修复界面展示bug"     # opens a batch
+    stdd batch add "fix: fees 展示为负值" # adds item to current batch
+    stdd batch close                      # closes the batch
+    stdd batch archive                    # archives to archive/
+"""
 
 import argparse
+import shutil
 from datetime import datetime
 from pathlib import Path
+
+# V2.9.3: Import scope classifier from guard
+try:
+    from stdd.cli.commands.guard import _classify_description, _SCOPE_LARGE, _SCOPE_MEDIUM
+except ImportError:
+    # Fallback: guard module not importable (shouldn't happen but be safe)
+    def _classify_description(text: str) -> str:
+        return "micro"
+
+    _SCOPE_LARGE = "large"
+    _SCOPE_MEDIUM = "medium"
 
 
 def _get_batches_dir(project_root: Path) -> Path:
@@ -17,9 +45,11 @@ def _find_open_batch(project_root: Path) -> Path:
     if not batches_dir.is_dir():
         return None
 
-    for batch_dir in sorted(batches_dir.iterdir(), reverse=True):
-        if not batch_dir.is_dir():
-            continue
+    for batch_dir in sorted(
+        [d for d in batches_dir.iterdir() if d.is_dir()],
+        key=lambda d: d.stat().st_mtime,
+        reverse=True,
+    ):
         stdd_yaml = batch_dir / ".stdd.yaml"
         if stdd_yaml.exists():
             data = yaml.safe_load(stdd_yaml.read_text(encoding="utf-8"))
@@ -47,7 +77,7 @@ def _create_batch(project_root: Path, strategy: str = "monthly") -> Path:
 
     # Handle same-day collision
     if batch_dir.exists():
-        batch_id = now.strftime("%Y-%m-%d-%H")
+        batch_id = now.strftime("%Y-%m-%d-%H%M")
         batch_dir = _get_batches_dir(project_root) / batch_id
 
     batch_dir.mkdir(parents=True, exist_ok=True)
@@ -58,7 +88,8 @@ def _create_batch(project_root: Path, strategy: str = "monthly") -> Path:
         "mode": "batch",
         "batch_type": strategy,
         "batch_id": batch_id,
-        "created_at": now.strftime("%Y-%m-%d"),
+        "description": "",
+        "created_at": now.strftime("%Y-%m-%dT%H:%M:%S"),
         "closed_at": None,
         "max_items": 20,
         "items": [],
@@ -78,8 +109,12 @@ def _close_batch(batch_dir: Path) -> None:
     stdd_yaml.write_text(yaml.dump(data, allow_unicode=True, default_flow_style=False), encoding="utf-8")
 
     # Generate summary
+    desc = data.get("description", "")
     items = data.get("items", [])
     lines = [f"# Batch {batch_dir.name} — 归档摘要", ""]
+    if desc:
+        lines.append(f"**描述:** {desc}")
+        lines.append("")
     lines.append(f"- 闭合时间: {now}")
     lines.append(f"- 变更数量: {len(items)}")
     lines.append(f"- 批次策略: {data.get('batch_type', 'monthly')}")
@@ -87,30 +122,167 @@ def _close_batch(batch_dir: Path) -> None:
     lines.append("## 变更列表")
     lines.append("")
     for item in items:
-        lines.append(f"- {item}")
+        timestamp = item.get("added_at", "")
+        description = item.get("description", str(item))
+        lines.append(f"- [{timestamp}] {description}")
     lines.append("")
 
     (batch_dir / "archive-summary.md").write_text("\n".join(lines), encoding="utf-8")
     print(f"  ✅ 批次 {batch_dir.name} 已闭合 ({len(items)} 项)")
 
 
+# ------- new commands (V2.9.3) -------
+
+def _cmd_batch_open(project_root: Path, description: str = "", strategy: str = "monthly") -> None:
+    """Open a new batch. Validates scope before opening.
+
+    V2.9.3: Scope validation. If the description signals a large change,
+    the batch is rejected and full STDD is recommended.
+    """
+    # V2.9.3: Validate scope
+    if description:
+        scope = _classify_description(description)
+        if scope == _SCOPE_LARGE:
+            print(f"  🚫 batch 不适合大型变更。")
+            print(f"     描述 '{description}' 被判定为 {scope} 级别。")
+            print(f"     请用 full STDD 流程:")
+            print(f"       /stdd-understand")
+            return
+        if scope == _SCOPE_MEDIUM:
+            print(f"  ⚠️  描述 '{description}' 看起来是中等规模变更。")
+            print(f"     batch 适合微修复 (<5 文件, <100 行)。")
+            print(f"     如果确认只用 batch，请用更小的描述重新 open。")
+            print(f"     如果是较大改动，建议: /stdd-understand")
+            return
+
+    # Close existing open batch if any
+    existing = _find_open_batch(project_root)
+    if existing:
+        print(f"  已有打开批次 {existing.name}，先闭合...")
+        _close_batch(existing)
+
+    batch_dir = _create_batch(project_root, strategy)
+
+    if description:
+        import yaml
+        stdd_yaml = batch_dir / ".stdd.yaml"
+        data = yaml.safe_load(stdd_yaml.read_text(encoding="utf-8"))
+        data["description"] = description
+        stdd_yaml.write_text(yaml.dump(data, allow_unicode=True, default_flow_style=False), encoding="utf-8")
+
+    print(f"  ✅ 批次已打开: {batch_dir.name}")
+    if description:
+        print(f"     范围判定: {_classify_description(description)}")
+        print(f"     {description}")
+    print(f"  💡 现在可以直接编辑文件，Guard 已放行。")
+    print(f"     用 'stdd batch add <描述>' 记录每次修复")
+    print(f"     完成后 'stdd batch close' 闭合批次")
+
+
+def _cmd_batch_add(project_root: Path, description: str) -> None:
+    """Add an item to the current open batch."""
+    batch = _find_open_batch(project_root)
+    if batch is None:
+        print("  当前无打开的批次。请先 'stdd batch open \"描述\"'")
+        return
+
+    import yaml
+    stdd_yaml = batch / ".stdd.yaml"
+    data = yaml.safe_load(stdd_yaml.read_text(encoding="utf-8"))
+
+    items = data.get("items", [])
+    if len(items) >= data.get("max_items", 20):
+        print(f"  批次已满 ({data['max_items']} 项)，请先 close 再 open 新批次。")
+        return
+
+    items.append({
+        "description": description,
+        "added_at": datetime.now().isoformat(),
+    })
+    data["items"] = items
+    stdd_yaml.write_text(yaml.dump(data, allow_unicode=True, default_flow_style=False), encoding="utf-8")
+
+    print(f"  ✅ [{len(items)}/{data['max_items']}] {description}")
+
+
+def _cmd_batch_archive(project_root: Path) -> None:
+    """Close batch (if open) and archive it to archive/."""
+    import yaml
+
+    batch = _find_open_batch(project_root)
+    if batch is None:
+        # Try to find the most recent closed batch to archive
+        batches_dir = _get_batches_dir(project_root)
+        if not batches_dir.is_dir():
+            print("  无批次可归档")
+            return
+
+        closed_batches = []
+        for d in batches_dir.iterdir():
+            if not d.is_dir():
+                continue
+            stdd_yaml = d / ".stdd.yaml"
+            if stdd_yaml.exists():
+                data = yaml.safe_load(stdd_yaml.read_text(encoding="utf-8"))
+                if data and data.get("closed_at"):
+                    closed_batches.append(d)
+        if not closed_batches:
+            print("  无已闭合批次可归档。请先 'stdd batch open' 创建批次。")
+            return
+        batch = max(closed_batches, key=lambda d: d.stat().st_mtime)
+        print(f"  选取最近闭合批次: {batch.name}")
+    else:
+        # Close it first
+        _close_batch(batch)
+
+    # Move to archive
+    archive_dir = project_root / "archive"
+    archive_dir.mkdir(exist_ok=True)
+
+    dest = archive_dir / batch.name
+    if dest.exists():
+        # Add suffix to avoid collision
+        dest = archive_dir / f"{batch.name}-{datetime.now().strftime('%H%M%S')}"
+
+    shutil.move(str(batch), str(dest))
+
+    # Generate an archive index entry
+    import yaml
+    stdd_yaml = dest / ".stdd.yaml"
+    items_count = 0
+    if stdd_yaml.exists():
+        data = yaml.safe_load(stdd_yaml.read_text(encoding="utf-8"))
+        items_count = len(data.get("items", []))
+
+    print(f"  ✅ 批次已归档: archive/{dest.name}")
+    print(f"     包含 {items_count} 项变更")
+
+
+# ------- existing commands -------
+
 def _cmd_batch_status(project_root: Path) -> None:
     """Show current batch status."""
     batch = _find_open_batch(project_root)
     if batch is None:
         print("  当前无打开的批次")
+        print("  用 'stdd batch open \"描述\"' 开始一个调试/修复批次")
         return
 
     import yaml
     data = yaml.safe_load((batch / ".stdd.yaml").read_text(encoding="utf-8"))
     items = data.get("items", [])
+    desc = data.get("description", "")
     print(f"  批次: {batch.name}")
+    if desc:
+        print(f"  描述: {desc}")
     print(f"  策略: {data.get('batch_type', 'monthly')}")
     print(f"  创建: {data.get('created_at', '?')}")
-    print(f"  变更数: {len(items)}")
+    print(f"  变更数: {len(items)}/{data.get('max_items', 20)}")
     if items:
         for i, item in enumerate(items, 1):
-            print(f"    {i}. {item}")
+            ts = item.get("added_at", "")[:16] if isinstance(item, dict) else ""
+            desc_text = item.get("description", str(item)) if isinstance(item, dict) else str(item)
+            print(f"    {i}. [{ts}] {desc_text}")
 
 
 def _cmd_batch_list(project_root: Path) -> None:
@@ -132,6 +304,8 @@ def _cmd_batch_list(project_root: Path) -> None:
     print(f"  批次列表 ({len(batches)}):")
     for b in batches:
         stdd_yaml = b / ".stdd.yaml"
+        desc = ""
+        n_items = 0
         status = "?"
         if stdd_yaml.exists():
             data = yaml.safe_load(stdd_yaml.read_text(encoding="utf-8"))
@@ -139,7 +313,9 @@ def _cmd_batch_list(project_root: Path) -> None:
                 status = "已闭合"
             else:
                 status = "进行中"
-        print(f"    {b.name}  [{status}]")
+            desc = data.get("description", "")
+            n_items = len(data.get("items", []))
+        print(f"    {b.name}  [{status}] ({n_items}项) {desc[:40]}")
 
 
 def _cmd_batch_close(project_root: Path) -> None:
@@ -151,14 +327,28 @@ def _cmd_batch_close(project_root: Path) -> None:
     _close_batch(batch)
 
 
+# ------- dispatcher -------
+
 def cmd_batch(args: argparse.Namespace) -> None:
     """Entry point for batch command."""
     project_root = Path.cwd()
     action = getattr(args, "action", "status")
 
-    if action == "list":
-        _cmd_batch_list(project_root)
+    if action == "open":
+        description = getattr(args, "description", "") or ""
+        strategy = getattr(args, "strategy", "monthly") or "monthly"
+        _cmd_batch_open(project_root, description, strategy)
+    elif action == "add":
+        description = getattr(args, "description", None)
+        if not description:
+            print("  用法: stdd batch add \"修复描述\"")
+            return
+        _cmd_batch_add(project_root, description)
+    elif action == "archive":
+        _cmd_batch_archive(project_root)
     elif action == "close":
         _cmd_batch_close(project_root)
+    elif action == "list":
+        _cmd_batch_list(project_root)
     else:  # status
         _cmd_batch_status(project_root)

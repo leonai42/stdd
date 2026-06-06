@@ -28,13 +28,86 @@ def _find_current_change(project_root: Path) -> str:
     return candidates[0].name if candidates else None
 
 
+CANONICAL_PROPOSAL_TEMPLATE = """\
+# {change_name}.yaml — Canonical Proposal (YAML-first, V2.9)
+# AI 起草、AI 修改、AI 消费。Human View 由 `stdd canon generate` 生成。
+
+meta:
+  change_id: "{change_name}"
+  title: "TODO: 变更标题"
+  created: "{created_at}"
+  status: draft
+  version: "2.9"
+
+why:
+  problem: |
+    TODO: 描述要解决的问题或需求背景（一段话）
+
+what_changes:
+  - description: "TODO: 变更项 1"
+  - description: "TODO: 变更项 2"
+
+capabilities:
+  new:
+    - name: "TODO"
+      description: "TODO: 新增能力说明"
+  modified:
+    - name: "TODO"
+      description: "TODO: 修改能力说明"
+
+success_criteria:
+  - "TODO: 可验证的成功标准 1"
+  - "TODO: 可验证的成功标准 2"
+"""
+
+CANONICAL_CODE_SPEC_TEMPLATE = """\
+# spec.yaml — 行为规格（Canonical YAML）
+
+meta:
+  capability: "TODO: 能力名称"
+  change_id: "{change_name}"
+  created: "{created_at}"
+  confidence: medium
+
+requirements:
+  - id: "REQ-001"
+    description: "TODO: 需求描述"
+    scenarios:
+      - given: "TODO: 前置条件"
+        when: "TODO: 触发动作"
+        then: "TODO: 预期结果 — 使用 SHALL 声明"
+"""
+
+CANONICAL_AGENT_SPEC_TEMPLATE = """\
+# agent_spec.yaml — Agent 验证规格（Canonical YAML）
+
+meta:
+  task_id: "TODO: 任务标识"
+  change_id: "{change_name}"
+  created: "{created_at}"
+  task_type: code
+  system: "TODO: 目标系统描述"
+
+preconditions:
+  - "TODO: 前置条件 1"
+
+steps:
+  - action: "TODO: 操作步骤 1"
+    verify: "TODO: 验证方法 1"
+
+expected_outcomes:
+  - "TODO: 预期结果 1"
+"""
+
+
 def cmd_canon_init(args):
-    """Initialize canonical/ directory structure."""
+    """Initialize canonical/ directory structure with YAML templates."""
     project_root = Path.cwd()
     use_project_level = getattr(args, "project_level", False)
 
     if use_project_level:
         canon = _get_canon_dir(project_root)
+        change_name = None
         print("  canonical/ initialized at project root (--project-level)")
     else:
         change_name = getattr(args, "change", None)
@@ -55,17 +128,67 @@ def cmd_canon_init(args):
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
 
+    created_at = datetime.now().isoformat()
+    templates_created = []
+
+    # Create proposal template (with correct naming: {change_name}.yaml)
+    if change_name:
+        proposal_file = canon / "proposals" / f"{change_name}.yaml"
+        if not proposal_file.exists():
+            proposal_file.write_text(
+                CANONICAL_PROPOSAL_TEMPLATE.format(
+                    change_name=change_name, created_at=created_at
+                ),
+                encoding="utf-8",
+            )
+            templates_created.append(f"proposals/{change_name}.yaml")
+
+        # Create code spec template
+        code_spec_file = canon / "specs" / "code" / f"{change_name}.yaml"
+        if not code_spec_file.exists():
+            code_spec_file.write_text(
+                CANONICAL_CODE_SPEC_TEMPLATE.format(
+                    change_name=change_name, created_at=created_at
+                ),
+                encoding="utf-8",
+            )
+            templates_created.append(f"specs/code/{change_name}.yaml")
+
+        # Create agent spec template
+        agent_spec_file = canon / "specs" / "agent" / f"{change_name}.yaml"
+        if not agent_spec_file.exists():
+            agent_spec_file.write_text(
+                CANONICAL_AGENT_SPEC_TEMPLATE.format(
+                    change_name=change_name, created_at=created_at
+                ),
+                encoding="utf-8",
+            )
+            templates_created.append(f"specs/agent/{change_name}.yaml")
+
     # Create .canon-index.yaml
     index_file = canon / ".canon-index.yaml"
     if not index_file.exists():
-        index_file.write_text(yaml.dump({
-            "version": "2.7",
+        index_data = {
+            "version": "2.9",
             "proposals": {},
             "designs": {},
             "specs": {"code": {}, "agent": {}},
-        }, allow_unicode=True, default_flow_style=False), encoding="utf-8")
+        }
+        if change_name:
+            index_data["proposals"][change_name] = f"proposals/{change_name}.yaml"
+            index_data["specs"]["code"][change_name] = f"specs/code/{change_name}.yaml"
+            index_data["specs"]["agent"][change_name] = f"specs/agent/{change_name}.yaml"
+        index_file.write_text(
+            yaml.dump(index_data, allow_unicode=True, default_flow_style=False),
+            encoding="utf-8",
+        )
 
     print(f"  canonical/ initialized: {len(dirs)} directories")
+    if templates_created:
+        for t in templates_created:
+            print(f"    📄 {t}")
+    else:
+        print("    (all template files already exist)")
 
 
 def cmd_canon_generate(args):
@@ -73,17 +196,25 @@ def cmd_canon_generate(args):
     project_root = Path.cwd()
 
     if args.all:
+        # --all scans project-level canonical/
         canon_dir = _get_canon_dir(project_root) / "proposals"
         for yf in canon_dir.glob("*.yaml"):
-            _generate_one(project_root, yf.stem, "proposal")
+            if yf.is_file():
+                _generate_one(project_root, yf.stem, "proposal")
         return
 
-    _generate_one(project_root, args.change_name, args.type or "proposal")
+    change_name = args.change_name
+    if not change_name:
+        change_name = _find_current_change(project_root)
+    if not change_name:
+        print("  No change specified and no active change found.")
+        sys.exit(1)
+    _generate_one(project_root, change_name, args.type or "proposal")
 
 
 def _generate_one(project_root: Path, change_id: str, gen_type: str):
     """Generate a single Human View file from Canonical."""
-    canon_dir = _get_canon_dir(project_root)
+    canon_dir = _get_canon_dir(project_root, change_id)
     yaml_file = canon_dir / "proposals" / f"{change_id}.yaml"
 
     if not yaml_file.exists():
@@ -155,7 +286,7 @@ def _generate_one(project_root: Path, change_id: str, gen_type: str):
 def cmd_canon_verify(args):
     """Verify consistency between Canonical YAML and Human View MD."""
     project_root = Path.cwd()
-    canon_dir = _get_canon_dir(project_root)
+    canon_dir = _get_canon_dir(project_root, args.change_name)
     yaml_file = canon_dir / "proposals" / f"{args.change_name}.yaml"
 
     if not yaml_file.exists():
