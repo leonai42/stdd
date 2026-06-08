@@ -8,27 +8,38 @@ from pathlib import Path
 DIRS = [
     ".stdd/skills",
     ".stdd/templates",
+    ".stdd/templates/canonical",
+    ".stdd/templates/human-view",
     ".stdd/standards",
     ".stdd/config.d",
+    ".stdd/experiences",
     ".stdd/platforms/claude-code/skills",
     ".stdd/platforms/workbuddy/skills",
     ".stdd/platforms/trae/skills",
+    "canonical/proposals",
+    "canonical/specs",
+    "canonical/designs",
     "changes",
     "specs",
     "archive",
 ]
 
 FILES_TO_COPY = [
+    # Config
     ".stdd/config.d/project.yaml",
     ".stdd/config.d/gates.yaml",
     ".stdd/config.d/long_range.yaml",
     ".stdd/config.d/quality.yaml",
+    ".stdd/config.d/lite.yaml",
+    ".stdd/config.d/experience.yaml",
+    # Skills
     ".stdd/skills/understand.md",
     ".stdd/skills/spec.md",
     ".stdd/skills/slice.md",
     ".stdd/skills/build.md",
     ".stdd/skills/verify.md",
     ".stdd/skills/deliver.md",
+    # Human View templates
     ".stdd/templates/proposal.md",
     ".stdd/templates/design.md",
     ".stdd/templates/spec.md",
@@ -37,7 +48,19 @@ FILES_TO_COPY = [
     ".stdd/templates/slices.md",
     ".stdd/templates/design-adjustments.md",
     ".stdd/templates/test-report.md",
+    ".stdd/templates/phase-context.md",
+    ".stdd/templates/spec-draft.md",
+    ".stdd/templates/long-range-auth.md",
+    ".stdd/templates/human-view/proposal-brief.md",
+    # Canonical YAML templates (dual-track system)
+    ".stdd/templates/canonical/proposal.yaml",
+    ".stdd/templates/canonical/spec.yaml",
+    ".stdd/templates/canonical/agent_spec.yaml",
+    ".stdd/templates/canonical/design-adjustments.yaml",
+    ".stdd/templates/canonical/pending-adjustments.yaml",
+    # Standards
     ".stdd/standards/python.md",
+    # Project docs
     "STDD.md",
     "AGENTS.md",
 ]

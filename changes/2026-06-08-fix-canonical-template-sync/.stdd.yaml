@@ -1,0 +1,11 @@
+change_id: "2026-06-08-fix-canonical-template-sync"
+change_name: "fix-canonical-template-sync"
+active_phase: build
+mode: lightweight
+task_type: code
+complexity_score: 2
+score_confidence: preliminary
+resume_context: ""
+active_slice: 0
+last_action: "Phase 1+2+3 skipped (lightweight), entering Phase 4 build"
+last_modified: "2026-06-08T14:07:00"

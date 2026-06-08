@@ -83,7 +83,7 @@ def _backup_project_files(project_root: Path, old_version: str) -> Path:
     backup_dir = project_root / ".stdd" / "backup" / f"{old_version}-{ts}"
     backup_dir.mkdir(parents=True, exist_ok=True)
 
-    dirs_to_backup = [".stdd/skills", ".stdd/templates", ".stdd/standards", ".stdd/config.d"]
+    dirs_to_backup = [".stdd/skills", ".stdd/templates", ".stdd/standards", ".stdd/config.d", ".stdd/experiences", "canonical"]
     for d in dirs_to_backup:
         src = project_root / d
         if src.is_dir():
