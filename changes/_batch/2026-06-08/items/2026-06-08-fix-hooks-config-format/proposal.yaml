@@ -1,0 +1,79 @@
+meta:
+  change_id: "2026-06-08-fix-hooks-config-format"
+  title: "修复 hooks 配置格式 + 补齐测试/校验"
+  created: "2026-06-08T00:00:00"
+  status: draft
+
+why:
+  problem: |
+    /doctor 发现三个生命周期 hook（SessionStart/PreCompact/Stop）因配置格式错误被 Claude Code 静默忽略。
+    根因：stdd hooks install 将 hook 值写为字符串（"python .stdd/hooks/xxx.py"），但 Claude Code 要求
+    array-of-matchers 格式 [{hooks: [{type: "command", command: "..."}]}]。
+    测试只验证 key 存在不验证 value 类型，install 后无自动校验，导致错误长期未被发现。
+  motivation: |
+    三个 hook 从 2026-06-06 部署以来从未执行过，功能完全失效。
+    需修复 bug 并补齐测试断言和 install 后校验两道防线。
+
+what_changes:
+  - id: C1
+    description: |
+      hooks.py cmd_hooks_install：将 SessionStart/PreCompact/Stop 值从字符串改为
+      array-of-matchers 格式 [{hooks: [{type: "command", command: "..."}]}]；
+      新增 _validate_hooks_config() 在 install 后自动校验配置结构。
+    type: modified
+  - id: C2
+    description: |
+      test_hooks.py test_install_creates_scripts_and_config：断言从 key-existence 升级为
+      key + type + structure 三级验证（isinstance list, 含 hooks 数组, 含 type/command 字段）。
+    type: modified
+  - id: C3
+    description: |
+      test_hooks.py 新增 test_install_validates_config_format：验证 install 后
+      _validate_hooks_config 对正确格式无警告、对错误格式输出警告。
+    type: new
+
+capabilities:
+  new:
+    - name: hooks install 自校验
+      description: install 完成后自动验证写入的 hooks 配置格式有效性，错误时打印警告
+  modified:
+    - name: hooks install 格式
+      description: 输出正确的 array-of-matchers 格式，与 PreToolUse 保持一致
+    - name: hooks 测试断言
+      description: 从 key-existence 升级为 key + type + structure 三级验证
+
+constraints:
+  - "与现有 PreToolUse 格式保持一致"
+  - "不影响 hooks uninstall / status 行为"
+  - "向后兼容：已有正确格式的配置不被覆盖"
+
+stakeholders:
+  - "STDD 用户（依赖 lifecycle hooks 正常工作）"
+
+risk_areas:
+  - capability: hooks install 格式
+    risk: 如果用户手动编辑过 settings.local.json 为其他自定义格式，可能被覆盖
+    mitigation: install 时检测已有配置，若已为数组格式则跳过（与 --force 逻辑一致）
+
+non_goals:
+  - "不修复 Claude Code 本身的静默丢弃行为（那是平台侧问题）"
+  - "不改动 hooks uninstall/status 的行为"
+  - "不引入新的外部依赖"
+
+critical:
+  is_critical: false
+  risk_assessment:
+    safety_critical: false
+    financial: false
+    cross_system: false
+
+anchoring:
+  level: L1
+  reference_changes: []
+  anchor_implementations: []
+
+success_criteria:
+  - "stdd hooks install 写入的 hook 值类型为 list，每个元素含 hooks 数组，hooks[0] 含 type 和 command 字段"
+  - "_validate_hooks_config() 在格式错误时打印警告信息到 stderr/stdout"
+  - "test_hooks.py 断言验证 value 是 list + 结构正确"
+  - "已有测试全部通过，无回归"

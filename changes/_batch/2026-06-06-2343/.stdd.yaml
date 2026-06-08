@@ -1,0 +1,10 @@
+batch_id: 2026-06-06-2343
+batch_type: monthly
+closed_at: '2026-06-06T23:44:04.993295'
+created_at: '2026-06-06T23:43:18'
+description: STDD V2.9.3 → V2.9.4 版本升级
+items:
+- added_at: '2026-06-06T23:44:04.809684'
+  description: '版本升级: 2.9.3 → 2.9.4'
+max_items: 5
+mode: batch

@@ -71,6 +71,60 @@ if __name__ == "__main__":
 }
 
 
+def _validate_hooks_config(settings_path: Path) -> list[str]:
+    """Validate that hooks in settings.json use correct array-of-matchers format.
+
+    Returns a list of warning messages (empty = all valid).
+    """
+    warnings: list[str] = []
+    try:
+        settings = json.loads(settings_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, FileNotFoundError) as e:
+        return [f"  ⚠️  Cannot read settings for validation: {e}"]
+
+    hooks = settings.get("hooks", {})
+    for hook_name in ("SessionStart", "PreCompact", "Stop"):
+        if hook_name not in hooks:
+            continue
+        value = hooks[hook_name]
+        if not isinstance(value, list):
+            warnings.append(
+                f"  ⚠️  hooks.{hook_name} should be an array of matchers, "
+                f"got {type(value).__name__}. Hook may be ignored by Claude Code."
+            )
+            continue
+        for i, matcher in enumerate(value):
+            if not isinstance(matcher, dict):
+                warnings.append(
+                    f"  ⚠️  hooks.{hook_name}[{i}] should be a dict, "
+                    f"got {type(matcher).__name__}."
+                )
+                continue
+            matcher_hooks = matcher.get("hooks", [])
+            if not matcher_hooks:
+                warnings.append(
+                    f"  ⚠️  hooks.{hook_name}[{i}].hooks is empty or missing."
+                )
+                continue
+            for j, h in enumerate(matcher_hooks):
+                if not isinstance(h, dict):
+                    warnings.append(
+                        f"  ⚠️  hooks.{hook_name}[{i}].hooks[{j}] should be a dict."
+                    )
+                    continue
+                if h.get("type") != "command":
+                    warnings.append(
+                        f"  ⚠️  hooks.{hook_name}[{i}].hooks[{j}].type "
+                        f"should be 'command', got {h.get('type')!r}."
+                    )
+                if "command" not in h:
+                    warnings.append(
+                        f"  ⚠️  hooks.{hook_name}[{i}].hooks[{j}] "
+                        f"missing 'command' field."
+                    )
+    return warnings
+
+
 def cmd_hooks_install(args):
     """Install STDD hooks to .claude/settings.json."""
     project_root = Path.cwd()
@@ -94,12 +148,26 @@ def cmd_hooks_install(args):
         settings = {}
 
     hooks_config = settings.setdefault("hooks", {})
-    hooks_config["SessionStart"] = f"python .stdd/hooks/session-start.py"
-    hooks_config["PreCompact"] = f"python .stdd/hooks/pre-compact.py"
-    hooks_config["Stop"] = f"python .stdd/hooks/session-end.py"
+    hooks_config["SessionStart"] = [
+        {"hooks": [{"type": "command", "command": "python .stdd/hooks/session-start.py"}]}
+    ]
+    hooks_config["PreCompact"] = [
+        {"hooks": [{"type": "command", "command": "python .stdd/hooks/pre-compact.py"}]}
+    ]
+    hooks_config["Stop"] = [
+        {"hooks": [{"type": "command", "command": "python .stdd/hooks/session-end.py"}]}
+    ]
 
     settings_path.write_text(json.dumps(settings, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(f"  [OK] Hooks configured in .claude/settings.local.json")
+    print("  [OK] Hooks configured in .claude/settings.local.json")
+
+    # Validate the written config
+    warnings = _validate_hooks_config(settings_path)
+    if warnings:
+        for w in warnings:
+            print(w)
+    else:
+        print("  [OK] Hook config format validated")
 
 
 def cmd_hooks_status(args):

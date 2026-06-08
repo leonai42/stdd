@@ -1,0 +1,22 @@
+batch_id: '2026-06-06'
+batch_type: monthly
+closed_at: '2026-06-06T23:41:53.178233'
+created_at: '2026-06-06T22:49:19'
+description: 'V2.9.4: Guard phase 完整性 + archive 拒绝'
+items:
+- added_at: '2026-06-06T22:51:37.531321'
+  description: 'V2.9.4: Guard phase 完整性检查 — 防手动 YAML 跳 phase'
+- added_at: '2026-06-06T22:51:37.718981'
+  description: 'V2.9.4: Guard task_type 感知可编辑 phase'
+- added_at: '2026-06-06T22:51:37.897734'
+  description: 'V2.9.4: archive 拒绝跳过 VERIFY'
+- added_at: '2026-06-06T22:59:40.776054'
+  description: task_type 文件类型不匹配检测
+- added_at: '2026-06-06T22:59:40.981448'
+  description: related_work + stdd work 命令
+- added_at: '2026-06-06T22:59:41.199351'
+  description: batch/extract/dep-graph 测试
+- added_at: '2026-06-06T23:34:02.602785'
+  description: 'fix: phase advance 检查 Gate 确认 — 防绕过'
+max_items: 20
+mode: batch

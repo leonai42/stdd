@@ -1,0 +1,25 @@
+change_id: "2026-06-08-fix-hooks-config-format"
+change_name: "fix-hooks-config-format"
+active_phase: build
+phase_context_file: ""
+mode: lightweight
+task_type: code
+complexity_score: 2
+score_confidence: preliminary
+resume_context: ""
+active_slice: 0
+last_action: "Phase 4 build completed — hooks format fix + tests + validation"
+last_modified: "2026-06-08T00:00:00"
+phase4:
+  slices_completed:
+    "1":
+      status: "done"
+      tc_coverage: "3/3"
+      new_tests: 2
+      verified_at: "2026-06-08"
+build:
+  changes:
+    - file: stdd/cli/commands/hooks.py
+      description: "Fix hook format string→array + add _validate_hooks_config()"
+    - file: tests/commands/test_hooks.py
+      description: "Upgrade assertions + add validation tests"
