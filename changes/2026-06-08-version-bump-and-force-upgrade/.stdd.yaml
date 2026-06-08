@@ -1,0 +1,11 @@
+change_id: "2026-06-08-version-bump-and-force-upgrade"
+change_name: "version-bump-and-force-upgrade"
+active_phase: understand
+mode: lightweight
+task_type: code
+complexity_score: 3
+score_confidence: preliminary
+resume_context: ""
+active_slice: 0
+last_action: "Phase 1 understand completed"
+last_modified: "2026-06-08T15:09:00"

@@ -208,6 +208,7 @@ def _cmd_upgrade_current(args: argparse.Namespace) -> None:
     project_root = Path.cwd()
     dry_run = getattr(args, "dry_run", False)
     skip_confirm = getattr(args, "yes", False)
+    force = getattr(args, "force", False)
 
     source_ver = get_source_version()
     proj_ver = get_project_version(project_root)
@@ -226,13 +227,17 @@ def _cmd_upgrade_current(args: argparse.Namespace) -> None:
         print(f"  项目已锁定在版本 {proj_ver}。使用 'stdd upgrade --unlock' 解锁后再升级。")
         return
 
-    if compare_versions(proj_ver, source_ver) >= 0:
+    if not force and compare_versions(proj_ver, source_ver) >= 0:
         print(f"  项目已是最新版本 ({proj_ver})，无需升级")
+        print("  使用 'stdd upgrade --force' 强制重新同步所有文件。")
         return
 
     if dry_run:
-        print("  [DRY-RUN] 升级计划:")
+        mode = "强制重新同步" if force else "升级"
+        print(f"  [DRY-RUN] {mode}计划:")
         print(f"    当前版本: {proj_ver} → 目标版本: {source_ver}")
+        if force:
+            print("    --force: 跳过版本比较，强制同步")
         from ..commands.init import FILES_TO_COPY
         backup_dir = project_root / ".stdd" / "backup" / f"{proj_ver}-<timestamp>"
         print(f"    备份目录: {backup_dir}")
@@ -244,6 +249,8 @@ def _cmd_upgrade_current(args: argparse.Namespace) -> None:
 
     # Confirm
     if not skip_confirm:
+        if force:
+            print("  --force: 强制重新同步所有 STDD 文件")
         print(f"  当前版本: {proj_ver} → 目标版本: {source_ver}")
         resp = input("  确认升级? [y/N] ").strip().lower()
         if resp not in ("y", "yes"):
@@ -332,6 +339,7 @@ def _cmd_upgrade_all(args: argparse.Namespace) -> None:
     data = _read_registry()
     projects = data.get("projects", [])
     skip_confirm = getattr(args, "yes", False)
+    force = getattr(args, "force", False)
 
     upgraded = 0
     for proj in projects:
@@ -342,16 +350,17 @@ def _cmd_upgrade_all(args: argparse.Namespace) -> None:
         if proj.get("locked", False):
             print(f"  🔒 {proj['name']}: 已锁定，跳过")
             continue
-        if compare_versions(proj.get("version", "0"), source_ver) >= 0:
+        if not force and compare_versions(proj.get("version", "0"), source_ver) >= 0:
             continue
 
-        print(f"\n  ⬆️ {proj['name']} ({proj['version']} → {source_ver})")
+        tag = " ⬆️" if compare_versions(proj.get("version", "0"), source_ver) < 0 else " 🔄 (force)"
+        print(f"\n  {tag} {proj['name']} ({proj['version']} → {source_ver})")
         # Simulate args for per-project upgrade
         sub_args = argparse.Namespace(
             command="upgrade", check=False, all=False,
             lock=False, unlock=False,
             dry_run=False, verbose=0,
-            yes=skip_confirm,
+            yes=skip_confirm, force=force,
         )
         old_cwd = os.getcwd()
         try:

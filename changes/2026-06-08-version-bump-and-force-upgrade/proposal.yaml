@@ -1,0 +1,78 @@
+meta:
+  change_id: "2026-06-08-version-bump-and-force-upgrade"
+  title: "STDD 版本号 2.9.2 → 2.9.3 + upgrade --force 强制同步"
+  created: "2026-06-08T15:09:00"
+  status: confirmed
+
+why:
+  problem: |
+    c21a2cc 修改了 init.py 的 FILES_TO_COPY（新增12个模板/配置文件）和 upgrade.py 备份目录，
+    但没有同步 bump 版本号。TStrategy 运行 stdd upgrade 时 compare("2.9.2","2.9.2")>=0
+    → 跳过同步 → canonical YAML 模板、lite.yaml、experience.yaml 等新文件缺失。
+    只能手动 cp 补救。
+  motivation: |
+    1. 建立版本号纪律：基础设施变更必须 bump 版本号
+    2. 提供 --force 兜底：应对版本号相同但文件缺失的边缘场景
+    3. 防止未来重复出现同类问题
+
+what_changes:
+  - id: C1
+    description: |
+      .stdd/config.d/project.yaml 和 .stdd/version.yaml 中 stdd_version 从 2.9.2 → 2.9.3。
+      这是本次基础设施变更的正式版本标记。
+    type: modified
+  - id: C2
+    description: |
+      stdd/cli/commands/upgrade.py — 新增 --force 选项，跳过版本号比较，
+      强制从 upstream 重新同步所有 FILES_TO_COPY 文件到下游项目。
+      同样触发备份 + 平台重装，仍需确认（--yes 可跳过）。
+    type: new
+  - id: C3
+    description: |
+      stdd/cli/__init__.py — upgrade 子命令注册 --force 参数。
+    type: modified
+
+capabilities:
+  new:
+    - name: upgrade --force 强制同步
+      description: 无视版本号比较结果，强制从 upstream 同步所有 FILES_TO_COPY 到下游项目
+  modified:
+    - name: STDD 源版本号
+      description: 2.9.2 → 2.9.3，标记基础设施同步修复
+
+constraints:
+  - "--force 行为与普通 upgrade 一致（备份→同步→平台重装→写version），仅跳过版本比较"
+  - "不影响已有 --lock/--unlock/--check/--all 的行为"
+  - "向后兼容：已有 upgrade 命令行为完全不变"
+
+stakeholders:
+  - "所有 STDD 下游项目（TStrategy 等）"
+
+risk_areas:
+  - capability: upgrade --force
+    risk: 如果用户自定义了下游模板文件，--force 会覆盖
+    mitigation: 照常执行备份（_backup_project_files），覆盖前用户需确认
+
+non_goals:
+  - "不引入文件完整性校验（manifest+checksum），那是未来功能"
+  - "不改动版本号比较逻辑本身"
+  - "不新增 upgrade 子命令"
+
+critical:
+  is_critical: false
+  risk_assessment:
+    safety_critical: false
+    financial: false
+    cross_system: false
+
+anchoring:
+  level: L1
+  reference_changes: []
+  anchor_implementations: []
+
+success_criteria:
+  - "project.yaml 和 version.yaml 中 stdd_version 均为 2.9.3"
+  - "stdd upgrade --force 在版本号相同时也触发同步流程"
+  - "--force 同步前执行备份"
+  - "stdd upgrade（不带--force）在版本号相同时行为不变（跳过）"
+  - "已有 upgrade 测试全部通过"

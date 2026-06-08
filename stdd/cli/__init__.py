@@ -241,6 +241,7 @@ def main() -> None:
     p_upgrade.add_argument("--lock", action="store_true", help="锁定当前项目在当前版本")
     p_upgrade.add_argument("--unlock", action="store_true", help="解锁当前项目")
     p_upgrade.add_argument("--yes", "-y", action="store_true", help="跳过确认提示")
+    p_upgrade.add_argument("--force", "-f", action="store_true", help="强制重新同步所有文件（无视版本号）")
 
     # V2.9: batch — lightweight change batch management
     p_batch = subparsers.add_parser("batch", help="轻量变更批次管理 (V2.9)", parents=[parent])
