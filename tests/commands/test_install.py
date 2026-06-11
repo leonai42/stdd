@@ -56,6 +56,21 @@ def test_install_dry_run(temp_project: Path, monkeypatch, capsys):
     assert not target.exists()
 
 
+def test_install_opencode(temp_project: Path, monkeypatch):
+    """安装到 OpenCode。"""
+    monkeypatch.chdir(temp_project)
+    args = argparse.Namespace(platform="opencode", dry_run=False, verbose=0)
+    cmd_install(args)
+    target = temp_project / ".opencode" / "skills"
+    assert target.exists()
+    skills = list(target.iterdir())
+    assert len(skills) >= 1
+    # 每个 skill 应该是子目录，包含 SKILL.md
+    for skill_dir in skills:
+        assert skill_dir.is_dir()
+        assert (skill_dir / "SKILL.md").exists()
+
+
 def test_install_workbuddy(temp_project: Path, monkeypatch):
     """安装到 WorkBuddy。"""
     monkeypatch.chdir(temp_project)

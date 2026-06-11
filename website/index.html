@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STDD V2.5 — AI 编程质量保障系统 | Spec+Test 双驱动</title>
-    <meta name="description" content="STDD 是开源的 AI 辅助研发流程系统，26 个 CLI 命令、12 类失败模式检查、5 态经验自学习、7 大 AI 平台支持。比 OpenSpec 更严谨，比 Spec Kit 更轻量。">
-    <meta name="keywords" content="STDD,Spec+Test,AI编程,TDD,研发流程,规范驱动,测试驱动,经验库,AI质量">
+    <title>STDD V2.9 — AI 编程质量保障系统 | Spec+Test 双驱动 · 白皮书正式发布</title>
+    <meta name="description" content="STDD 是开源的 AI 辅助研发流程系统，28 个 CLI 命令、12 类失败模式检查、5 态经验自学习、7 大 AI 平台支持、三档执行模式。V2.9 白皮书一套四本正式发布。比 OpenSpec 更严谨，比 Spec Kit 更轻量。">
+    <meta name="keywords" content="STDD,Spec+Test,AI编程,TDD,研发流程,规范驱动,测试驱动,经验库,AI质量,白皮书,whitepaper,beyond code,三档执行模式">
     <style>
         *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
         ul,ol{list-style:none}a{text-decoration:none;color:inherit}
@@ -31,6 +31,7 @@
         .hero .ribbon{display:inline-block;padding:5px 16px;border-radius:20px;font-size:13px;letter-spacing:1px;margin:0 4px 20px}
         .ribbon-st{background:rgba(120,248,255,0.15);color:#78f8ff}
         .ribbon-bt{background:rgba(255,193,7,0.2);color:#ffc107}
+        .ribbon-wp{background:rgba(0,149,115,0.2);color:#00b388}
         .hero h1{font-size:56px;font-weight:700;letter-spacing:3px}
         .hero h1 span{color:#78f8ff}
         .hero .sub{font-size:20px;color:rgba(255,255,255,0.6);margin-top:12px}
@@ -45,6 +46,9 @@
         .btn-p:hover{background:#00b388}
         .btn-o{background:transparent;color:#78f8ff;border:1.5px solid #78f8ff}
         .btn-o:hover{background:rgba(120,248,255,0.08)}
+        .btn-wp{background:#009573;color:#fff;border:none;animation:pulse 2s infinite}
+        .btn-wp:hover{background:#00b388;animation:none}
+        @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,149,115,0.4)}50%{box-shadow:0 0 0 12px rgba(0,149,115,0)}}
         .btn-sm{padding:8px 20px;font-size:14px}
 
         .phase-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
@@ -76,15 +80,26 @@
         .tl-item{display:flex;gap:16px;margin-bottom:20px}
         .tl-ver{min-width:72px;padding:6px 14px;background:#009573;color:#fff;border-radius:4px;text-align:center;font-weight:600;font-size:13px}
         .tl-ver.cur{background:#78f8ff;color:#001036}
+        .tl-ver.new{background:#ffc107;color:#001036}
         .tl-content strong{display:block;color:#1a1a2e;margin-bottom:4px;font-size:15px}
         .tl-content span{color:#919598;font-size:13px}
 
         .card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+        .card-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
         .card{background:#fff;border-radius:8px;padding:28px 24px;box-shadow:0 2px 12px rgba(0,0,0,0.06);text-align:center;transition:transform .2s}
         .card:hover{transform:translateY(-4px);box-shadow:0 6px 24px rgba(0,0,0,0.10)}
         .card-icon{font-size:36px;margin-bottom:12px}
         .card h4{font-size:18px;color:#1a1a2e;margin-bottom:8px}
         .card p{font-size:14px;color:#919598;line-height:1.6}
+
+        .wp-card{background:#fff;border-radius:8px;padding:24px 20px;box-shadow:0 2px 12px rgba(0,0,0,0.06);text-align:center;transition:transform .2s;border-top:3px solid #009573}
+        .wp-card:hover{transform:translateY(-4px);box-shadow:0 6px 24px rgba(0,0,0,0.10)}
+        .wp-card .wp-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;margin-bottom:10px}
+        .wp-badge-cn{background:#e6f4f1;color:#009573}
+        .wp-badge-en{background:#e3f2fd;color:#1565c0}
+        .wp-badge-ai{background:#fef3c7;color:#92400e}
+        .wp-card h4{font-size:15px;color:#1a1a2e;margin-bottom:6px}
+        .wp-card p{font-size:12px;color:#919598;line-height:1.5;margin-bottom:12px}
 
         .pf-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:12px}
         .pf-card{background:#fff;border-radius:6px;padding:20px 12px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.05);transition:transform .2s}
@@ -92,6 +107,17 @@
         .pf-card.new{border:2px solid #009573}
         .pf-icon{font-size:28px;margin-bottom:8px}
         .pf-card h4{font-size:14px;color:#1a1a2e}
+
+        .mode-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+        .mode-card{background:#fff;border-radius:8px;padding:28px 24px;box-shadow:0 2px 12px rgba(0,0,0,0.06);text-align:center;border-top:3px solid #009573;transition:transform .2s}
+        .mode-card:hover{transform:translateY(-4px)}
+        .mode-card.light{border-top-color:#22c55e}
+        .mode-card.deep{border-top-color:#e67e22}
+        .mode-card .mode-score{font-size:28px;font-weight:700;color:#009573;margin-bottom:4px}
+        .mode-card.light .mode-score{color:#22c55e}
+        .mode-card.deep .mode-score{color:#e67e22}
+        .mode-card h4{font-size:17px;color:#1a1a2e;margin-bottom:8px}
+        .mode-card p{font-size:13px;color:#919598;line-height:1.6}
 
         .code-block{max-width:660px;margin:0 auto;background:rgba(0,0,0,0.35);border-radius:8px;padding:28px 32px;font-family:'Courier New',monospace;font-size:14px;line-height:2.2;color:#c7d2fe;overflow-x:auto}
         .cmt{color:#64748b}
@@ -102,7 +128,8 @@
 
         @media(max-width:768px){
             .hero h1{font-size:30px}.hero-stats{gap:16px}.hero-stat .val{font-size:26px}
-            .phase-grid,.feat-grid,.card-grid{grid-template-columns:1fr}
+            .phase-grid,.feat-grid,.card-grid,.mode-grid{grid-template-columns:1fr}
+            .card-grid-4{grid-template-columns:repeat(2,1fr)}
             .pf-grid{grid-template-columns:repeat(3,1fr)}
             .nav-links{gap:16px}.nav-links a{font-size:13px}
             .section{padding:48px 12px}
@@ -112,19 +139,21 @@
     var _hmt=_hmt||[];(function(){var hm=document.createElement("script");hm.src="https://hm.baidu.com/hm.js?0ba7177c8ed66cb3ce480dd70af41855";var s=document.getElementsByTagName("script")[0];s.parentNode.insertBefore(hm,s)})();
     var L='zh';
     var D={zh:{nav_f:"功能",nav_c:"案例",nav_p:"Playground",nav_d:"文档",nav_com:"社区",
-        hero_t:'让 AI <span>写出正确的代码</span>',hero_s:"Spec 先行 + TDD 执行 + 经验自学习。不只是流程，更是会进化的质量体系。",hero_d:"支持 Java / Go / Python / Rust / TypeScript，适配 7 大 AI 平台。26 个 CLI 命令，232 个自动化测试，12 类系统化失败检查。",
-        s1:"CLI 命令",s2:"自动化测试",s3:"失败检查",s4:"AI 平台",
-        b1:"⭐ GitHub",b2:"快速开始",b3:"🎮 Playground",
+        hero_t:'让 AI <span>写出正确的代码</span>',hero_s:"三档执行模式 + Spec先行 + TDD 执行 + 经验自学习。不只是流程，更是会进化的质量体系。",hero_d:"支持 Java / Go / Python / Rust / TypeScript，适配 7 大 AI 平台。28 个 CLI 命令，250 个自动化测试，12 类系统化失败检查，3 档执行模式覆盖从 typo 修复到架构重构。",
+        s1:"CLI 命令",s2:"自动化测试",s3:"失败检查",s4:"AI 平台",s5:"执行模式",
+        b1:"⭐ GitHub",b2:"快速开始",b3:"🎮 Playground",b4:"📥 下载白皮书",
         t_why:"为什么选择 STDD",t_why2:"与其他主流 AI 编程框架的对比",
         t_ph:"六阶段流程",t_ph2:"从需求到交付，每阶段都有明确产出物与质量门",
-        t_v25:"V2.5 核心能力",t_v252:"不只是流程，更是一套会进化的质量保障体系",
-        t_hist:"版本演进",t_hist2:"从 V1.0 到 V2.8，持续迭代",
+        t_mode:"三档执行模式",t_mode2:"轻量/标准/彻底 — 智能适配从 typo 修复到架构重构",
+        t_feat:"V2.9 核心新特性",t_feat2:"六大升级，从编程方法论到通用质量保障体系",
+        t_hist:"版本演进",t_hist2:"从 V1.0 到 V2.9，持续迭代",
         t_case:"实战案例",t_case2:"来自真实项目的验证数据",
         t_pf:"七大 AI 平台支持",t_pf2:"一套 Skill，7 平台通用。stdd install 一行命令",
-        t_pl:"🎮 在线体验 STDD",t_pl2:"不需要安装，直接在浏览器中体验完整流程。3 个真实案例场景。",
+        t_pl:"🎮 在线体验 STDD",t_pl2:"不需要安装，直接在浏览器中体验完整流程。3 个真实案例场景。",pl_btn:"立即体验 Playground →",
+        t_wp:"📚 STDD 白皮书",t_wp2:"一套四本 · 中英文 · 人类版 & AI版 · 同期发布",
         t_qs:"快速开始",t_qs2:"三步在你的项目中启用 STDD",
         t_cta:"获取 STDD",t_cta2:"免费开源，MIT 协议",
-        badge_st:"V2.5 正式发布",badge_bt:"V2.8 灰度内测中",
+        badge_st:"V2.9.3 正式发布",badge_bt:"白皮书一套四本",badge_wp:"beyond code 扩展",
         footer_t:"Spec 先行，TDD 执行，质量不靠运气，靠系统。",
         f1:"FPPT 项目",f1d:"5 天 · 27,826 行代码 · 326 测试用例 · 100% 通过率",
         f2:"TStrategy 量化系统",f2d:"V4.2 稳定版 · 19,500+ 行测试 · 全链路回测→风控",
@@ -135,46 +164,59 @@
         ph4:"BUILD · TDD 实现",ph4d:"RED→GREEN→REFACTOR · 经验加载",ph4g:"设计偏离自动记录",
         ph5:"VERIFY · 质量验证",ph5d:"全量测试 + 12类失败检查",ph5g:"Gate 3 · 强制确认",
         ph6:"DELIVER · 交付",ph6d:"归档 + 合并 specs + git tag",ph6g:"自动执行",
-        e1t:"自学习经验库",e1d:"5 态 FSM 生命周期。项目用得越久，AI 越了解你的代码模式。新成员第一天就能获得老员工的 AI 辅助。",
-        e2t:"社区经验共享池",e2d:"零后端设计 — GitHub+Gitee 双源下载。导出自动脱敏，导入自动去重。一个人的教训，所有人的经验。",
-        e3t:"12 类失败模式检查",e3d:"幻觉/范围蔓延/级联错误/上下文丢失/工具误用/运行时偏差/管线断链/质量偏差/指令衰减/覆盖真空/契约断层/锚定缺失。CLI+AI 双重覆盖。",
-        e4t:"多 Agent 并行适配",e4d:"并行切片自动派发 + Agent 验证管线。v2.5 支持多 Agent 平台，同 change 下多切片可并行执行。",
-        e5t:"跨 Session 状态恢复",e5d:"active_phase + phase_context + freshness 三重保障。Agent 跨 session 后一键恢复，不再每次从零开始。",
-        e6t:"Gate 三通道确认",e6d:"对话/CLI/Token 文件三种确认等效。Gate 2 后可选长程全自动，Phase 3-5 连续执行仅 Gate 3 等待。",
-        v28t:"质量度量升级",v28d:"pass@k + Plankton 自动修复 + TDD 强制。232 tests / 73%。",
+        mode1t:"🪶 轻量模式",mode1d:"0-3分复杂度 · bug修复/小调整 · 简化SPEC→跳过SLICE→RED→GREEN · TDD底线不跳过",
+        mode2t:"⚖️ 标准模式",mode2d:"4-7分复杂度 · 功能增强/中等重构 · 完整六阶段流程 · 经验库全量加载",
+        mode3t:"🔬 彻底模式",mode3d:"8-17分复杂度 · 新模块/架构变更 · 标准流程+pass@k+安全/性能子代理 · 最高质量保障",
+        e1t:"三档执行模式",e1d:"Phase 1末尾自动计算6维度复杂度评分（0-17分），智能推荐轻量/标准/彻底模式。修typo不再走全套流程，但TDD底线永不妥协。",
+        e2t:"智能门禁系统",e2d:"四级范围分类器（micro/small/medium/large），分析变更范围给出智能建议。micro变更自动批次归档，large变更强制独立Change。",
+        e3t:"批次目录管理",e3d:"轻量模式共用批次目录，按时间窗口自动归档。stdd batch CLI命令族：open/add/close/archive/list/status。",
+        e4t:"版本升级管理",e4d:"stdd upgrade 一键全局升级，upgrade --check 差异检查，upgrade --force 强制同步。从手动逐项目操作变成全自动。",
+        e5t:"Plankton + pass@k",e5d:"Plankton三级自动修复（格式化/建议/报告）+ pass@k统计验证（同一测试k次，检测Spec歧义）。",
+        e6t:"STDD beyond code",e6d:"V2.9最具突破性升级：从编程方法论扩展为通用质量保障方法论。只要可定义预期结果和验证方式，任何任务都适用。",
+        v29t:"全面升级 ← 当前",v29d:"三档模式+智能门禁+batch+upgrade+beyond code。250 tests。",
+        v28t:"质量度量升级",v28d:"pass@k + Plankton自动修复 + TDD强制。232 tests / 73%。",
         v27t:"工程化升级",v27d:"双轨制+锚定+OpenCode+7新CLI。184 tests。",
-        v25t:"经验闭环 ← 当前",v25d:"5态FSM+社区池+多Agent。155 tests。",
+        v25t:"经验闭环",v25d:"5态FSM+社区池+多Agent。155 tests。",
         v24t:"AI 辅助增强",v24d:"经验库+Spec补全+智能切片。109 tests。",
         v23t:"基础配套完善",v23d:"5语言+6平台+配置模块化。54 tests。",
         v20t:"架构升级",v20d:"CLI模块化+pytest+11类失败。54 tests。",
         dl1:"下载源码",dl1d:"git clone github.com/leonai42/stdd",dl1b:"GitHub →",
         dl2:"阅读文档",dl2d:"README + STDD.md 完整使用指南",dl2b:"查看文档 →",
         dl3:"社区讨论",dl3d:"GitHub Discussions · 提问 · 反馈",dl3b:"加入讨论 →",
+        dl4:"下载白皮书",dl4d:"一套四本 · 本站下载",dl4b:"获取白皮书 →",
         cmp_dim:"维度",cmp_tdd:"TDD 强制",cmp_exp:"经验自学习",cmp_pool:"社区共享",
-        cmp_fail:"失败检查",cmp_plat:"多平台",cmp_learn:"学习曲线",
-        cmp_mandatory:"强制",cmp_5fsm:"5态FSM",cmp_dual:"双仓库",cmp_12cat:"12类",cmp_informal:"非正式",
+        cmp_fail:"失败检查",cmp_plat:"多平台",cmp_learn:"学习曲线",cmp_mode:"执行模式",
+        cmp_mandatory:"强制",cmp_5fsm:"5态FSM",cmp_dual:"双仓库",cmp_12cat:"12类",cmp_informal:"非正式",cmp_3mode:"3档（轻/标/彻）",cmp_1mode:"1种",cmp_2mode:"2种",
         cmp_med:"中",cmp_low1:"低",cmp_high:"高",cmp_low2:"低",
         cmp_link:"查看完整 9 框架深度对比分析 →",
         pf_langs:"支持 5 语言规范：Python · Java · Go · Rust · TypeScript",
         pl_note:"（当前仅支持中文界面，英文版即将推出）",
         qs_1:"# 1. 克隆并初始化",
         qs_2:"# 2. 安装到 AI 平台",
-        qs_3:"# 3. 开始第一个需求"
+        qs_3:"# 3. 开始第一个需求",
+        wp_intro:"STDD白皮书（V2.9）系统阐述了六阶段流程、九大核心原则、12类失败模式防范、双轨文档体系、经验库管理、Spec锚定法，以及V2.9新增的STDD beyond code扩展。",
+        wp_cn_desc:"面向中文读者的方法论完整阐述，11个部分覆盖从原理到实战。",
+        wp_en_desc:"面向国际社区的方法论完整阐述，内容与中文版同源对齐。",
+        wp_cnai_desc:"结构化、可机读格式，专为AI代理（Claude Code/Cursor等）消费设计。",
+        wp_enai_desc:"结构化、可机读格式，面向国际AI代理消费，与中文for AI版本对齐。",
+        wp_note:"白皮书MD文件托管于本站服务器。关注公众号「小以AI实验室」，私信回复 STDD 亦可获取。"
     },
     en:{nav_f:"Features",nav_c:"Cases",nav_p:"Playground",nav_d:"Docs",nav_com:"Community",
-        hero_t:'Make AI <span>Write Correct Code</span>',hero_s:"Spec-First + TDD + Self-Learning. An evolving quality system.",hero_d:"Supports Java/Go/Python/Rust/TypeScript. 7 AI platforms. 26 CLI commands, 232 tests, 12 failure checks.",
-        s1:"CLI Cmds",s2:"Tests",s3:"Checks",s4:"Platforms",
-        b1:"⭐ GitHub",b2:"Quick Start",b3:"🎮 Playground",
+        hero_t:'Make AI <span>Write Correct Code</span>',hero_s:"3 Execution Modes + Spec-First + TDD + Self-Learning. An evolving quality system.",hero_d:"Supports Java/Go/Python/Rust/TypeScript. 7 AI platforms. 28 CLI commands, 250 tests, 12 failure checks, 3 execution modes from typo-fix to architecture refactor.",
+        s1:"CLI Cmds",s2:"Tests",s3:"Checks",s4:"Platforms",s5:"Modes",
+        b1:"⭐ GitHub",b2:"Quick Start",b3:"🎮 Playground",b4:"📥 Whitepaper",
         t_why:"Why STDD",t_why2:"Compared with other AI coding frameworks",
         t_ph:"Six-Phase Flow",t_ph2:"Clear outputs and quality gates at every phase",
-        t_v25:"V2.5 Core Capabilities",t_v252:"An evolving quality assurance system",
-        t_hist:"Version History",t_hist2:"Continuous iteration from V1.0 to V2.8",
+        t_mode:"3 Execution Modes",t_mode2:"Light/Standard/Thorough — smart adapt from typo-fix to architecture refactor",
+        t_feat:"V2.9 Key Features",t_feat2:"Six major upgrades, from coding methodology to universal quality assurance",
+        t_hist:"Version History",t_hist2:"Continuous iteration from V1.0 to V2.9",
         t_case:"Case Studies",t_case2:"Verified data from real projects",
         t_pf:"7 AI Platforms",t_pf2:"One skill set, 7 platforms. stdd install in one line",
-        t_pl:"Try STDD Online",t_pl2:"No installation needed. 3 real-world scenarios in your browser.",
+        t_pl:"Try STDD Online",t_pl2:"No installation needed. 3 real-world scenarios in your browser.",pl_btn:"Try Playground →",
+        t_wp:"STDD Whitepaper",t_wp2:"4-Book Set · CN/EN · Human & AI Editions · Released Together",
         t_qs:"Quick Start",t_qs2:"Enable STDD in 3 steps",
         t_cta:"Get STDD",t_cta2:"Free, Open Source, MIT License",
-        badge_st:"V2.5 Stable",badge_bt:"V2.8 Beta",
+        badge_st:"V2.9.3 Stable",badge_bt:"4-Book Whitepaper Set",badge_wp:"Beyond Code",
         footer_t:"Spec first, TDD execution. Quality by system, not by luck.",
         f1:"FPPT Project",f1d:"5 days · 27,826 LOC · 326 tests · 100% pass rate",
         f2:"TStrategy Quant",f2d:"V4.2 · 19,500+ test LOC · Full pipeline",
@@ -185,12 +227,16 @@
         ph4:"BUILD · TDD",ph4d:"RED→GREEN→REFACTOR",ph4g:"Deviations auto-recorded",
         ph5:"VERIFY · QA",ph5d:"Tests + 12 failure checks",ph5g:"Gate 3 · Mandatory",
         ph6:"DELIVER",ph6d:"Archive + merge + tag",ph6g:"Auto",
-        e1t:"Self-Learning Experience",e1d:"5-state FSM lifecycle. The more you use STDD, the smarter it gets about your code patterns.",
-        e2t:"Community Experience Pool",e2d:"Zero-backend dual-source download. Export auto-sanitized, import auto-deduped. One person's lesson, everyone's experience.",
-        e3t:"12 Failure Mode Checks",e3d:"Hallucination/Scope creep/Cascading/Context loss/Tool misuse/Runtime deviation/Pipeline break/Quality/Instruction decay/Coverage vacuum/Contract gap/Anchor missing.",
-        e4t:"Multi-Agent Parallel",e4d:"Parallel slice dispatch + Agent verification pipeline. Multiple slices in one change can execute concurrently.",
-        e5t:"Session Resume",e5d:"active_phase + phase_context + freshness. Agents recover in one step across sessions.",
-        e6t:"3-Channel Gate Confirm",e6d:"Dialog/CLI/Token file. After Gate 2, full-auto long-range mode available.",
+        mode1t:"🪶 Light Mode",mode1d:"Score 0-3 · Bug fixes/small tweaks · Simplified SPEC→skip SLICE→RED→GREEN · TDD baseline enforced",
+        mode2t:"⚖️ Standard Mode",mode2d:"Score 4-7 · Features/moderate refactors · Full 6-phase flow · Full experience loading",
+        mode3t:"🔬 Thorough Mode",mode3d:"Score 8-17 · New modules/architecture changes · Standard flow+pass@k+security/perf sub-agents · Max quality",
+        e1t:"3 Execution Modes",e1d:"Auto-calculated complexity score (6 dimensions, 0-17 points) at Phase 1 end. Smart mode recommendation. TDD baseline never compromised.",
+        e2t:"Smart Gate System",e2d:"4-level scope classifier (micro/small/medium/large). Analyzes change scope for smart recommendations. Micro → auto-batch, Large → mandatory independent Change.",
+        e3t:"Batch Directory Management",e3d:"Lightweight changes share batch directories, auto-archived by time window. stdd batch CLI: open/add/close/archive/list/status.",
+        e4t:"Version Upgrade Management",e4d:"stdd upgrade for single project, --all for global, --check for diff inspection. One-click global upgrade.",
+        e5t:"Plankton + pass@k",e5d:"Plankton 3-level auto-fix (format/suggest/report) + pass@k statistical verification (k runs detect Spec ambiguity).",
+        e6t:"STDD Beyond Code",e6d:"V2.9's most breakthrough upgrade: from coding methodology to universal quality assurance. Any task with definable expected results.",
+        v29t:"Major Upgrade",v29d:"3 Modes+Smart Gate+Batch+Upgrade+Beyond Code. 250 tests.",
         v28t:"Quality Metrics",v28d:"pass@k + Plankton auto-fix. 232 tests / 73%.",
         v27t:"Engineering",v27d:"Dual-track+Anchoring+OpenCode. 184 tests.",
         v25t:"Experience Loop",v25d:"5-FSM+Community+Multi-Agent. 155 tests.",
@@ -200,16 +246,23 @@
         dl1:"Download",dl1d:"git clone github.com/leonai42/stdd",dl1b:"GitHub →",
         dl2:"Documentation",dl2d:"README + STDD.md full guide",dl2b:"Read Docs →",
         dl3:"Community",dl3d:"GitHub Discussions · Q&A",dl3b:"Join →",
+        dl4:"Whitepaper",dl4d:"4-Book Set · Direct Download",dl4b:"Get Whitepaper →",
         cmp_dim:"Dimension",cmp_tdd:"TDD Enforced",cmp_exp:"Self-Learning",cmp_pool:"Community Pool",
-        cmp_fail:"Failure Checks",cmp_plat:"Platforms",cmp_learn:"Learning Curve",
-        cmp_mandatory:"Yes",cmp_5fsm:"5-State FSM",cmp_dual:"Dual Repo",cmp_12cat:"12 Categories",cmp_informal:"Informal",
+        cmp_fail:"Failure Checks",cmp_plat:"Platforms",cmp_learn:"Learning Curve",cmp_mode:"Exec Modes",
+        cmp_mandatory:"Yes",cmp_5fsm:"5-State FSM",cmp_dual:"Dual Repo",cmp_12cat:"12 Categories",cmp_informal:"Informal",cmp_3mode:"3 (L/S/T)",cmp_1mode:"1",cmp_2mode:"2",
         cmp_med:"Med",cmp_low1:"Low",cmp_high:"High",cmp_low2:"Low",
         cmp_link:"View full 9-framework comparison →",
         pf_langs:"Supports 5 languages: Python · Java · Go · Rust · TypeScript",
         pl_note:"(CN content only — EN version coming soon)",
         qs_1:"# 1. Clone and initialize",
         qs_2:"# 2. Install to AI platform",
-        qs_3:"# 3. Start your first requirement"
+        qs_3:"# 3. Start your first requirement",
+        wp_intro:"The STDD Whitepaper (V2.9) systematically covers the 6-phase flow, 9 core principles, 12 failure mode preventions, dual-track doc system, experience library, Spec anchoring, and the new Beyond Code extension.",
+        wp_cn_desc:"Full methodology exposition for Chinese readers. 11 sections from principles to practice.",
+        wp_en_desc:"Full methodology exposition for the international community. Content-aligned with the Chinese edition.",
+        wp_cnai_desc:"Structured, machine-readable format designed for AI agent consumption (Claude Code, Cursor, etc.).",
+        wp_enai_desc:"Structured, machine-readable format for international AI agent consumption. Aligned with the CN-for-AI edition.",
+        wp_note:"Whitepaper MD files are hosted on our server. Also available via our WeChat official account."
     }};
     function T(){L=L==='zh'?'en':'zh';document.querySelectorAll('[data-t]').forEach(function(e){var k=e.dataset.t;if(D[L][k]){if(k.startsWith('hero_t')){e.innerHTML=D[L][k]}else{e.textContent=D[L][k]}}});document.querySelector('.nav-lang').textContent=L==='zh'?'EN':'中文';}
     </script>
@@ -234,21 +287,68 @@
 
 <!-- Hero -->
 <section class="hero bg-dark">
-    <span class="ribbon ribbon-st" data-t="badge_st">V2.5 正式发布</span>
-    <span class="ribbon ribbon-bt" data-t="badge_bt">V2.8 灰度内测中</span>
+    <span class="ribbon ribbon-st" data-t="badge_st">V2.9.3 正式发布</span>
+    <span class="ribbon ribbon-bt" data-t="badge_bt">白皮书一套四本</span>
+    <span class="ribbon ribbon-wp" data-t="badge_wp">beyond code 扩展</span>
     <h1 data-t="hero_t">让 AI <span>写出正确的代码</span></h1>
-    <p class="sub" data-t="hero_s">Spec 先行 + TDD 执行 + 经验自学习。不只是流程，更是会进化的质量体系。</p>
-    <p class="desc" data-t="hero_d">支持 Java / Go / Python / Rust / TypeScript，适配 7 大 AI 平台。26 个 CLI 命令，232 个自动化测试，12 类系统化失败检查。</p>
+    <p class="sub" data-t="hero_s">三档执行模式 + Spec先行 + TDD 执行 + 经验自学习。不只是流程，更是会进化的质量体系。</p>
+    <p class="desc" data-t="hero_d">支持 Java / Go / Python / Rust / TypeScript，适配 7 大 AI 平台。28 个 CLI 命令，250 个自动化测试，12 类系统化失败检查，3 档执行模式覆盖从 typo 修复到架构重构。</p>
     <div class="hero-stats">
-        <div class="hero-stat"><div class="val">26</div><div class="lbl" data-t="s1">CLI 命令</div></div>
-        <div class="hero-stat"><div class="val">232</div><div class="lbl" data-t="s2">自动化测试</div></div>
+        <div class="hero-stat"><div class="val">28</div><div class="lbl" data-t="s1">CLI 命令</div></div>
+        <div class="hero-stat"><div class="val">250</div><div class="lbl" data-t="s2">自动化测试</div></div>
         <div class="hero-stat"><div class="val">12</div><div class="lbl" data-t="s3">失败检查</div></div>
         <div class="hero-stat"><div class="val">7</div><div class="lbl" data-t="s4">AI 平台</div></div>
+        <div class="hero-stat"><div class="val">3</div><div class="lbl" data-t="s5">执行模式</div></div>
     </div>
     <div class="hero-btns">
         <a href="https://github.com/leonai42/stdd" class="btn btn-p" data-t="b1">⭐ GitHub</a>
         <a href="#quickstart" class="btn btn-o" data-t="b2">快速开始</a>
         <a href="playground/index.html" class="btn btn-o" data-t="b3">🎮 Playground</a>
+        <a href="#whitepaper" class="btn btn-wp" data-t="b4">📥 下载白皮书</a>
+    </div>
+</section>
+
+<!-- Whitepaper Download -->
+<section class="section bg-gray" id="whitepaper">
+    <div class="section-inner">
+        <h2 data-t="t_wp">📚 STDD 白皮书</h2>
+        <p class="subtitle" data-t="t_wp2">一套四本 · 中英文 · 人类版 &amp; AI版 · 同期发布</p>
+        <p style="text-align:center;max-width:680px;margin:0 auto 36px;font-size:15px;color:#515a6e;line-height:1.8" data-t="wp_intro">
+            STDD白皮书（V2.9）系统阐述了六阶段流程、九大核心原则、12类失败模式防范、双轨文档体系、经验库管理、Spec锚定法，以及V2.9新增的STDD beyond code扩展。
+        </p>
+        <div class="card-grid-4" style="margin-bottom:24px">
+            <div class="wp-card">
+                <span class="wp-badge wp-badge-cn">中文版</span>
+                <div class="card-icon">📘</div>
+                <h4>STDD 白皮书</h4>
+                <p data-t="wp_cn_desc">面向中文读者的方法论完整阐述，11个部分覆盖从原理到实战。</p>
+                <a href="/download/STDD_Whitepaper_CN.md" class="btn btn-p btn-sm">下载 MD →</a>
+            </div>
+            <div class="wp-card">
+                <span class="wp-badge wp-badge-en">English</span>
+                <div class="card-icon">📙</div>
+                <h4>STDD Whitepaper</h4>
+                <p data-t="wp_en_desc">面向国际社区的方法论完整阐述，内容与中文版同源对齐。</p>
+                <a href="/download/STDD_Whitepaper_EN.md" class="btn btn-o btn-sm" style="color:#1565c0;border-color:#1565c0">Download MD →</a>
+            </div>
+            <div class="wp-card">
+                <span class="wp-badge wp-badge-ai">中文 · For AI</span>
+                <div class="card-icon">🤖</div>
+                <h4>STDD 白皮书（AI版）</h4>
+                <p data-t="wp_cnai_desc">结构化、可机读格式，专为AI代理（Claude Code/Cursor等）消费设计。</p>
+                <a href="/download/STDD_Whitepaper_CN_AI.md" class="btn btn-p btn-sm">下载 MD →</a>
+            </div>
+            <div class="wp-card">
+                <span class="wp-badge wp-badge-ai">EN · For AI</span>
+                <div class="card-icon">🧠</div>
+                <h4>STDD Whitepaper (AI)</h4>
+                <p data-t="wp_enai_desc">结构化、可机读格式，面向国际AI代理消费，与中文for AI版本对齐。</p>
+                <a href="/download/STDD_Whitepaper_EN_AI.md" class="btn btn-o btn-sm" style="color:#1565c0;border-color:#1565c0">Download MD →</a>
+            </div>
+        </div>
+        <p style="text-align:center;font-size:13px;color:#919598;margin-top:8px" data-t="wp_note">
+            白皮书MD文件托管于本站服务器。关注公众号「小以AI实验室」，私信回复"STDD"亦可获取。
+        </p>
     </div>
 </section>
 
@@ -259,11 +359,12 @@
         <p class="subtitle" data-t="t_why2">与其他主流 AI 编程框架的对比</p>
         <div class="cmp-wrap">
             <table class="cmp-table">
-                <tr><th data-t="cmp_dim">维度</th><th>STDD V2.5</th><th>OpenSpec</th><th>Spec Kit</th><th>Superpowers</th></tr>
+                <tr><th data-t="cmp_dim">维度</th><th>STDD V2.9</th><th>OpenSpec</th><th>Spec Kit</th><th>Superpowers</th></tr>
                 <tr><td data-t="cmp_tdd">TDD 强制</td><td class="c-y">✅ <span data-t="cmp_mandatory">强制</span></td><td class="c-n">❌</td><td class="c-n">❌</td><td class="c-y">✅</td></tr>
                 <tr><td data-t="cmp_exp">经验自学习</td><td class="c-y">✅ <span data-t="cmp_5fsm">5态FSM</span></td><td class="c-n">❌</td><td class="c-n">❌</td><td class="c-n">❌</td></tr>
                 <tr><td data-t="cmp_pool">社区共享</td><td class="c-y">✅ <span data-t="cmp_dual">双仓库</span></td><td class="c-n">❌</td><td class="c-n">❌</td><td class="c-n">❌</td></tr>
                 <tr><td data-t="cmp_fail">失败检查</td><td class="c-y">✅ <span data-t="cmp_12cat">12类</span></td><td class="c-n">❌</td><td class="c-n">❌</td><td class="c-w">⚠️ <span data-t="cmp_informal">非正式</span></td></tr>
+                <tr><td data-t="cmp_mode">执行模式</td><td class="c-y">✅ <span data-t="cmp_3mode">3档（轻/标/彻）</span></td><td class="c-n" data-t="cmp_1mode">1种</td><td class="c-w" data-t="cmp_2mode">2种</td><td class="c-w" data-t="cmp_2mode">2种</td></tr>
                 <tr><td data-t="cmp_plat">多平台</td><td class="c-y">7</td><td>6</td><td>5+</td><td>4</td></tr>
                 <tr><td data-t="cmp_learn">学习曲线</td><td data-t="cmp_med">中</td><td data-t="cmp_low1">低</td><td data-t="cmp_high">高</td><td data-t="cmp_low2">低</td></tr>
             </table>
@@ -274,8 +375,36 @@
     </div>
 </section>
 
+<!-- Three Execution Modes -->
+<section class="section bg-gray" id="modes">
+    <div class="section-inner">
+        <h2 data-t="t_mode">三档执行模式</h2>
+        <p class="subtitle" data-t="t_mode2">轻量/标准/彻底 — 智能适配从 typo 修复到架构重构</p>
+        <div class="mode-grid">
+            <div class="mode-card light">
+                <div class="mode-score">0-3</div>
+                <h4 data-t="mode1t">🪶 轻量模式</h4>
+                <p data-t="mode1d">bug修复/小调整 · 简化SPEC→跳过SLICE→RED→GREEN · TDD底线不跳过</p>
+            </div>
+            <div class="mode-card">
+                <div class="mode-score">4-7</div>
+                <h4 data-t="mode2t">⚖️ 标准模式</h4>
+                <p data-t="mode2d">功能增强/中等重构 · 完整六阶段流程 · 经验库全量加载</p>
+            </div>
+            <div class="mode-card deep">
+                <div class="mode-score">8-17</div>
+                <h4 data-t="mode3t">🔬 彻底模式</h4>
+                <p data-t="mode3d">新模块/架构变更 · 标准+pass@k+安全/性能子代理 · 最高质量保障</p>
+            </div>
+        </div>
+        <p style="text-align:center;margin-top:20px;font-size:13px;color:#919598;">
+            Phase 1 末尾自动计算6维度复杂度评分，智能推荐模式。核心原则：<strong>任何模式下 TDD 底线（RED→GREEN）都不可跳过</strong>。
+        </p>
+    </div>
+</section>
+
 <!-- Six Phases -->
-<section class="section bg-gray" id="phases">
+<section class="section" id="phases">
     <div class="section-inner">
         <h2 data-t="t_ph">六阶段流程</h2>
         <p class="subtitle" data-t="t_ph2">从需求到交付，每阶段都有明确产出物与质量门</p>
@@ -290,31 +419,32 @@
     </div>
 </section>
 
-<!-- V2.5 Capabilities -->
-<section class="section" id="features">
+<!-- V2.9 New Features -->
+<section class="section bg-gray" id="features">
     <div class="section-inner">
-        <h2 data-t="t_v25">V2.5 核心能力</h2>
-        <p class="subtitle" data-t="t_v252">不只是流程，更是一套会进化的质量保障体系</p>
+        <h2 data-t="t_feat">V2.9 核心新特性</h2>
+        <p class="subtitle" data-t="t_feat2">六大升级，从编程方法论到通用质量保障体系</p>
         <div class="feat-grid">
-            <div class="feat-item"><div class="fi">🧠</div><div class="ft"><strong data-t="e1t">自学习经验库</strong><span data-t="e1d">5 态 FSM 生命周期。项目用得越久，AI 越了解你的代码模式。</span></div></div>
-            <div class="feat-item"><div class="fi">🌐</div><div class="ft"><strong data-t="e2t">社区经验共享池</strong><span data-t="e2d">零后端设计。导出脱敏，导入去重。一个人的教训，所有人的经验。</span></div></div>
-            <div class="feat-item"><div class="fi">🛡️</div><div class="ft"><strong data-t="e3t">12 类失败模式检查</strong><span data-t="e3d">幻觉/蔓延/级联/丢失/误用/偏差/断链/质量/衰减/真空/断层/锚定。</span></div></div>
-            <div class="feat-item"><div class="fi">🤖</div><div class="ft"><strong data-t="e4t">多 Agent 并行适配</strong><span data-t="e4d">并行切片派发 + Agent 验证管线。同 change 下多切片并行。</span></div></div>
-            <div class="feat-item"><div class="fi">📋</div><div class="ft"><strong data-t="e5t">跨 Session 状态恢复</strong><span data-t="e5d">phase_context + freshness。Agent 跨 session 一键恢复。</span></div></div>
-            <div class="feat-item"><div class="fi">🔑</div><div class="ft"><strong data-t="e6t">Gate 三通道确认</strong><span data-t="e6d">对话/CLI/Token。Gate 2 后可选长程全自动模式。</span></div></div>
+            <div class="feat-item"><div class="fi">⚡</div><div class="ft"><strong data-t="e1t">三档执行模式</strong><span data-t="e1d">Phase 1末尾自动计算6维度复杂度评分（0-17分），智能推荐轻量/标准/彻底模式。</span></div></div>
+            <div class="feat-item"><div class="fi">🎯</div><div class="ft"><strong data-t="e2t">智能门禁系统</strong><span data-t="e2d">四级范围分类器（micro/small/medium/large），分析变更范围给出智能建议。</span></div></div>
+            <div class="feat-item"><div class="fi">📦</div><div class="ft"><strong data-t="e3t">批次目录管理</strong><span data-t="e3d">轻量模式共用批次目录，按时间窗口自动归档。stdd batch CLI命令族。</span></div></div>
+            <div class="feat-item"><div class="fi">🔄</div><div class="ft"><strong data-t="e4t">版本升级管理</strong><span data-t="e4d">stdd upgrade 一键全局升级，upgrade --check 差异检查，upgrade --force 强制同步。</span></div></div>
+            <div class="feat-item"><div class="fi">🔬</div><div class="ft"><strong data-t="e5t">Plankton + pass@k</strong><span data-t="e5d">Plankton三级自动修复（格式化/建议/报告）+ pass@k统计验证检测Spec歧义。</span></div></div>
+            <div class="feat-item"><div class="fi">🌐</div><div class="ft"><strong data-t="e6t">STDD beyond code</strong><span data-t="e6d">从编程方法论扩展为通用质量保障方法论。任何可定义预期结果的任务都适用。</span></div></div>
         </div>
     </div>
 </section>
 
 <!-- Timeline -->
-<section class="section bg-gray" id="timeline">
+<section class="section" id="timeline">
     <div class="section-inner">
         <h2 data-t="t_hist">版本演进</h2>
-        <p class="subtitle" data-t="t_hist2">从 V1.0 到 V2.8，持续迭代</p>
+        <p class="subtitle" data-t="t_hist2">从 V1.0 到 V2.9，持续迭代</p>
         <div class="timeline">
+            <div class="tl-item"><div class="tl-ver new">V2.9 🆕</div><div class="tl-content"><strong data-t="v29t">全面升级</strong><span data-t="v29d">三档模式+智能门禁+batch+upgrade+beyond code。250 tests。</span></div></div>
             <div class="tl-item"><div class="tl-ver">V2.8</div><div class="tl-content"><strong data-t="v28t">质量度量升级</strong><span data-t="v28d">pass@k + Plankton + TDD。232 tests / 73%。</span></div></div>
-            <div class="tl-item"><div class="tl-ver">V2.7</div><div class="tl-content"><strong data-t="v27t">工程化升级</strong><span data-t="v27d">双轨制+锚定+OpenCode+7新CLI。184 tests。</span></div></div>
-            <div class="tl-item"><div class="tl-ver cur">V2.5 ←</div><div class="tl-content"><strong data-t="v25t">经验闭环</strong><span data-t="v25d">5态FSM+社区池+多Agent。155 tests。</span></div></div>
+            <div class="tl-item"><div class="tl-ver cur">V2.7</div><div class="tl-content"><strong data-t="v27t">工程化升级</strong><span data-t="v27d">双轨制+锚定+OpenCode+7新CLI。184 tests。</span></div></div>
+            <div class="tl-item"><div class="tl-ver">V2.5</div><div class="tl-content"><strong data-t="v25t">经验闭环</strong><span data-t="v25d">5态FSM+社区池+多Agent。155 tests。</span></div></div>
             <div class="tl-item"><div class="tl-ver">V2.4</div><div class="tl-content"><strong data-t="v24t">AI 辅助增强</strong><span data-t="v24d">经验库+Spec补全+智能切片。109 tests。</span></div></div>
             <div class="tl-item"><div class="tl-ver">V2.3</div><div class="tl-content"><strong data-t="v23t">基础配套完善</strong><span data-t="v23d">5语言+6平台+配置模块化。54 tests。</span></div></div>
             <div class="tl-item"><div class="tl-ver">V2.0</div><div class="tl-content"><strong data-t="v20t">架构升级</strong><span data-t="v20d">CLI模块化+pytest+11类失败。54 tests。</span></div></div>
@@ -323,7 +453,7 @@
 </section>
 
 <!-- Cases -->
-<section class="section" id="cases">
+<section class="section bg-gray" id="cases">
     <div class="section-inner">
         <h2 data-t="t_case">实战案例</h2>
         <p class="subtitle" data-t="t_case2">来自真实项目的验证数据</p>
@@ -336,7 +466,7 @@
 </section>
 
 <!-- Platforms -->
-<section class="section bg-gray" id="platforms">
+<section class="section" id="platforms">
     <div class="section-inner">
         <h2 data-t="t_pf">七大 AI 平台支持</h2>
         <p class="subtitle" data-t="t_pf2">一套 Skill，7 平台通用</p>
@@ -354,12 +484,12 @@
 </section>
 
 <!-- Playground CTA -->
-<section class="section">
+<section class="section bg-gray">
     <div class="section-inner" style="text-align:center">
         <h2 data-t="t_pl">🎮 在线体验 STDD</h2>
         <p class="subtitle" data-t="t_pl2">不需要安装，直接在浏览器中体验完整流程</p>
         <p style="font-size:13px;color:#919598;margin-bottom:12px" data-t="pl_note">（当前仅支持中文界面，英文版即将推出）</p>
-        <a href="playground/index.html" class="btn btn-p" style="font-size:18px;padding:16px 48px;">立即体验 Playground →</a>
+        <a href="playground/index.html" class="btn btn-p" style="font-size:18px;padding:16px 48px;" data-t="pl_btn">立即体验 Playground →</a>
     </div>
 </section>
 
@@ -385,10 +515,10 @@
     <div class="section-inner" style="text-align:center">
         <h2 data-t="t_cta">获取 STDD</h2>
         <p class="subtitle" data-t="t_cta2">免费开源，MIT 协议</p>
-        <div class="card-grid" style="max-width:800px;margin:0 auto">
+        <div class="card-grid" style="max-width:900px;margin:0 auto">
             <div class="card" style="border-top:3px solid #009573;"><div class="card-icon">📦</div><h4 data-t="dl1">下载源码</h4><p data-t="dl1d">git clone github.com/leonai42/stdd</p><a href="https://github.com/leonai42/stdd" class="btn btn-p btn-sm" style="margin-top:12px" data-t="dl1b">GitHub →</a></div>
+            <div class="card" style="border-top:3px solid #ffc107;"><div class="card-icon">📚</div><h4 data-t="dl4">下载白皮书</h4><p data-t="dl4d">一套四本 · GitHub Releases</p><a href="#whitepaper" class="btn btn-wp btn-sm" style="margin-top:12px" data-t="dl4b">获取白皮书 →</a></div>
             <div class="card"><div class="card-icon">📖</div><h4 data-t="dl2">阅读文档</h4><p data-t="dl2d">README + STDD.md</p><a href="https://github.com/leonai42/stdd#readme" class="btn btn-o btn-sm" style="margin-top:12px;color:#009573;border-color:#009573" data-t="dl2b">查看文档 →</a></div>
-            <div class="card"><div class="card-icon">💬</div><h4 data-t="dl3">社区讨论</h4><p data-t="dl3d">GitHub Discussions</p><a href="https://github.com/leonai42/stdd/discussions" class="btn btn-o btn-sm" style="margin-top:12px;color:#009573;border-color:#009573" data-t="dl3b">加入讨论 →</a></div>
         </div>
     </div>
 </section>
@@ -399,11 +529,12 @@
     <div class="flinks">
         <a href="https://github.com/leonai42/stdd">GitHub</a>
         <a href="https://github.com/leonai42/stdd/blob/master/CHANGELOG.md">更新日志</a>
+        <a href="https://github.com/leonai42/stdd/releases">GitHub Releases</a>
         <a href="https://github.com/leonai42/stdd/discussions">社区讨论</a>
         <a href="https://github.com/leonai42/stdd/blob/master/AI_CODING_METHODOLOGY_COMPARISON.md">框架对比</a>
     </div>
     <p style="margin-bottom:4px" data-t="footer_t">Spec 先行，TDD 执行，质量不靠运气，靠系统。</p>
-    <p style="color:rgba(255,255,255,0.4)">STDD V2.5 · MIT License · 小以AI实验室</p>
+    <p style="color:rgba(255,255,255,0.4)">STDD V2.9 · MIT License · 小以AI实验室 · 道以研究院</p>
 </footer>
 
 </body>

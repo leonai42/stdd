@@ -1,7 +1,7 @@
 # STDD 部署与使用指南 | Deployment & Usage Guide
 
-> STDD (Spec+Test Driven Development) V2.5
-> 适用平台 / Supported Platforms：Claude Code / Cursor / Copilot / Aider / WorkBuddy / Trae / Windsurf
+> STDD (Spec+Test Driven Development) V2.9
+> 适用平台 / Supported Platforms：Claude Code / Cursor / Copilot / Aider / WorkBuddy / Trae / OpenCode / Windsurf
 
 ---
 
@@ -64,6 +64,9 @@ python /path/to/stdd-project/bin/stdd install trae
 
 # 安装到 Cursor（作为项目规则 / As project rules）
 python /path/to/stdd-project/bin/stdd install cursor
+
+# 安装到 OpenCode / Install to OpenCode
+python /path/to/stdd-project/bin/stdd install opencode
 ```
 
 ---
@@ -158,7 +161,8 @@ stdd abort feature-rate-limit
 │   └── platforms/                  # 多平台适配 / Platform adapters
 │       ├── claude-code/skills/
 │       ├── workbuddy/skills/
-│       └── trae/skills/
+│       ├── trae/skills/
+│       └── opencode/skills/
 ├── changes/                        # 活跃变更 / Active changes
 │   └── <YYYY-MM-DD>-<name>/
 │       ├── .stdd.yaml              # 变更状态 / Change state
@@ -238,7 +242,21 @@ Skills installed to `.trae/skills/`, invoked via `/stdd-xxx`.
 python /path/to/stdd-project/bin/stdd install trae
 ```
 
-### 6.7 Windsurf（手动 / Manual）
+### 6.7 OpenCode
+
+Skills 安装到 `.opencode/skills/<name>/SKILL.md`，通过 `/stdd-xxx` 斜杠命令调用。
+Skills installed to `.opencode/skills/<name>/SKILL.md`, invoked via `/stdd-xxx` slash commands.
+
+```bash
+python /path/to/stdd-project/bin/stdd install opencode
+# 重启 OpenCode 或在对话框中输入 /stdd-understand <需求>
+# Restart OpenCode or type /stdd-understand <requirement> in the dialog
+```
+
+> **注意 / Note**：OpenCode 的 skill 加载机制与 Claude Code 类似，使用相同的 YAML frontmatter 格式和目录结构（一个 skill 一个子目录）。
+> OpenCode's skill loading mechanism is similar to Claude Code, using the same YAML frontmatter format and directory structure (one skill per subdirectory).
+
+### 6.8 Windsurf（手动 / Manual）
 
 ```bash
 # 手动复制 STDD.md 为项目规则 / Manually copy as project rules

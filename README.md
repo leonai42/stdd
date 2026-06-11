@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <b>V2.5</b> &nbsp;·&nbsp; MIT License &nbsp;·&nbsp; Python 3.10+
+  <b>V2.9</b> &nbsp;·&nbsp; MIT License &nbsp;·&nbsp; Python 3.10+
 </p>
 
 <p align="center">
@@ -16,7 +16,7 @@
 
 > **AI 编程不只是"写代码"，而是"写出正确的代码"** — 当工程实践遇见 AI 辅助开发。
 >
-> STDD 是一套 **Spec 先行 + TDD 执行** 的 AI 辅助研发流程系统。6 个有序阶段 + 3 道强制确认门 + 11 类失败模式检查 + 自学习经验库 + 双向可追溯链，将模糊需求转化为高质量交付。支持 5 门语言（Python / Java / Go / Rust / TypeScript），适配 6 大 AI 编程平台。
+> STDD 是一套 **Spec 先行 + TDD 执行** 的 AI 辅助研发流程系统。6 个有序阶段 + 3 道强制确认门 + 11 类失败模式检查 + 自学习经验库 + 双向可追溯链，将模糊需求转化为高质量交付。支持 5 门语言（Python / Java / Go / Rust / TypeScript），适配 7 大 AI 编程平台。
 
 ---
 
@@ -241,6 +241,7 @@ python /path/to/stdd-project/bin/stdd install aider
 | **Aider** | `stdd install aider` | `.aider.conf.yml` |
 | **WorkBuddy** | `stdd install workbuddy` | 关键词匹配触发 |
 | **Trae** | `stdd install trae` | `/stdd-xxx` 斜杠命令 |
+| **OpenCode** | `stdd install opencode` | `/stdd-xxx` 斜杠命令 |
 
 > 对于 Windsurf 等无自动安装支持的平台，可将 `STDD.md` 手动复制为 `.windsurfrules`。
 
@@ -270,7 +271,7 @@ STDD 项目仓库                           你的项目（安装后）
 │   ├── templates/       # 9 文档模板     │   └── platforms/       # 多平台适配
 │   ├── standards/       # 5 语言规范     ├── specs/               # 主规范
 │   ├── config.d/        # 模块化配置     ├── changes/             # 活跃变更
-│   └── platforms/       # 6 平台适配     ├── archive/             # 已完成
+│   └── platforms/       # 7 平台适配     ├── archive/             # 已完成
 ├── stdd/cli/            # CLI 模块       ├── STDD.md
 ├── bin/stdd             # CLI 入口       └── AGENTS.md
 ├── tests/               # STDD 自身测试

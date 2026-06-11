@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <b>V2.5</b> &nbsp;·&nbsp; MIT License &nbsp;·&nbsp; Python 3.10+
+  <b>V2.9</b> &nbsp;·&nbsp; MIT License &nbsp;·&nbsp; Python 3.10+
 </p>
 
 <p align="center">
@@ -16,7 +16,7 @@
 
 > **AI coding isn't just about "writing code" — it's about "writing correct code"** — engineering practices meet AI-assisted development.
 >
-> STDD is an **AI-assisted development methodology** powered by Spec-first + TDD execution. 6 ordered phases + 3 mandatory confirmation gates + 11 failure mode checks + self-learning experience library + bidirectional traceability — transforming vague requirements into high-quality deliverables. Supports 5 languages (Python / Java / Go / Rust / TypeScript) across 6 AI coding platforms.
+> STDD is an **AI-assisted development methodology** powered by Spec-first + TDD execution. 6 ordered phases + 3 mandatory confirmation gates + 11 failure mode checks + self-learning experience library + bidirectional traceability — transforming vague requirements into high-quality deliverables. Supports 5 languages (Python / Java / Go / Rust / TypeScript) across 7 AI coding platforms.
 
 ---
 
@@ -241,6 +241,7 @@ The system will guide you through Phase 1 (requirement understanding), generate 
 | **Aider** | `stdd install aider` | `.aider.conf.yml` |
 | **WorkBuddy** | `stdd install workbuddy` | Keyword-triggered |
 | **Trae** | `stdd install trae` | `/stdd-xxx` slash commands |
+| **OpenCode** | `stdd install opencode` | `/stdd-xxx` slash commands |
 
 > For Windsurf and other platforms without automated install support, manually copy `STDD.md` as `.windsurfrules`.
 
@@ -270,7 +271,7 @@ STDD Repository                          Your Project (after init)
 │   ├── templates/       # 9 doc templates│   └── platforms/       # Platform adapters
 │   ├── standards/       # 5 lang specs   ├── specs/               # Master specs
 │   ├── config.d/        # Modular config ├── changes/             # Active changes
-│   └── platforms/       # 6 platform ads ├── archive/             # Completed
+│   └── platforms/       # 7 platform ads ├── archive/             # Completed
 ├── stdd/cli/            # CLI modules    ├── STDD.md
 ├── bin/stdd             # CLI entry      └── AGENTS.md
 ├── tests/               # STDD self-tests
