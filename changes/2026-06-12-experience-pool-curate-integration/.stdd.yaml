@@ -1,0 +1,30 @@
+change_id: 2026-06-12-experience-pool-curate-integration
+complexity_score: 5
+current_phase: build
+long_range:
+  enabled: true
+  mode: full_auto
+  pre_auth_completed: true
+mode: standard
+phase: build
+phases:
+  build:
+    status: in_progress
+  deliver:
+    status: pending
+  slice:
+    confirmed_at: '2026-06-12T11:47:22.027337'
+    gate_confirmed: true
+    status: completed
+  spec:
+    confirmed_at: '2026-06-12T11:47:22.027337'
+    gate_confirmed: true
+    status: completed
+  understand:
+    confirmed_at: '2026-06-12T11:47:22.027337'
+    gate_confirmed: true
+    status: completed
+  verify:
+    status: pending
+status: active
+version: '2.0'

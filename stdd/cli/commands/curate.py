@@ -208,23 +208,48 @@ def cmd_curate_review(args: argparse.Namespace, project_root: Path) -> None:
             print(f"  Fix: {fix_template[:100]}")
         print(f"  [a]pprove  [e]dit  [m]erge  [r]eject  [s]kip")
 
-        if flags:
-            choice = "r"  # Auto-reject low quality
-        else:
-            choice = "a"  # Auto-approve in non-interactive mode
+        # Interactive choice (V2.9.5)
+        try:
+            choice = input("  > ").strip().lower()
+        except (EOFError, KeyboardInterrupt):
+            choice = "s"
 
         if choice == "a":
             data["curated"] = True
             data["pack_version"] = "v1.0.0"
+            data["lifecycle_state"] = "merged"
             approved.append(eid)
-            print(f"  → Approved")
+            print("  -> Approved (merged)")
         elif choice == "r":
-            reason = flag_str if flags else "manual rejection"
+            try:
+                reason = input("  Reject reason: ").strip()
+            except (EOFError, KeyboardInterrupt):
+                reason = "manual rejection"
             data["reject_reason"] = reason
+            data["lifecycle_state"] = "retired"
             rejected.append(eid)
-            print(f"  → Rejected: {reason}")
+            print(f"  -> Rejected: {reason}")
+        elif choice == "e":
+            print(f"  Edit mode for {eid}")
+            try:
+                new_pat = input("  New pattern (Enter=keep): ").strip()
+                if new_pat:
+                    data["pattern"] = new_pat
+                new_root = input("  New root_cause (Enter=keep): ").strip()
+                if new_root:
+                    data["root_cause"] = new_root
+                new_fix = input("  New fix_template (Enter=keep): ").strip()
+                if new_fix:
+                    data["fix_template"] = new_fix
+                data["curated"] = True
+                data["pack_version"] = "v1.0.0"
+                data["lifecycle_state"] = "merged"
+                approved.append(eid)
+                print("  -> Approved (edited)")
+            except (EOFError, KeyboardInterrupt):
+                print("  -> Skipped (edit cancelled)")
         else:
-            print(f"  → Skipped")
+            print("  -> Skipped")
 
     print(f"\n  Review complete: {len(approved)} approved, {len(rejected)} rejected")
 

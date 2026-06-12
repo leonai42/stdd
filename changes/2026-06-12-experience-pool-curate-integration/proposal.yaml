@@ -1,0 +1,54 @@
+anchoring:
+  level: L1
+capabilities:
+  modified:
+  - description: 逐条展示 pending/ 经验，A批准/R拒绝/E编辑/S跳过
+    name: curate-review-interactive
+  - description: pull 只下载 approved/ 内容
+    name: pull-only-approved
+  - description: VERIFY 末尾调用 extract
+    name: verify-extract-integration
+  new: []
+constraints:
+- 不改变服务器 API
+- 不改变 experience FSM
+critical:
+  is_critical: false
+  risk_assessment:
+    cross_system: false
+    financial: false
+    safety_critical: false
+meta:
+  change_id: 2026-06-12-experience-pool-curate-integration
+  created: '2026-06-12T11:24:57.211096'
+  status: confirmed
+  title: 经验池收尾：curate review 交互化 + pull 只拉 approved + VERIFY 集成 extract
+non_goals:
+- 不改变 share API
+- 不改变 FSM 生命周期
+risk_areas:
+- capability: curate-review-interactive
+  mitigation: 使用标准 input()
+  risk: 交互式输入在各平台兼容性
+stakeholders:
+- STDD 维护者
+- STDD 用户
+success_criteria:
+- 'SC1: curate review 逐条展示 pending/ 经验，等待 A/R/E/S'
+- 'SC2: A→approved/(lifecycle:merged), R→rejected/+reject_reason'
+- 'SC3: pull 只下载 approved/ 内容'
+- 'SC4: VERIFY skill 末尾提示运行 extract'
+what_changes:
+- description: curate review 改为真交互式 (A/R/E/S)
+  id: C1
+  type: modified
+- description: curate pull + experience pull 只从 approved/ 获取
+  id: C2
+  type: modified
+- description: VERIFY skill 末尾追加 extract 调用步骤
+  id: C3
+  type: modified
+why:
+  motivation: 打通从社区提交到审核通过的最后一段路，确保用户只拉到已审核的高质量经验。
+  problem: 上一轮实现了 extract→review→share 闭环，但 curate review 仍是非交互的、pull 拉全量不区分审核状态、VERIFY
+    未集成 extract。

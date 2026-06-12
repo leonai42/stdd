@@ -140,3 +140,72 @@ class TestCuratePack:
         cmd_curate_pack(args, tmp_path)
         # No curated experiences without review, so pack may be empty
         # but verification is in the integration flow
+
+
+class TestCurateReviewInteractive:
+    """V2.9.5: Interactive curate review with A/R/E/S."""
+
+    def test_review_approve(self, tmp_path, monkeypatch):
+        """A -> approved (merged)."""
+        from pathlib import Path as P
+        _setup_curate_project(tmp_path, with_inbox=True)
+        monkeypatch.chdir(tmp_path)
+
+        import builtins
+        oi = builtins.input
+        # First input: 'a' for approve, second not needed
+        inputs = iter(["a", "a"])
+        builtins.input = lambda _="": next(inputs)
+        try:
+            from stdd.cli.commands.curate import cmd_curate_review
+            args = _make_args("review")
+            cmd_curate_review(args, tmp_path)
+        finally:
+            builtins.input = oi
+
+    def test_review_reject(self, tmp_path, monkeypatch):
+        """R -> rejected."""
+        _setup_curate_project(tmp_path, with_inbox=True)
+        monkeypatch.chdir(tmp_path)
+
+        import builtins
+        oi = builtins.input
+        inputs = iter(["r", "test rejection reason", "r", "test rejection reason 2"])
+        builtins.input = lambda _="": next(inputs)
+        try:
+            from stdd.cli.commands.curate import cmd_curate_review
+            args = _make_args("review")
+            cmd_curate_review(args, tmp_path)
+        finally:
+            builtins.input = oi
+
+    def test_review_skip(self, tmp_path, monkeypatch):
+        """S/other -> skipped."""
+        _setup_curate_project(tmp_path, with_inbox=True)
+        monkeypatch.chdir(tmp_path)
+
+        import builtins
+        oi = builtins.input
+        builtins.input = lambda _="": "s"  # skip all
+        try:
+            from stdd.cli.commands.curate import cmd_curate_review
+            args = _make_args("review")
+            cmd_curate_review(args, tmp_path)
+        finally:
+            builtins.input = oi
+
+    def test_review_edit(self, tmp_path, monkeypatch):
+        """E -> edit and approve."""
+        _setup_curate_project(tmp_path, with_inbox=True)
+        monkeypatch.chdir(tmp_path)
+
+        import builtins
+        oi = builtins.input
+        inputs = iter(["e", "new pattern", "new root cause", "new fix", "s"])
+        builtins.input = lambda _="": next(inputs)
+        try:
+            from stdd.cli.commands.curate import cmd_curate_review
+            args = _make_args("review")
+            cmd_curate_review(args, tmp_path)
+        finally:
+            builtins.input = oi
