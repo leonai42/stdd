@@ -174,6 +174,18 @@ def main() -> None:
     p_exp_retire = exp_subs.add_parser("retire", help="废弃经验（任意状态 → retired）", parents=[parent])
     p_exp_retire.add_argument("experience_id", help="经验 ID（如 EXP-2026-0001）")
     p_exp_retire.add_argument("--reason", help="废弃原因")
+    # V2.9: extract/review/share/search
+    p_exp_extract = exp_subs.add_parser("extract", help="从 test-report 自动提取经验草稿", parents=[parent])
+    p_exp_review = exp_subs.add_parser("review", help="交互式审核经验草稿", parents=[parent])
+    p_exp_share = exp_subs.add_parser("share", help="一键共享经验到社区", parents=[parent])
+    p_exp_share.add_argument("experience_id", help="经验 ID")
+    p_exp_search = exp_subs.add_parser("search", help="全文搜索经验库", parents=[parent])
+    p_exp_search.add_argument("keyword", help="搜索关键词")
+    p_exp_search.add_argument("--category", help="按分类过滤")
+    p_exp_search.add_argument("--language", help="按语言过滤")
+    p_exp_search.add_argument("--severity", help="按严重程度过滤")
+    p_exp_search.add_argument("--format", choices=["table", "json"], default="table", help="输出格式")
+
     # curate subcommand under experience
     p_curate = exp_subs.add_parser("curate", help="官方维护者整理工具", parents=[parent])
     curate_subs = p_curate.add_subparsers(dest="curate_subcommand", help="子命令")

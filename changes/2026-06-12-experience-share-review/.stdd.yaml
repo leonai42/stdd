@@ -1,0 +1,40 @@
+change_id: 2026-06-12-experience-share-review
+complexity_score: 9
+current_phase: deliver
+design_adjustments:
+  count: 0
+long_range:
+  enabled: true
+  mode: full_auto
+  pre_auth_completed: true
+mode: standard
+phase: deliver
+phase_context:
+  confirmed_at: '2026-06-12T00:30:00+08:00'
+  gate1_confirmed: true
+phases:
+  build:
+    status: completed
+  deliver:
+    status: in_progress
+  slice:
+    status: completed
+  spec:
+    confirmed_at: '2026-06-12T07:32:28.809170'
+    gate_confirmed: true
+    status: completed
+  understand:
+    confirmed_at: '2026-06-12T07:32:28.809170'
+    gate_confirmed: true
+    status: completed
+  verify:
+    confirmed_at: '2026-06-12T10:42:11.413481'
+    status: completed
+score_confidence: null
+status: completed
+task_type: code
+traceability:
+  spec_scenarios: 0
+  tc_cases: 0
+  test_functions: 0
+version: '2.0'

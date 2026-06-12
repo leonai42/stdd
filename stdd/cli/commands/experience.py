@@ -768,6 +768,374 @@ def _index_remove_entry(index: dict, eid: str, old_state: str) -> None:
                     del index[bucket][key]
 
 
+
+def _cmd_extract(args, exp_dir):
+    """Auto-extract experience drafts from test-report.md of current change."""
+    from ..utils import read_config
+    project_root = Path.cwd()
+    changes_dir = project_root / "changes"
+    if not changes_dir.exists():
+        print("  No changes/ directory, skipping extraction.")
+        return
+    candidates = []
+    for d in sorted(changes_dir.iterdir(), reverse=True):
+        if d.name.startswith("_") or d.name.startswith("."):
+            continue
+        tr = d / "test-report.md"
+        if tr.exists():
+            candidates.append((d, tr))
+    if not candidates:
+        print("  No test-report.md found in current change, skipping.")
+        return
+    change_dir, test_report = candidates[0]
+    print(f"  Extracting from {change_dir.name}/test-report.md ...")
+    try:
+        text = test_report.read_text(encoding="utf-8")
+    except Exception:
+        print("  Cannot read test-report.md, skipping.")
+        return
+    patterns = _parse_test_report(text)
+    test_anomalies = _parse_test_anomalies(text)
+    patterns.extend(test_anomalies)
+    filtered = [p for p in patterns
+                if p["severity"] in ("high", "critical", "medium") or p.get("occurrences", 1) >= 2]
+    skipped = len(patterns) - len(filtered)
+    if not filtered:
+        print(f"  No patterns to deposit. ({len(patterns)} found, {skipped} low-value skipped)")
+        return
+    exp_dir_path = Path(exp_dir)
+    exp_dir_path.mkdir(parents=True, exist_ok=True)
+    config = read_config(project_root)
+    proj_lang = config.get("project", {}).get("language", "python")
+    today = datetime.now().strftime("%Y-%m-%d")
+    existing = sorted(exp_dir_path.glob("EXP-*.md"))
+    next_num = len(existing) + 1
+    count = 0
+    for p in filtered:
+        eid = f"EXP-{datetime.now().year}-{next_num:04d}"
+        next_num += 1
+        frontmatter = {
+            "experience_id": eid, "category": p["category"],
+            "pattern": p["pattern"], "root_cause": p.get("root_cause", ""),
+            "detection_trigger": p.get("detection_trigger", ""),
+            "fix_template": p.get("fix_template", ""),
+            "language": p.get("language", proj_lang),
+            "tags": p.get("tags", []), "occurrences": p.get("occurrences", 1),
+            "severity": p["severity"], "confidence": 0.5,
+            "source_change": change_dir.name,
+            "source_file": p.get("source_file", ""),
+            "lifecycle_state": "discovered",
+            "first_seen": today, "last_seen": today,
+            "provenance": "ci-detected", "provenance_weight": 0.85,
+            "community_votes_useful": 0, "community_votes_unuseful": 0,
+            "adoption_count": 0, "project_type": "python",
+        }
+        body = f"# {p['pattern']}\n\nCategory: {CATEGORY_LABELS.get(p['category'], p['category'])}\n\nRoot Cause: {p.get('root_cause', 'TBD')}\n\nDetection: {p.get('detection_trigger', 'auto-detected')}\n\nFix: {p.get('fix_template', 'TBD')}"
+        fm_yaml = yaml.dump(frontmatter, allow_unicode=True, default_flow_style=False)
+        file_content = f"---\n{fm_yaml}---\n\n{body}"
+        (exp_dir_path / f"{eid}.md").write_text(file_content, encoding="utf-8")
+        count += 1
+    _load_index(exp_dir)
+    print(f"  Generated {count} draft(s) (lifecycle=discovered)")
+    if skipped > 0:
+        print(f"  {skipped} low-value pattern(s) skipped")
+    print("  Run 'stdd experience review' to confirm drafts")
+
+
+def _parse_test_report(text):
+    """Parse 12 failure mode check results from test-report.md."""
+    patterns = []
+    for line in text.split("\n"):
+        line = line.strip()
+        if line.startswith("|") and "|" in line[1:]:
+            parts = [p.strip() for p in line.split("|")[1:-1]]
+            if len(parts) >= 3:
+                cat_raw = parts[0].lower().replace("`", "").replace("*", "").replace(" ", "_")
+                status = parts[1].lower() if len(parts) > 1 else ""
+                desc = parts[2] if len(parts) > 2 else ""
+                matched_cat = None
+                for vc in VALID_CATEGORIES:
+                    if vc in cat_raw or cat_raw in vc:
+                        matched_cat = vc
+                        break
+                if matched_cat and ("fail" in status or "no" in status or "warning" in status
+                                    or status in ("x", "✗")):
+                    severity = "high" if "fail" in status or status in ("x", "✗") else "medium"
+                    patterns.append({
+                        "category": matched_cat,
+                        "pattern": desc[:120] if desc else f"{matched_cat} check failed",
+                        "root_cause": "", "detection_trigger": matched_cat,
+                        "fix_template": "", "occurrences": 1,
+                        "severity": severity, "tags": [matched_cat],
+                        "language": "python", "source_file": "",
+                    })
+    return patterns
+
+
+def _parse_test_anomalies(text):
+    """Parse test anomalies (flaky, timeout) from test-report."""
+    anomalies = []
+    for line in text.split("\n"):
+        ll = line.lower()
+        if "flaky" in ll and ("test" in ll or "fail" in ll):
+            anomalies.append({
+                "category": "runtime_deviation",
+                "pattern": f"Flaky test: {line.strip()[:100]}",
+                "root_cause": "Test instability detected",
+                "detection_trigger": "flaky_test", "fix_template": "",
+                "occurrences": 1, "severity": "medium",
+                "tags": ["flaky_test"], "language": "python", "source_file": "",
+            })
+        if "timeout" in ll and ("test" in ll or "fail" in ll):
+            anomalies.append({
+                "category": "runtime_deviation",
+                "pattern": f"Test timeout: {line.strip()[:100]}",
+                "root_cause": "Test timeout detected",
+                "detection_trigger": "timeout", "fix_template": "",
+                "occurrences": 1, "severity": "medium",
+                "tags": ["timeout"], "language": "python", "source_file": "",
+            })
+    return anomalies
+
+
+def _cmd_review(args, exp_dir):
+    """Interactive review of discovered experience drafts."""
+    exp_dir_path = Path(exp_dir)
+    if not exp_dir_path.exists():
+        print("  Experience library is empty. Run 'stdd experience extract' first.")
+        return
+    drafts = []
+    for f in sorted(exp_dir_path.glob("EXP-*.md")):
+        fm = _load_experience(f)
+        if fm and fm.get("lifecycle_state") == "discovered":
+            drafts.append((f, fm))
+    if not drafts:
+        print("  No drafts pending review.")
+        return
+    print(f"\n  Found {len(drafts)} draft(s) for review:\n")
+    shared = local = deleted = remaining = 0
+    for idx, (filepath, fm) in enumerate(drafts, 1):
+        cat_label = CATEGORY_LABELS.get(fm.get("category", ""), fm.get("category", ""))
+        pattern = fm.get("pattern", "")[:80]
+        severity = fm.get("severity", "medium")
+        occurrences = fm.get("occurrences", 1)
+        eid = fm.get("experience_id", filepath.stem)
+        print(f"  {'-' * 60}")
+        print(f"  [{idx}/{len(drafts)}] {eid}")
+        print(f"  Category: {cat_label} | Severity: {severity} | Occurrences: {occurrences}")
+        print(f"  Pattern: {pattern}")
+        root_cause = fm.get("root_cause", "")
+        if root_cause:
+            print(f"  Root Cause: {root_cause[:100]}")
+        print("  [S] Share+Deposit  [L] Local Only  [D] Skip  [A] All Share  [Q] Quit")
+        try:
+            choice = input("  > ").strip().upper() or "S"
+        except (EOFError, KeyboardInterrupt):
+            choice = "Q"
+        if choice == "A":
+            for fp2, fm2 in drafts[idx-1:]:
+                _do_deposit(fp2, fm2)
+                shared += 1
+                _cmd_share_single(fm2.get("experience_id", fp2.stem), exp_dir_path)
+            print(f"  -> All {len(drafts)-idx+1} remaining shared+deposited")
+            break
+        elif choice == "Q":
+            remaining = len(drafts) - idx + 1
+            print(f"  Quit. {remaining} draft(s) preserved for next review.")
+            break
+        elif choice == "D":
+            filepath.unlink()
+            deleted += 1
+            print(f"  -> {eid}: Deleted")
+        elif choice == "L":
+            _do_deposit(filepath, fm)
+            local += 1
+            print(f"  -> {eid}: Deposited locally")
+        else:
+            _do_deposit(filepath, fm)
+            shared += 1
+            ok = _cmd_share_single(eid, exp_dir_path)
+            if ok:
+                print(f"  -> {eid}: Deposited + Shared")
+            else:
+                print(f"  -> {eid}: Deposited (share failed, retry later)")
+    _load_index(exp_dir)
+    print(f"\n  Review complete: {shared} shared, {local} local, {deleted} deleted, {remaining} preserved")
+
+
+def _do_deposit(filepath, fm):
+    """Advance lifecycle to deposited and update file."""
+    fm["lifecycle_state"] = "deposited"
+    fm["last_seen"] = datetime.now().strftime("%Y-%m-%d")
+    body = filepath.read_text(encoding="utf-8").split("---", 2)
+    body_content = body[2].strip() if len(body) >= 3 else ""
+    fm_yaml = yaml.dump(fm, allow_unicode=True, default_flow_style=False)
+    filepath.write_text(f"---\n{fm_yaml}---\n\n{body_content}", encoding="utf-8")
+
+
+def _cmd_share(args, exp_dir):
+    """One-click share experience to community (standalone CLI)."""
+    eid = getattr(args, "experience_id", "")
+    exp_dir_path = Path(exp_dir)
+    ok = _cmd_share_single(eid, exp_dir_path)
+    if not ok:
+        sys.exit(1)
+
+
+def _cmd_share_single(eid, exp_dir_path):
+    """Share a single experience. Returns True on success."""
+    filepath = exp_dir_path / f"{eid}.md"
+    if not filepath.exists():
+        print(f"  Experience {eid} not found")
+        return False
+    content = filepath.read_text(encoding="utf-8")
+    fm = _load_experience(filepath)
+    if not fm:
+        return False
+    sanitized = _sanitize(content)
+    fm["lifecycle_state"] = "shared"
+    fm["last_seen"] = datetime.now().strftime("%Y-%m-%d")
+    body_parts = content.split("---", 2)
+    body_text = body_parts[2].strip() if len(body_parts) >= 3 else ""
+    fm_yaml = yaml.dump(fm, allow_unicode=True, default_flow_style=False)
+    # Write updated lifecycle
+    filepath.write_text(f"---\n{fm_yaml}---\n\n{body_text}", encoding="utf-8")
+    import shutil
+    import subprocess
+    if shutil.which("gh"):
+        print(f"  gh CLI detected, sharing via user account...")
+        try:
+            return _share_via_gh(eid, sanitized)
+        except Exception as e:
+            print(f"  gh CLI failed: {e}, falling back to server API...")
+            return _share_via_api(eid, sanitized)
+    else:
+        print(f"  Sharing via server API...")
+        return _share_via_api(eid, sanitized)
+
+
+def _share_via_gh(eid, content):
+    """Share using gh CLI."""
+    import subprocess
+    import tempfile
+    repo = "leonai42/stdd-experiences"
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp = Path(tmpdir)
+        r = subprocess.run(["gh", "repo", "clone", repo, str(tmp / "repo")],
+                         capture_output=True, text=True, timeout=60)
+        if r.returncode != 0:
+            raise RuntimeError(f"clone failed: {r.stderr[:200]}")
+        repo_dir = tmp / "repo"
+        pending_dir = repo_dir / "pending"
+        pending_dir.mkdir(parents=True, exist_ok=True)
+        (pending_dir / f"{eid}.md").write_text(content, encoding="utf-8")
+        subprocess.run(["git", "add", "."], cwd=repo_dir, timeout=10)
+        subprocess.run(["git", "commit", "-m", f"share: {eid}"],
+                      cwd=repo_dir, capture_output=True, timeout=10)
+        r = subprocess.run(["git", "push"], cwd=repo_dir,
+                          capture_output=True, text=True, timeout=30)
+        if r.returncode != 0:
+            raise RuntimeError(f"push failed: {r.stderr[:200]}")
+    print(f"  {eid}: Submitted via gh CLI")
+    return True
+
+
+def _share_via_api(eid, content):
+    """Share via server API (fallback)."""
+    import requests as req
+    import subprocess
+    url = "https://hzddyy.com/stdd/api/share-experience"
+    try:
+        author = subprocess.run(["git", "config", "user.name"],
+                              capture_output=True, text=True, timeout=5).stdout.strip()
+    except Exception:
+        author = ""
+    payload = {"experience_id": eid, "content": content, "author": author}
+    try:
+        r = req.post(url, json=payload, timeout=30)
+        data = r.json()
+        if data.get("success"):
+            print(f"  {eid}: Submitted to pending review pool")
+            return True
+        else:
+            print(f"  API error: {data.get('error', 'unknown')}")
+            return False
+    except Exception as e:
+        print(f"  Server API unavailable: {e}")
+        print("  Tip: retry later or use 'stdd experience export --publish'")
+        return False
+
+
+def _cmd_search(args, exp_dir):
+    """Full-text search experience library."""
+    exp_dir_path = Path(exp_dir)
+    if not exp_dir_path.exists() or not list(exp_dir_path.glob("EXP-*.md")):
+        print("  Experience library is empty.")
+        return
+    keyword = getattr(args, "keyword", "")
+    cat_filter = getattr(args, "category", None)
+    lang_filter = getattr(args, "language", None)
+    sev_filter = getattr(args, "severity", None)
+    fmt = getattr(args, "format", "table")
+    results = []
+    for filepath in sorted(exp_dir_path.glob("EXP-*.md")):
+        fm = _load_experience(filepath)
+        if not fm:
+            continue
+        if cat_filter and fm.get("category") != cat_filter:
+            continue
+        if lang_filter and fm.get("language") != lang_filter:
+            continue
+        if sev_filter and fm.get("severity") != sev_filter:
+            continue
+        content = filepath.read_text(encoding="utf-8")
+        body = content.split("---", 2)
+        body = body[2].strip() if len(body) >= 3 else ""
+        pattern = fm.get("pattern", "")
+        root_cause = fm.get("root_cause", "")
+        kw = keyword.lower()
+        score = 0.0
+        if kw in pattern.lower():
+            score += 3.0
+        if kw in root_cause.lower():
+            score += 2.0
+        if kw in body.lower():
+            score += 1.0
+        if score > 0:
+            score += fm.get("confidence", 0.5) * 0.5
+            score += fm.get("adoption_count", 0) * 0.01
+            results.append({"score": score, "eid": fm.get("experience_id", filepath.stem), "fm": fm})
+    if not results:
+        print(f"  No results for '{keyword}'")
+        return
+    results.sort(key=lambda x: x["score"], reverse=True)
+    if fmt == "json":
+        import json
+        output = []
+        for r in results:
+            output.append({
+                "experience_id": r["eid"], "category": r["fm"].get("category"),
+                "pattern": r["fm"].get("pattern"), "severity": r["fm"].get("severity"),
+                "language": r["fm"].get("language"),
+                "lifecycle_state": r["fm"].get("lifecycle_state"),
+                "relevance_score": round(r["score"], 3),
+            })
+        print(json.dumps(output, ensure_ascii=False, indent=2))
+    else:
+        print(f"\n  Keyword '{keyword}' matched {len(results)} experience(s):\n")
+        for r in results[:20]:
+            fm = r["fm"]
+            cat_label = CATEGORY_LABELS.get(fm.get("category", ""), fm.get("category", ""))
+            print(f"  {r['eid']} [{cat_label}] (score: {r['score']:.1f})")
+            print(f"    Pattern: {fm.get('pattern', '')[:100]}")
+            root = fm.get("root_cause", "")
+            if root:
+                print(f"    Root Cause: {root[:100]}")
+            print()
+        if len(results) > 20:
+            print(f"  ... {len(results)-20} more results, narrow your search.")
+
+
 def cmd_experience(args: argparse.Namespace) -> None:
     from ..utils import get_logger
     get_logger()
@@ -793,10 +1161,18 @@ def cmd_experience(args: argparse.Namespace) -> None:
         _cmd_deposit(args, exp_dir)
     elif subcommand == "retire":
         _cmd_retire(args, exp_dir)
+    elif subcommand == "extract":
+        _cmd_extract(args, exp_dir)
+    elif subcommand == "review":
+        _cmd_review(args, exp_dir)
+    elif subcommand == "share":
+        _cmd_share(args, exp_dir)
+    elif subcommand == "search":
+        _cmd_search(args, exp_dir)
     elif subcommand == "curate":
         from .curate import cmd_curate
         cmd_curate(args)
     else:
         print(f" 未知子命令: {subcommand}")
-        print(" 可用: list, add, stats, export, pull, verify, deposit, retire, curate")
+        print(" 可用: list, add, stats, export, pull, verify, deposit, retire, extract, review, share, search, curate")
         sys.exit(1)

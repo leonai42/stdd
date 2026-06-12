@@ -1,0 +1,82 @@
+meta:
+  change_id: 2026-06-12-experience-share-review
+  title: 经验池核心闭环：自动提取 → 交互审核 → 一键共享 → 全文搜索
+  created: '2026-06-12T00:22:17.078858'
+  status: confirmed
+why:
+  problem: '当前 STDD 经验池系统存在三个断裂：
+
+    1. 录入断裂：Phase 5 VERIFY 发现的失败模式无法自动沉淀为经验，用户需手动填 10+ 字段；
+
+    2. 共享断裂：从本地经验到社区可用需要 6 步操作，其中 2 步离开 CLI；
+
+    3. 发现断裂：用户无法搜索已有经验，只能按分类/语言筛选。'
+  motivation: 打通 VERIFY → extract → review → share 闭环，让经验从被动录入变为自动提取、一次确认、一键共享。同时补齐全文搜索能力。
+what_changes:
+- id: C1
+  description: 新增 stdd experience extract 命令：从 test-report.md 自动提取经验草稿
+  type: new
+- id: C2
+  description: 新增 stdd experience review 命令：交互式确认（S沉淀+共享/L仅本地/D跳过）
+  type: new
+- id: C3
+  description: 新增 stdd experience share 命令：方案D混合模式一键共享（gh CLI / 服务器API fallback）
+  type: new
+- id: C4
+  description: 新增 stdd experience search 命令：全文搜索 pattern + root_cause + body
+  type: new
+- id: C5
+  description: 升级 VERIFY skill：Phase 5 末尾自动调用 extract，提示 review
+  type: modified
+capabilities:
+  new:
+  - name: experience-extract
+    description: 从 test-report.md + 测试输出中自动提取失败模式/异常/优化建议，生成经验草稿
+  - name: experience-review
+    description: 交互式审核经验草稿，支持 S/L/D/A/Q 选择，一步完成沉淀+共享
+  - name: experience-share
+    description: 自动脱敏 + 混合模式推送（gh CLI 优先，服务器 API fallback）
+  - name: experience-search
+    description: 全文搜索本地经验库，支持关键词+分类+语言组合过滤，按相关性排序
+  modified:
+  - name: experience-cli
+    description: 新增 4 个子命令注册（extract/review/share/search）
+constraints:
+- Python 3.10+，stdd 标准库 + requests
+- 服务器 API 端点：https://hzddyy.com/stdd/api/share-experience（已部署验证）
+- extract 筛选条件：severity >= medium 或 occurrences >= 2
+- share 脱敏：自动调用 _sanitize()，替换路径/IP/域名
+stakeholders:
+- STDD 用户（AI 编程实践者）
+- STDD 维护者（经验审核员）
+risk_areas:
+- capability: experience-extract
+  risk: 自动提取的 pattern/root_cause 质量可能不高
+  mitigation: 草稿 lifecycle=discovered，必须通过 review 才能推进
+- capability: experience-share
+  risk: gh CLI 检测在各平台表现可能不一致
+  mitigation: 使用 which/where 检测 + 明确 fallback 到服务器 API
+- capability: experience-share
+  risk: 服务器 API 不可用时分享失败
+  mitigation: 失败时报错提示，不阻塞本地沉淀
+non_goals:
+- 不改变现有 experience FSM 生命周期状态定义
+- 不改变社区双池结构（pending/approved/rejected）— 待单独实现
+- 不实现团队私有经验池（STDD for Team 版本功能）
+critical:
+  is_critical: false
+  risk_assessment:
+    safety_critical: false
+    financial: false
+    cross_system: true
+anchoring:
+  level: L2
+  reference_changes: []
+  anchor_implementations: []
+success_criteria:
+- 'SC1: extract 能从 test-report.md 中提取至少 12 类失败模式和测试异常的草稿'
+- 'SC2: review 交互式展示草稿，支持 S/L/D/A/Q 选择，选 S 后自动推进 lifecycle → shared'
+- 'SC3: share 在 gh CLI 可用时使用用户账号提交；不可用时走服务器 API fallback'
+- 'SC4: share 自动脱敏（路径→<project>/<module>，IP→<ip-address>，域名→<domain>）'
+- 'SC5: search 支持关键词全文检索，按 relevance_score 排序'
+- 'SC6: 所有新增命令通过单元测试，与现有 36 个经验测试不冲突'
