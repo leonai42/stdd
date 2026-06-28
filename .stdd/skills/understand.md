@@ -1,12 +1,21 @@
 ---
 name: stdd-understand
 description: "STDD Phase 1: 需求理解与确认 — 将模糊需求转化为清晰、可验证的变更提案（proposal.md）"
+stdd_version: "2.9.5"
 ---
 # STDD Phase 1: UNDERSTAND — 需求理解与确认
 
 ## 阶段目标
 
 将用户需求转化为清晰、可验证、经用户确认的变更提案（proposal.md）。
+
+### Step 0: 版本自检
+
+先读取并执行版本自检步骤：`.stdd/skills/_shared/version-check.md`
+
+> 检查项目 `.stdd/version.yaml` 与技能版本是否一致。落后时告警但不阻断执行。
+
+---
 
 ## 前置条件
 

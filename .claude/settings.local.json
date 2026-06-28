@@ -115,7 +115,10 @@
       "Bash(mkdir -p /tmp/stdd-canon-test/changes/2026-06-05-test-change)",
       "Bash(stdd batch *)",
       "Bash(stdd hooks *)",
-      "Bash(mv changes/2026-06-08-fix-hooks-config-format changes/_batch/2026-06-08/items/)"
+      "Bash(mv changes/2026-06-08-fix-hooks-config-format changes/_batch/2026-06-08/items/)",
+      "Bash(git *)",
+      "Bash(grep -A4 \"name: stdd$\\\\|name: TStrategy\")",
+      "Skill(stdd-upgrade)"
     ]
   },
   "hooks": {

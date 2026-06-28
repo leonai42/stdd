@@ -1,12 +1,21 @@
 ---
 name: stdd-build
 description: "STDD Phase 4: TDD 实现 — 按切片执行 RED→GREEN→REFACTOR 循环"
+stdd_version: "2.9.5"
 ---
 # STDD Phase 4: BUILD — TDD 实现
 
 ## 阶段目标
 
 按切片逐一执行 RED → GREEN → REFACTOR，完成所有实现代码和测试代码。
+
+### Step 0: 版本自检
+
+先读取并执行版本自检步骤：`.stdd/skills/_shared/version-check.md`
+
+> 检查项目 `.stdd/version.yaml` 与技能版本是否一致。落后时告警但不阻断执行。
+
+---
 
 ## 前置条件
 

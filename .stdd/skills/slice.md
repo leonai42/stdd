@@ -1,12 +1,21 @@
 ---
 name: stdd-slice
 description: "STDD Phase 3: 切片规划 — 将测试方案拆分为可独立实现的垂直切片"
+stdd_version: "2.9.5"
 ---
 # STDD Phase 3: SLICE — 切片规划
 
 ## 阶段目标
 
 将 Phase 2 的测试方案拆分为可独立实现的垂直切片，规划执行顺序。
+
+### Step 0: 版本自检
+
+先读取并执行版本自检步骤：`.stdd/skills/_shared/version-check.md`
+
+> 检查项目 `.stdd/version.yaml` 与技能版本是否一致。落后时告警但不阻断执行。
+
+---
 
 ## 前置条件
 

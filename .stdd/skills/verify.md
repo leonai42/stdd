@@ -1,8 +1,17 @@
 ---
 name: stdd-verify
 description: "STDD Phase 5: 质量验证 — 全量检查 + 11类失败模式 + E2E + 覆盖率诊断"
+stdd_version: "2.9.5"
 ---
 # STDD Phase 5: VERIFY — 质量验证
+
+### Step 0: 版本自检
+
+先读取并执行版本自检步骤：`.stdd/skills/_shared/version-check.md`
+
+> 检查项目 `.stdd/version.yaml` 与技能版本是否一致。落后时告警但不阻断执行。
+
+---
 
 ## ⚠️ 强制步骤清单
 

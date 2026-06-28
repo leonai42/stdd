@@ -1,12 +1,21 @@
 ---
 name: stdd-deliver
 description: "STDD Phase 6: 交付 — 归档变更、合并规范、创建版本标签"
+stdd_version: "2.9.5"
 ---
 # STDD Phase 6: DELIVER — 交付
 
 ## 阶段目标
 
 归档变更、合并规范、创建版本标签。
+
+### Step 0: 版本自检
+
+先读取并执行版本自检步骤：`.stdd/skills/_shared/version-check.md`
+
+> 检查项目 `.stdd/version.yaml` 与技能版本是否一致。落后时告警但不阻断执行。
+
+---
 
 ## 前置条件
 

@@ -1,12 +1,21 @@
 ---
 name: stdd-spec
 description: "STDD Phase 2: 规格设计与测试方案 — 将 proposal 转化为精确的技术规格和可执行测试方案"
+stdd_version: "2.9.5"
 ---
 # STDD Phase 2: SPEC — 规格设计与测试方案
 
 ## 阶段目标
 
 将 proposal 转化为精确的技术规格和测试方案。**这是整个 STDD 流程中最重要的阶段。**
+
+### Step 0: 版本自检
+
+先读取并执行版本自检步骤：`.stdd/skills/_shared/version-check.md`
+
+> 检查项目 `.stdd/version.yaml` 与技能版本是否一致。落后时告警但不阻断执行。
+
+---
 
 ## 前置条件
 

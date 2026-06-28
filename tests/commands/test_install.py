@@ -81,3 +81,57 @@ def test_install_workbuddy(temp_project: Path, monkeypatch):
         cmd_install(args)
     target = temp_project / ".workbuddy" / "skills"
     assert target.exists()
+
+
+# ── V2.9.5: skill-version-check-upgrade tests ──
+
+def test_skill_meta_has_upgrade_entry():
+    """TC-PSI-001: SKILL_META 包含 upgrade 条目且字段完整。"""
+    from stdd.cli.commands.install import SKILL_META
+    assert "upgrade" in SKILL_META
+    meta = SKILL_META["upgrade"]
+    assert meta["name"] == "stdd-upgrade"
+    assert "description" in meta
+    assert "keywords" in meta
+    assert "stdd-upgrade" in meta["keywords"]
+
+
+def test_install_frontmatter_has_stdd_version(temp_project: Path, monkeypatch):
+    """TC-PSI-002: 安装生成的 SKILL.md frontmatter 包含 stdd_version 字段。"""
+    monkeypatch.chdir(temp_project)
+    args = argparse.Namespace(platform="claude-code", dry_run=False, verbose=0)
+    cmd_install(args)
+    # Read one generated SKILL.md and check frontmatter
+    skill_dir = temp_project / ".claude" / "skills" / "stdd-understand"
+    assert skill_dir.is_dir()
+    skill_file = skill_dir / "SKILL.md"
+    assert skill_file.exists()
+    content = skill_file.read_text(encoding="utf-8")
+    assert "stdd_version:" in content
+    # The version should be a valid semver-like string
+    import re
+    match = re.search(r'stdd_version:\s*"([\d.]+)"', content)
+    assert match is not None, f"stdd_version not found in frontmatter:\n{content[:300]}"
+    version = match.group(1)
+    parts = version.split(".")
+    assert len(parts) >= 2, f"Invalid version format: {version}"
+
+
+def test_all_platforms_include_upgrade_skill(temp_project: Path, monkeypatch, capsys):
+    """TC-PSI-003: 所有平台的 dry-run install 输出中包含 upgrade 技能。"""
+    from stdd.cli.commands.install import SKILL_META
+    platforms = ["claude-code", "opencode", "trae", "workbuddy"]
+    for platform in platforms:
+        monkeypatch.chdir(temp_project)
+        args = argparse.Namespace(platform=platform, dry_run=True, verbose=0)
+        if platform == "workbuddy":
+            from unittest.mock import patch
+            with patch('pathlib.Path.home', return_value=temp_project):
+                cmd_install(args)
+        else:
+            cmd_install(args)
+        captured = capsys.readouterr()
+        output = captured.out
+        # upgrade skill should appear in the dry-run output
+        assert "stdd-upgrade" in output or "upgrade" in output, \
+            f"Platform {platform}: upgrade skill not found in dry-run output:\n{output}"

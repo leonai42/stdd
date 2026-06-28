@@ -7,6 +7,7 @@ from pathlib import Path
 
 DIRS = [
     ".stdd/skills",
+    ".stdd/skills/_shared",
     ".stdd/templates",
     ".stdd/templates/canonical",
     ".stdd/templates/human-view",
@@ -39,6 +40,8 @@ FILES_TO_COPY = [
     ".stdd/skills/build.md",
     ".stdd/skills/verify.md",
     ".stdd/skills/deliver.md",
+    ".stdd/skills/upgrade.md",
+    ".stdd/skills/_shared/version-check.md",
     # Human View templates
     ".stdd/templates/proposal.md",
     ".stdd/templates/design.md",

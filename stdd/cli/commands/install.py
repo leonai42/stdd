@@ -35,33 +35,47 @@ SKILL_META = {
         "description": "STDD Phase 6: 交付 — 归档 change、合并 specs、更新文档",
         "keywords": ["stdd-deliver", "交付", "deliver"],
     },
+    "upgrade": {
+        "name": "stdd-upgrade",
+        "description": "STDD 技能层升级 — 同步项目 .stdd/ 快照与全局技能版本，无需 Python CLI",
+        "keywords": ["stdd-upgrade", "升级", "upgrade", "版本同步"],
+    },
 }
 
 
 def _make_claude_code_frontmatter(meta: dict) -> str:
+    version_line = ""
+    if meta.get("stdd_version"):
+        version_line = f'stdd_version: "{meta["stdd_version"]}"\n'
     return f"""---
 name: {meta['name']}
 description: "{meta['description']}"
----
+{version_line}---
 """
 
 
 def _make_workbuddy_frontmatter(meta: dict) -> str:
     keywords = "\\n  - ".join(meta["keywords"])
+    version_line = ""
+    if meta.get("stdd_version"):
+        version_line = f'stdd_version: "{meta["stdd_version"]}"\n'
     return f"""---
 name: {meta['name']}
 description: "{meta['description']}"
 trigger_keywords:
   - {keywords}
----
+{version_line}---
 """
 
 
 def _make_trae_frontmatter(meta: dict) -> str:
+    version_line = ""
+    if meta.get("stdd_version"):
+        version_line = f'stdd_version: "{meta["stdd_version"]}"\n'
     return f"""---
 name: {meta['name']}
 description: "{meta['description']}"
----
+{version_line}---
 """
 
 
@@ -176,6 +190,11 @@ def cmd_install(args: argparse.Namespace) -> None:
                 "description": f"STDD {skill_key} phase",
                 "keywords": [f"stdd-{skill_key}"],
             })
+            # Inject current STDD source version into frontmatter
+            from ..utils import get_source_version
+            sv = get_source_version()
+            if sv:
+                meta["stdd_version"] = sv
 
             frontmatter = cfg["frontmatter_fn"](meta)
             full_content = frontmatter + skill_content
