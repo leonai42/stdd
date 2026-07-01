@@ -71,7 +71,7 @@ def _provenance_weight(args) -> float:
 VALID_TRANSITIONS = {
     "discovered": {"verified", "retired"},
     "verified": {"deposited", "shared", "retired"},
-    "deposited": {"retired"},
+    "deposited": {"shared", "retired"},
     "shared": {"merged", "retired"},
     "merged": {"retired"},
     "retired": set(),  # terminal state

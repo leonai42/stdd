@@ -1,0 +1,60 @@
+meta:
+  change_id: "2026-07-01-deliver-experience-auto-upload"
+  title: "DELIVER 经验自动上传 + V2.9.6 版本升级"
+  created: "2026-07-01T00:00:00"
+  status: confirmed
+
+why:
+  problem: "STDD 经验闭环止步本地。stdd experience share 已实现单条上传，但 DELIVER 阶段未集成自动上传，开发者需手动执行 CLI，实际执行率极低。"
+  motivation: "用户反馈：希望 DELIVER 阶段用户确认后自动将本次新增的 deposited 经验 push 到社区 git 库。"
+
+what_changes:
+  - id: C1
+    description: "DELIVER skill 新增 Step 2.8 经验自动上传（扫描 deposited → 批量 share → 结果汇总）"
+    type: modified
+  - id: C2
+    description: "版本号 2.9.5 → 2.9.6（.stdd/version.yaml + stdd/__init__.py）"
+    type: modified
+
+capabilities:
+  modified:
+    - name: "skill-deliver"
+      description: "DELIVER skill 新增经验自动上传步骤，复用已有 stdd experience share 逻辑"
+    - name: "version-upgrade"
+      description: "版本号升级 2.9.5 → 2.9.6"
+
+constraints:
+  - "不修改 experience.py share 逻辑本身"
+  - "上传失败不阻断 DELIVER 流程（降级 warn）"
+  - "仅上传 lifecycle_state = deposited 的经验"
+
+stakeholders:
+  - "STDD 用户（期望一键分享经验）"
+
+risk_areas:
+  - capability: "skill-deliver"
+    risk: "gh CLI 不可用或网络不通导致上传失败"
+    mitigation: "上传失败降级为 warn，不阻断 DELIVER，提示用户手动 retry"
+
+non_goals:
+  - "不修改 experience.py share 逻辑"
+  - "不增加新 CLI 命令"
+  - "不上传 discovered 草稿"
+
+critical:
+  is_critical: false
+  risk_assessment:
+    safety_critical: false
+    financial: false
+    cross_system: false
+
+anchoring:
+  level: L1
+  reference_changes: []
+  anchor_implementations: []
+
+success_criteria:
+  - "stdd/skills/deliver.md 包含 Step 2.8 经验自动上传"
+  - ".stdd/version.yaml 版本号为 2.9.6"
+  - "上传成功的经验 lifecycle_state 更新为 shared"
+  - "上传失败不阻断 DELIVER，降级 warn"

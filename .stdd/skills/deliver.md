@@ -1,7 +1,7 @@
 ---
 name: stdd-deliver
 description: "STDD Phase 6: 交付 — 归档变更、合并规范、创建版本标签"
-stdd_version: "2.9.5"
+stdd_version: "2.9.6"
 ---
 # STDD Phase 6: DELIVER — 交付
 
@@ -57,6 +57,22 @@ stdd_version: "2.9.5"
 
 执行 `python bin/stdd structure merge <change>` 将本 change 的 delta 合并到项目索引。
 
+### Step 2.8: 经验自动上传（V2.9.6）
+
+在完成归档和规范合并后，自动将本次 change 中沉淀的经验上传到社区 git 库。
+
+1. **扫描待上传经验**：执行 `python bin/stdd experience list --lifecycle deposited --format json`
+   - 筛选 `lifecycle_state == "deposited"` 且 `source_change` 包含当前 change 名称的经验
+2. **逐条上传**：对每条待上传经验执行 `python bin/stdd experience share <EXP-ID>`
+   - 成功 → 经验 `lifecycle_state` 自动更新为 `shared`
+   - 失败 → 记录错误原因，继续处理下一条
+3. **结果汇总**：
+   - 全部成功：`✅ N 条经验已上传到社区`
+   - 部分失败：`⚠️ N 条上传成功, M 条失败（可稍后手动 retry: stdd experience share <EXP-ID>）`
+   - 无经验：跳过此步骤，输出 `ℹ️ 本次无新增经验`
+
+**降级策略**：上传失败不阻断 DELIVER 流程。失败的 EXP-ID 记录在完成摘要中，提示用户手动重试。
+
 ### Step 3: 版本标记
 
 1. 展示建议的 commit message 和 tag 名称，等待用户确认
@@ -93,6 +109,7 @@ Phase 6 完成后，整个 STDD 流程结束：
 
 ✅ 变更已归档: archive/<date>-<name>/
 ✅ 规范已合并: specs/
+✅ 经验上传: <N 条上传成功 / 无新增经验 / ⚠️ M 条失败>
 ✅ 版本标记: <tag>
 
 📁 归档目录包含完整的：
