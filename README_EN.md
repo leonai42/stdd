@@ -16,7 +16,7 @@
 
 > **AI coding isn't just about "writing code" — it's about "writing correct code"** — engineering practices meet AI-assisted development.
 >
-> STDD is an **AI-assisted development methodology** powered by Spec-first + TDD execution. 6 ordered phases + 3 mandatory confirmation gates + 11 failure mode checks + self-learning experience library + bidirectional traceability — transforming vague requirements into high-quality deliverables. Supports 10 languages (Python / Java / Go / Rust / TypeScript / JavaScript / C++ / Kotlin / Swift / Dart) across 8 AI coding platforms.
+> STDD is an **AI-assisted development methodology** powered by Spec-first + TDD execution. 6 ordered phases + 3 mandatory confirmation gates + 12 failure mode checks + self-learning experience library + bidirectional traceability — transforming vague requirements into high-quality deliverables. Supports 10 languages (Python / Java / Go / Rust / TypeScript / JavaScript / C++ / Kotlin / Swift / Dart) across 8 AI coding platforms.
 
 ---
 
@@ -78,7 +78,7 @@ After Gate 2, you can choose **Full-Auto Long-Range Mode**: one-time pre-authori
 ### Problems STDD Solves
 
 1. **Vague Requirements → Spec First**: GIVEN/WHEN/THEN format transforms ambiguous requirements into verifiable behavior specs
-2. **AI Going Off-Track → 11 Failure Checks**: Systematically detects hallucinated actions, scope creep, cascading errors, instruction decay, and other AI-specific issues
+2. **AI Going Off-Track → 12 Failure Checks**: Systematically detects hallucinated actions, scope creep, cascading errors, instruction decay, and other AI-specific issues
 3. **Uncontrolled Quality → TDD Execution**: Write tests first, code second. Passing tests is the definition of done
 4. **Black-Box Process → Bidirectional Traceability**: Scenario → TC-ID → test function → source code, full mapping queryable via `stdd trace`
 5. **Silent Design Deviations → Mandatory Recording**: Every design deviation is auto-recorded, reviewed at Gate 3 — nothing is silent
@@ -111,7 +111,7 @@ Splits the test plan into independently implementable vertical slices (1 spec Sc
 Executes RED → GREEN → REFACTOR per slice. Write tests first (RED), then minimal implementation (GREEN), then refactor (REFACTOR). Design deviations are auto-recorded to pending-adjustments.md.
 
 **Phase 5: VERIFY — Quality Verification**
-Full test suite + coverage diagnostics + multi-version tests + E2E tests + Lint + Diff review + **11 failure mode checks**. Max 5 iterations in normal mode, 10 in long-range mode. Design adjustments are summarized into design-adjustments.md.
+Full test suite + coverage diagnostics + multi-version tests + E2E tests + Lint + Diff review + **12 failure mode checks**. Max 5 iterations in normal mode, 10 in long-range mode. Design adjustments are summarized into design-adjustments.md.
 
 **Phase 6: DELIVER — Delivery**
 Archive change to archive/ → merge specs to specs/ → **auto-upload experiences to community** → Git commit + tag.
@@ -133,13 +133,13 @@ Archive change to archive/ → merge specs to specs/ → **auto-upload experienc
 | **Cross-Session Resume** ⭐V2.5 | Agent resumes context within 1 round after session restart, no progress lost in long-running tasks |
 | **CI Checks Enhanced** ⭐V2.5 | 3 new checks: scope validation + coverage threshold + cross-capability contract consistency |
 | **Bidirectional Traceability** | Scenario → TC-ID → test function → source code, full mapping chain queryable via `stdd trace` |
-| **11 Failure Mode Checks** | Hallucinated actions, scope creep, cascading errors, context loss, tool misuse, runtime deviation, pipeline chain breaks, content quality issues, instruction decay, coverage vacuums, contract gaps |
+| **12 Failure Mode Checks** | Hallucinated actions, scope creep, cascading errors, context loss, tool misuse, runtime deviation, pipeline chain breaks, content quality issues, instruction decay, coverage vacuums, contract gaps, anchor missing |
 | **Coverage Gap Analysis** | `stdd diff` outputs a spec-to-test coverage gap comparison table at a glance |
 | **Design Adjustment Traceability** | Every design deviation during implementation is auto-recorded to design-adjustments.md, reviewed at Gate 3 |
-| **18-Command CLI** | init / install / new / validate / status / archive / trace / diff / rollback / abort / experience / ci / gate / state / curate / dependency-graph / extract-proposal + `--dry-run` |
+| **24-Command CLI** | init / install / new / validate / status / archive / trace / diff / rollback / abort / experience / ci / gate / state / curate / proposal / canon / index / agent / hooks / structure / skill / fix / guard |
 | **Built-in Review** | Code review capability built in since V2.1 — AI auto-reviews after implementation, ensuring quality consistency |
 
-### Eleven Failure Modes
+### Twelve Failure Modes
 
 | # | Mode | What It Detects | Since |
 |---|------|----------------|-------|
@@ -154,6 +154,7 @@ Archive change to archive/ → merge specs to specs/ → **auto-upload experienc
 | (i) | Instruction decay | Prompt explicitly stated but AI under-executed | V1.1 |
 | (j) | Coverage vacuum | A capability with zero automated test coverage | V1.2 |
 | (k) | Contract gap | Cross-capability API field name / header mismatch | V1.2 |
+| (l) | Anchor missing | Critical change lacks reference implementation or interface anchoring | V2.7 |
 
 ---
 
@@ -226,6 +227,17 @@ The system will guide you through Phase 1 (requirement understanding), generate 
 | `stdd gate approve <change> --gate <N>` | Confirm gate via file token | V2.5 |
 | `stdd state <change>` | Read/write change state (resume_context/active_slice etc.) | V2.5 |
 | `stdd curate <sub>` | Community pool curation (pull/deduplicate/review/pack) | V2.5 |
+| `stdd proposal <sub>` | Canonical proposal.yaml management (init/validate/show) | V2.7 |
+| `stdd canon <sub>` | Dual-track document management (init/generate/verify) | V2.7 |
+| `stdd index <sub>` | Project index management (update/show/trace) | V2.7 |
+| `stdd agent <sub>` | Agent behavior verification | V2.7 |
+| `stdd hooks <sub>` | Lifecycle hooks management (install/status) | V2.7 |
+| `stdd structure <sub>` | Code structure summary (delta/merge) | V2.7 |
+| `stdd skill <sub>` | Skill management (create) | V2.7 |
+| `stdd fix <sub>` | Multi-level auto-fix | V2.8 |
+| `stdd guard <sub>` | Project-level intelligent enforcement gate | V2.9.3 |
+| `stdd phase <sub>` | Change phase management (advance/check) | V2.9.4 |
+| `stdd work <sub>` | Work tracking | V2.9.4 |
 | `--dry-run` | Global option: preview operations without modifying filesystem | V2.0 |
 | `--verbose` / `-v` | Verbose logging output | V2.0 |
 
@@ -323,6 +335,9 @@ Completed in under 1 hour with the full STDD six-phase process: 271 lines of cor
 | Version | Date | Key Changes |
 |---------|------|-------------|
 | **V2.9.6** | 2026-07-01 | Codex platform adapter + 10 language standards + DELIVER experience auto-upload |
+| **V2.9** | 2026-06-05 | 3 execution modes (lightweight/standard/thorough) + Canonical YAML dual-track + Phase Context + context budget |
+| **V2.8** | 2026-06-03 | Multi-level auto-fix (fix) + code structure summary (structure) + skill management + engineering efficiency |
+| **V2.7** | 2026-06-03 | Structured foundation: Canonical YAML + L1-L4 anchoring + dual-track verification + OpenCode + 12th failure mode (l) |
 | **V2.5** | 2026-05-21 | Experience lifecycle FSM + community pool + multi-agent support + cross-session resume + CI enhanced |
 | **V2.4** | 2026-05-20 | AI-assisted: self-learning experience library + spec auto-complete + smart slice + CI/CD integration |
 | **V2.3** | 2026-05-18 | Foundation: 5 language standards + 6 platforms + config modularization + skill standardization |

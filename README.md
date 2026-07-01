@@ -16,7 +16,7 @@
 
 > **AI 编程不只是"写代码"，而是"写出正确的代码"** — 当工程实践遇见 AI 辅助开发。
 >
-> STDD 是一套 **Spec 先行 + TDD 执行** 的 AI 辅助研发流程系统。6 个有序阶段 + 3 道强制确认门 + 11 类失败模式检查 + 自学习经验库 + 双向可追溯链，将模糊需求转化为高质量交付。支持 10 门语言（Python / Java / Go / Rust / TypeScript / JavaScript / C++ / Kotlin / Swift / Dart），适配 8 大 AI 编程平台。
+> STDD 是一套 **Spec 先行 + TDD 执行** 的 AI 辅助研发流程系统。6 个有序阶段 + 3 道强制确认门 + 12 类失败模式检查 + 自学习经验库 + 双向可追溯链，将模糊需求转化为高质量交付。支持 10 门语言（Python / Java / Go / Rust / TypeScript / JavaScript / C++ / Kotlin / Swift / Dart），适配 8 大 AI 编程平台。
 
 ---
 
@@ -78,7 +78,7 @@ Gate 2 之后可选择**全自动长程模式**：一次性预授权后，Phase 
 ### STDD 解决的 AI 编程核心问题
 
 1. **需求歧义 → Spec 先行**：GIVEN/WHEN/THEN 格式将模糊需求转化为可验证的行为规格
-2. **AI 跑偏 → 11 类失败检查**：系统性检测幻觉行为、范围蔓延、级联错误、指令衰减等 AI 特有问题
+2. **AI 跑偏 → 12 类失败检查**：系统性检测幻觉行为、范围蔓延、级联错误、指令衰减等 AI 特有问题
 3. **质量不可控 → TDD 执行**：先写测试再写代码，测试通过才是完成
 4. **过程黑箱 → 双向追溯**：Scenario → TC-ID → 测试函数 → 源码，完整映射链可查询
 5. **设计偏离 → 强制记录**：任何设计偏离自动记录，Gate 3 统一审核，绝不静默
@@ -111,7 +111,7 @@ Gate 2 之后可选择**全自动长程模式**：一次性预授权后，Phase 
 逐切片执行 RED → GREEN → REFACTOR 循环。先写测试（RED），再写最小实现（GREEN），最后重构（REFACTOR）。设计偏离自动记录到 pending-adjustments.md。
 
 **Phase 5: VERIFY — 质量验证**
-全量测试 + 覆盖率诊断 + 多版本测试 + E2E 测试 + Lint + Diff 审查 + **11 类失败模式检查**。普通模式最多 5 轮迭代，长程模式最多 10 轮。汇总设计调整到 design-adjustments.md。
+全量测试 + 覆盖率诊断 + 多版本测试 + E2E 测试 + Lint + Diff 审查 + **12 类失败模式检查**。普通模式最多 5 轮迭代，长程模式最多 10 轮。汇总设计调整到 design-adjustments.md。
 
 **Phase 6: DELIVER — 交付**
 归档变更到 archive/ → 合并 specs 到 specs/ → **自动上传经验到社区** → Git commit + tag。
@@ -133,13 +133,13 @@ Gate 2 之后可选择**全自动长程模式**：一次性预授权后，Phase 
 | **跨 Session 恢复** ⭐V2.5 | Agent 重启 session 后 1 轮内恢复上下文，长程任务不丢失进度 |
 | **CI 检查增强** ⭐V2.5 | 新增 scope 范围验证 + coverage 阈值检查 + contracts 契约一致性 3 项 CI 检查 |
 | **双向可追溯** | Scenario → TC-ID → 测试函数 → 源码，`stdd trace` 命令一键追溯完整映射链 |
-| **11 类故障检查** | 幻觉行为、范围蔓延、级联错误、上下文丢失、工具误用、运行时偏差、管线断链、内容质量偏差、指令衰减、覆盖真空、契约断层 |
+| **12 类故障检查** | 幻觉行为、范围蔓延、级联错误、上下文丢失、工具误用、运行时偏差、管线断链、内容质量偏差、指令衰减、覆盖真空、契约断层、锚定缺失 |
 | **覆盖差异分析** | `stdd diff` 输出 spec 与测试之间的覆盖缺口对比表，一目了然 |
 | **设计调整追溯** | 实现过程中的任何设计偏离自动记录到 design-adjustments.md，Gate 3 统一审核 |
-| **18 命令 CLI 工具** | init / install / new / validate / status / archive / trace / diff / rollback / abort / experience / ci / gate / state / curate / dependency-graph / extract-proposal + `--dry-run` |
+| **24 命令 CLI 工具** | init / install / new / validate / status / archive / trace / diff / rollback / abort / experience / ci / gate / state / curate / proposal / canon / index / agent / hooks / structure / skill / fix / guard |
 | **内置 Review 审查** | V2.1 起内置代码审查能力，AI 实现后自动 Review，确保质量一致性 |
 
-### 11 类失败模式
+### 12 类失败模式
 
 | # | 模式 | 检测内容 | 引入版本 |
 |---|------|---------|---------|
@@ -154,6 +154,7 @@ Gate 2 之后可选择**全自动长程模式**：一次性预授权后，Phase 
 | (i) | 指令衰减 | Prompt 明确写了但 AI 未充分执行 | V1.1 |
 | (j) | 覆盖真空 | 某 capability 零自动化测试覆盖 | V1.2 |
 | (k) | 契约断层 | 跨 capability API 字段名/header 不一致 | V1.2 |
+| (l) | 锚定缺失 | 关键变更缺少参考实现或接口锚定 | V2.7 |
 
 ---
 
@@ -226,6 +227,17 @@ python /path/to/stdd-project/bin/stdd install aider
 | `stdd gate approve <change> --gate <N>` | 文件 token 方式确认 Gate | V2.5 |
 | `stdd state <change>` | 读写 change 状态（resume_context/active_slice 等） | V2.5 |
 | `stdd curate <sub>` | 社区经验池维护工具（pull/deduplicate/review/pack） | V2.5 |
+| `stdd proposal <sub>` | Canonical proposal.yaml 管理（init/validate/show） | V2.7 |
+| `stdd canon <sub>` | 双轨制文档管理（init/generate/verify） | V2.7 |
+| `stdd index <sub>` | 项目索引管理（update/show/trace） | V2.7 |
+| `stdd agent <sub>` | Agent 行为验证 | V2.7 |
+| `stdd hooks <sub>` | 生命周期 Hooks 管理（install/status） | V2.7 |
+| `stdd structure <sub>` | 代码结构摘要管理（delta/merge） | V2.7 |
+| `stdd skill <sub>` | Skill 管理（create） | V2.7 |
+| `stdd fix <sub>` | 多级自动修复 | V2.8 |
+| `stdd guard <sub>` | 项目级智能门禁 | V2.9.3 |
+| `stdd phase <sub>` | 变更阶段管理（advance/check） | V2.9.4 |
+| `stdd work <sub>` | 关联工作记录 | V2.9.4 |
 | `--dry-run` | 全局选项：预览操作但不修改文件系统 | V2.0 |
 | `--verbose` / `-v` | 分级日志输出 | V2.0 |
 
@@ -323,6 +335,9 @@ STDD 项目仓库                           你的项目（安装后）
 | 版本 | 日期 | 核心变更 |
 |------|------|---------|
 | **V2.9.6** | 2026-07-01 | Codex 平台适配 + 10 语言规范 + DELIVER 经验自动上传 |
+| **V2.9** | 2026-06-05 | 三档执行模式（轻量/标准/全面）+ Canonical YAML 双轨制 + Phase Context + 上下文预算检查 |
+| **V2.8** | 2026-06-03 | 多级自动修复（fix）+ 代码结构摘要（structure）+ Skill 管理 + 工程效能优化 |
+| **V2.7** | 2026-06-03 | 结构化基础：Canonical YAML + 锚定体系 L1-L4 + 双轨验证 + OpenCode 平台 + 第 12 类失败模式 (l) |
 | **V2.5** | 2026-05-21 | 经验生命周期闭环 + 社区经验池 + 多 Agent 适配 + 跨 Session 恢复 + CI 检查增强 |
 | **V2.4** | 2026-05-20 | AI 辅助增强：自学习经验库 + Spec 自动补全 + 智能切片推荐 + CI/CD 集成 |
 | **V2.3** | 2026-05-18 | 基础配套完善：5 语言规范 + 6 平台扩展 + 配置模块化 + Skill 标准化 |
