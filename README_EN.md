@@ -16,7 +16,7 @@
 
 > **AI coding isn't just about "writing code" — it's about "writing correct code"** — engineering practices meet AI-assisted development.
 >
-> STDD is an **AI-assisted development methodology** powered by Spec-first + TDD execution. 6 ordered phases + 3 mandatory confirmation gates + 11 failure mode checks + self-learning experience library + bidirectional traceability — transforming vague requirements into high-quality deliverables. Supports 5 languages (Python / Java / Go / Rust / TypeScript) across 7 AI coding platforms.
+> STDD is an **AI-assisted development methodology** powered by Spec-first + TDD execution. 6 ordered phases + 3 mandatory confirmation gates + 11 failure mode checks + self-learning experience library + bidirectional traceability — transforming vague requirements into high-quality deliverables. Supports 10 languages (Python / Java / Go / Rust / TypeScript / JavaScript / C++ / Kotlin / Swift / Dart) across 8 AI coding platforms.
 
 ---
 

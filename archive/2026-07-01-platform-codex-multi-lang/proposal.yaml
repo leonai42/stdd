@@ -1,0 +1,110 @@
+# proposal.yaml — Canonical 格式
+# V2.7 引入，与 proposal.md (Human View) 并存
+
+meta:
+  change_id: "2026-07-01-platform-codex-multi-lang"
+  title: "Codex 平台适配 + 多语言规范扩展（JS/C++/Kotlin/Swift/Dart）"
+  created: "2026-07-01T00:00:00"
+  status: confirmed
+
+why:
+  problem: |
+    STDD 当前支持 7 个 AI 编程平台和 5 门语言，但存在两个缺口：
+    1. OpenAI Codex CLI（OpenAI 的终端 AI 编码代理）已纳入 Linux Foundation Agentic AI Foundation 标准，
+       使用 AGENTS.md 指令体系，STDD 尚未提供适配，损失 OpenAI 生态用户。
+    2. 语言规范缺少 JavaScript（纯 JS）、C/C++（系统级）、Kotlin（Android）、Swift（iOS）、
+       Dart/Flutter（跨平台移动端），限制 STDD 在移动端和系统级开发场景的覆盖。
+  motivation: |
+    用户直接反馈需求。参考先例 V2.3 曾一次性新增 3 平台 + 4 语言，本次变更遵循相同模式。
+
+what_changes:
+  - id: C1
+    description: "新增 OpenAI Codex CLI 平台适配（stdd install codex），部署 6 阶段 skill 到 Codex 可识别路径"
+    type: new
+  - id: C2
+    description: "新增 JavaScript 开发规范（.stdd/standards/javascript.md），独立于 TypeScript"
+    type: new
+  - id: C3
+    description: "新增 C/C++ 开发规范（.stdd/standards/c.md），覆盖系统级开发场景"
+    type: new
+  - id: C4
+    description: "新增 Kotlin 开发规范（.stdd/standards/kotlin.md），覆盖 Android 生态"
+    type: new
+  - id: C5
+    description: "新增 Swift 开发规范（.stdd/standards/swift.md），覆盖 iOS/macOS 生态"
+    type: new
+  - id: C6
+    description: "新增 Dart/Flutter 开发规范（.stdd/standards/dart.md），覆盖跨平台移动端"
+    type: new
+  - id: C7
+    description: "更新 install.py platform_map + EXTENDING.md + AGENTS.md 文档"
+    type: modified
+
+capabilities:
+  new:
+    - name: "platform-codex"
+      description: "OpenAI Codex CLI 平台适配器，stdd install codex 部署 6 阶段 skill"
+    - name: "lang-javascript"
+      description: "JavaScript 开发规范（Node.js 生态，Jest + ESLint）"
+    - name: "lang-c"
+      description: "C/C++ 开发规范（GTest/Catch2 + clang-tidy/clang-format）"
+    - name: "lang-kotlin"
+      description: "Kotlin 开发规范（JUnit5 + ktlint/detekt）"
+    - name: "lang-swift"
+      description: "Swift 开发规范（XCTest + SwiftLint）"
+    - name: "lang-dart"
+      description: "Dart/Flutter 开发规范（flutter test + dart analyze）"
+  modified:
+    - name: "platform-sync"
+      description: "install.py platform_map 扩展 + EXTENDING.md 平台列表更新"
+
+constraints:
+  - "不修改现有 5 门语言规范的内容（增量添加新语言）"
+  - "不修改现有 7 个平台的适配逻辑（仅增量添加 Codex）"
+  - "Codex 适配复用 stdd install 框架，不新增独立 CLI 命令"
+
+stakeholders:
+  - "STDD 用户（OpenAI 生态开发者）"
+  - "移动端开发者（Android/iOS/Flutter）"
+  - "系统级/C++ 开发者"
+  - "STDD 维护者"
+
+risk_areas:
+  - capability: "platform-codex"
+    risk: "Codex CLI 的 skill 系统可能与 Claude Code 格式不完全兼容，需要调研适配"
+    mitigation: "Phase 2 先调研 Codex skill 格式，决定 directory-per-skill vs single-file 方案"
+  - capability: "lang-c"
+    risk: "C 和 C++ 是两个独立语言，合并在一个规范文件中可能导致覆盖不完整"
+    mitigation: "在规范中明确区分 C 和 C++ 各自约定，必要时拆分为两个文件"
+
+non_goals:
+  - "不修改现有 5 门语言规范内容"
+  - "不修改现有 7 个平台的适配逻辑"
+  - "不为 Codex 开发独立 CLI 命令"
+  - "不在此变更中增加其他平台（如 Gemini CLI、Windsurf）"
+  - "不添加 Rust 已覆盖之外的系统级语言（如 Zig、Nim）"
+
+critical:
+  is_critical: false
+  risk_assessment:
+    safety_critical: false
+    financial: false
+    cross_system: false
+
+anchoring:
+  level: L2
+  reference_changes: []
+  anchor_implementations:
+    - "archive/2026-05-15-stdd-foundation-improvements/"
+    - ".stdd/platforms/opencode/ 适配模式"
+    - ".stdd/standards/python.md 规范模板"
+
+success_criteria:
+  - "stdd install codex 执行成功，Codex CLI 可识别并加载 STDD 6 阶段 skill"
+  - ".stdd/standards/javascript.md 存在，覆盖代码风格/类型/异步/错误处理/测试/审查清单 6 维度"
+  - ".stdd/standards/c.md 存在，覆盖 C/C++ 双语言，同上 6 维度"
+  - ".stdd/standards/kotlin.md 存在，覆盖同上 6 维度 + Android 特有约定"
+  - ".stdd/standards/swift.md 存在，覆盖同上 6 维度 + iOS/macOS 特有约定"
+  - ".stdd/standards/dart.md 存在，覆盖同上 6 维度 + Flutter widget 测试约定"
+  - "install.py 支持 codex 平台选项，--help 中可见"
+  - "EXTENDING.md 平台列表包含 Codex"

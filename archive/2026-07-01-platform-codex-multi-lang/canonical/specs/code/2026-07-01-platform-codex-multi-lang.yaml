@@ -1,0 +1,15 @@
+# spec.yaml — 行为规格（Canonical YAML）
+
+meta:
+  capability: "TODO: 能力名称"
+  change_id: "2026-07-01-platform-codex-multi-lang"
+  created: "2026-07-01T15:52:11.117039"
+  confidence: medium
+
+requirements:
+  - id: "REQ-001"
+    description: "TODO: 需求描述"
+    scenarios:
+      - given: "TODO: 前置条件"
+        when: "TODO: 触发动作"
+        then: "TODO: 预期结果 — 使用 SHALL 声明"

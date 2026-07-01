@@ -126,6 +126,13 @@ def cmd_install(args: argparse.Namespace) -> None:
             "is_dir_per_skill": True,
             "skill_filename": "SKILL.md",
         },
+        "codex": {
+            "target_base": ".codex/skills",
+            "description": "OpenAI Codex CLI",
+            "frontmatter_fn": _make_claude_code_frontmatter,
+            "is_dir_per_skill": True,
+            "skill_filename": "SKILL.md",
+        },
     }
 
     if platform not in platform_map:
@@ -229,6 +236,13 @@ def cmd_install(args: argparse.Namespace) -> None:
         print("   /stdd-continue              继续执行")
         print()
         print("   安装到 .opencode/skills/<name>/SKILL.md（与 Claude Code 格式兼容）")
+    elif platform == "codex":
+        print("   /stdd-understand  <需求>    启动新变更")
+        print("   /stdd-spec                  进入规格设计")
+        print("   /stdd-continue              继续执行")
+        print()
+        print("   安装到 .codex/skills/<name>/SKILL.md（与 Claude Code 格式兼容）")
+        print("   Codex CLI 启动时自动加载 .codex/skills/ 目录下的 skills")
     elif platform == "cursor":
         print("   规则已安装到 .cursor/rules/stdd.md")
         print("   在 Cursor 中自动生效")

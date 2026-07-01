@@ -1,0 +1,18 @@
+# agent_spec.yaml — Agent 验证规格（Canonical YAML）
+
+meta:
+  task_id: "TODO: 任务标识"
+  change_id: "2026-07-01-platform-codex-multi-lang"
+  created: "2026-07-01T15:52:11.117039"
+  task_type: code
+  system: "TODO: 目标系统描述"
+
+preconditions:
+  - "TODO: 前置条件 1"
+
+steps:
+  - action: "TODO: 操作步骤 1"
+    verify: "TODO: 验证方法 1"
+
+expected_outcomes:
+  - "TODO: 预期结果 1"

@@ -5,8 +5,8 @@
 
 ## 项目概述 / Project Overview
 
-STDD (Spec+Test Driven Development) 是一套 AI 辅助的研发流程系统，通过 Spec 先行 + TDD 执行的方式保证研发质量。支持 5 门语言（Python/Java/Go/Rust/TypeScript），适配 6 大 AI 编程平台。
-STDD is an AI-assisted development methodology that ensures quality through Spec-first + TDD execution. Supports 5 languages across 6 AI platforms.
+STDD (Spec+Test Driven Development) 是一套 AI 辅助的研发流程系统，通过 Spec 先行 + TDD 执行的方式保证研发质量。支持 10 门语言（Python/Java/Go/Rust/TypeScript/JavaScript/C++/Kotlin/Swift/Dart），适配 8 大 AI 编程平台。
+STDD is an AI-assisted development methodology that ensures quality through Spec-first + TDD execution. Supports 10 languages across 8 AI platforms.
 
 ## 目录结构 / Directory Structure
 
@@ -15,9 +15,9 @@ STDD is an AI-assisted development methodology that ensures quality through Spec
   skills/               # 6 个阶段 Skill 文件 / 6 phase skill files
     _shared/            # DRY 共享片段（确认门/模式选择/长程授权）
   templates/            # 10 个文档模板 / 10 document templates
-  standards/            # 5 语言开发规范 / 5 language dev standards
+  standards/            # 10 语言开发规范 / 10 language dev standards
   config.d/             # 模块化配置 / Modular config (project/gates/long_range/quality/experience)
-  platforms/            # 6 平台适配层 / 6 platform adapters
+  platforms/            # 8 平台适配层 / 8 platform adapters
   experiences/          # 自学习经验库 / Self-learning experience library (V2.5: 5状态生命周期)
 stdd/cli/               # CLI 模块 / CLI modules (18 命令 / commands)
 bin/stdd                # CLI 入口 / CLI entry point

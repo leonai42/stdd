@@ -1,0 +1,83 @@
+change_id: "2026-07-01-platform-codex-multi-lang"
+change_name: "platform-codex-multi-lang"
+active_phase: verify
+mode: standard
+task_type: code
+complexity_score: 6
+score_confidence: confirmed
+resume_context: ""
+active_slice: 5
+last_action: "Phase 5 VERIFY completed: Gate 3 confirmed by user"
+last_modified: "2026-07-01T00:00:00"
+confirmed_at: "2026-07-01T00:00:00"
+phases:
+  understand:
+    status: completed
+    completed_at: "2026-07-01T00:00:00"
+  spec:
+    status: completed
+    completed_at: "2026-07-01T00:00:00"
+    artifacts:
+      - design.md
+      - specs/platform-codex/spec.md
+      - specs/lang-javascript/spec.md
+      - specs/lang-c/spec.md
+      - specs/lang-kotlin/spec.md
+      - specs/lang-swift/spec.md
+      - specs/lang-dart/spec.md
+      - specs/platform-sync/spec.md
+      - test-plan.md
+  slice:
+    status: completed
+    completed_at: "2026-07-01T00:00:00"
+    artifacts:
+      - slices.md
+      - tasks.md
+  build:
+    status: completed
+    completed_at: "2026-07-01T00:00:00"
+    slices_completed:
+      "1":
+        status: "done"
+        tc_coverage: "4/4"
+        new_tests: 4
+      "2":
+        status: "done"
+        tc_coverage: "3/3"
+        new_tests: 3
+      "3":
+        status: "done"
+        tc_coverage: "2/2"
+        new_tests: 2
+      "4":
+        status: "done"
+        tc_coverage: "2/2"
+        new_tests: 0
+      "5":
+        status: "done"
+        tc_coverage: "2/2"
+        new_tests: 0
+    artifacts:
+      - stdd/cli/commands/install.py (modified)
+      - .stdd/platforms/codex/ (6 skill files via install)
+      - .stdd/standards/javascript.md
+      - .stdd/standards/c.md
+      - .stdd/standards/kotlin.md
+      - .stdd/standards/swift.md
+      - .stdd/standards/dart.md
+      - EXTENDING.md (modified)
+      - AGENTS.md (modified)
+      - README.md (modified)
+      - README_EN.md (modified)
+  verify:
+    status: completed
+    completed_at: "2026-07-01T00:00:00"
+    artifacts:
+      - test-report.md
+  deliver:
+    status: pending
+long_range:
+  enabled: true
+  mode: "full_auto"
+  pre_auth_completed: true
+  pre_auth_timestamp: "2026-07-01T00:00:00"

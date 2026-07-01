@@ -1,0 +1,29 @@
+# 2026-07-01-platform-codex-multi-lang.yaml — Canonical Proposal (YAML-first, V2.9)
+# AI 起草、AI 修改、AI 消费。Human View 由 `stdd canon generate` 生成。
+
+meta:
+  change_id: "2026-07-01-platform-codex-multi-lang"
+  title: "TODO: 变更标题"
+  created: "2026-07-01T15:52:11.117039"
+  status: draft
+  version: "2.9"
+
+why:
+  problem: |
+    TODO: 描述要解决的问题或需求背景（一段话）
+
+what_changes:
+  - description: "TODO: 变更项 1"
+  - description: "TODO: 变更项 2"
+
+capabilities:
+  new:
+    - name: "TODO"
+      description: "TODO: 新增能力说明"
+  modified:
+    - name: "TODO"
+      description: "TODO: 修改能力说明"
+
+success_criteria:
+  - "TODO: 可验证的成功标准 1"
+  - "TODO: 可验证的成功标准 2"

@@ -52,3 +52,53 @@ trae 平台下的 6 个 skill 文件 SHALL 与 claude-code 平台版本在内容
 - **WHEN** 使用 Grep 在三个平台中搜索 V2.2 关键特征关键词
 - **THEN** 每个关键特征在三个平台中的出现次数 SHALL 相同（允许 ±1 误差，因 frontmatter 差异）
 - **AND** 关键特征关键词 SHALL 包括：`Step 0.*多路并行`、`十一类失败模式`、`长程模式运行协议`、`强制步骤清单`、`Gate review`、`覆盖率诊断`、`E2E.*测试`、`模式选择.*强制`、`权限配置`、`自动衔接`、`降级条件`
+
+---
+
+## V2.10 ADDED Requirements
+
+> 来源：2026-07-01-platform-codex-multi-lang
+
+### Requirement: install.py platform_map 扩展（Codex）
+
+`stdd/cli/commands/install.py` 的 `platform_map` SHALL 支持 `codex` 平台键，允许通过 `stdd install codex` 部署 STDD skill。
+
+#### Scenario: platform_map 包含 codex 条目
+
+- **GIVEN** `install.py` 的 `platform_map` 已更新
+- **WHEN** 读取 `platform_map.keys()`
+- **THEN** `"codex"` SHALL 在 `platform_map` 中
+- **AND** codex 配置 SHALL 包含 `target_base: ".codex/skills"`, `is_dir_per_skill: True`, `skill_filename: "SKILL.md"`
+
+#### Scenario: stdd install codex 部署成功
+
+- **GIVEN** 项目已安装 STDD V2.10
+- **WHEN** 执行 `stdd install codex`
+- **THEN** 系统 SHALL 创建 `.codex/skills/stdd-<phase>/SKILL.md`（6 个 phase）
+- **AND** 每个 SKILL.md SHALL 包含 YAML frontmatter（name + description + stdd_version）
+
+---
+
+### Requirement: EXTENDING.md 平台列表更新
+
+`EXTENDING.md` SHALL 在「现有平台参考」表格中包含 Codex 平台条目。
+
+#### Scenario: EXTENDING.md 包含 Codex
+
+- **GIVEN** `EXTENDING.md` 已更新
+- **WHEN** 读取「现有平台参考」表格
+- **THEN** 表格 SHALL 包含 Codex 行
+- **AND** 描述 SHALL 标注 "directory-per-skill" + "OpenAI Codex CLI"
+
+---
+
+### Requirement: AGENTS.md / STDD.md 元信息同步
+
+项目根文档 SHALL 同步更新平台数量（8）和语言数量（10）。
+
+#### Scenario: 文档计数一致
+
+- **GIVEN** AGENTS.md, STDD.md, README.md, README_EN.md 均已更新
+- **WHEN** 分别读取各文件的平台和语言计数
+- **THEN** 所有文件的平台计数 SHALL 为 8
+- **AND** 所有文件的语言计数 SHALL 为 10

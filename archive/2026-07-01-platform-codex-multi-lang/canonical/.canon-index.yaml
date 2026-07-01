@@ -1,0 +1,9 @@
+designs: {}
+proposals:
+  2026-07-01-platform-codex-multi-lang: proposals/2026-07-01-platform-codex-multi-lang.yaml
+specs:
+  agent:
+    2026-07-01-platform-codex-multi-lang: specs/agent/2026-07-01-platform-codex-multi-lang.yaml
+  code:
+    2026-07-01-platform-codex-multi-lang: specs/code/2026-07-01-platform-codex-multi-lang.yaml
+version: '2.9'

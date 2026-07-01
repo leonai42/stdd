@@ -51,6 +51,8 @@ description: "{meta['description']}"
 | **Cursor** | 单文件 `.cursor/rules/stdd.md` | Project rules auto-load |
 | **Copilot** | 单文件 `.github/copilot-instructions.md` | Instructions auto-load |
 | **Aider** | 单文件 `.aider.conf.yml` | Config-based |
+| **OpenCode** | directory-per-skill（`.opencode/skills/`） | YAML frontmatter, `/` slash commands |
+| **Codex** | directory-per-skill（`.codex/skills/`） | YAML frontmatter, `/` slash commands, OpenAI Codex CLI |
 
 ---
 
