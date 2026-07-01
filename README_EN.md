@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <b>V2.9</b> &nbsp;·&nbsp; MIT License &nbsp;·&nbsp; Python 3.10+
+  <b>V2.9.6</b> &nbsp;·&nbsp; MIT License &nbsp;·&nbsp; Python 3.10+
 </p>
 
 <p align="center">
@@ -114,7 +114,7 @@ Executes RED → GREEN → REFACTOR per slice. Write tests first (RED), then min
 Full test suite + coverage diagnostics + multi-version tests + E2E tests + Lint + Diff review + **11 failure mode checks**. Max 5 iterations in normal mode, 10 in long-range mode. Design adjustments are summarized into design-adjustments.md.
 
 **Phase 6: DELIVER — Delivery**
-Archive change to archive/ → merge specs to specs/ → Git commit + tag.
+Archive change to archive/ → merge specs to specs/ → **auto-upload experiences to community** → Git commit + tag.
 
 > See [STDD.md](STDD.md) for complete flow details, [DESIGN.md](DESIGN.md) for system design.
 
@@ -219,7 +219,7 @@ The system will guide you through Phase 1 (requirement understanding), generate 
 | `stdd diff [name]` | Show spec↔test coverage gap table | V2.0 |
 | `stdd rollback <name>` | Restore archived change from archive | V2.0 |
 | `stdd abort <name>` | Abort change and archive | V2.0 |
-| `stdd experience <sub>` | Experience library management (list/add/stats/export/pull/verify/deposit/retire) | V2.4 |
+| `stdd experience <sub>` | Experience library management (list/add/stats/export/pull/verify/deposit/retire/extract/review/share/search) | V2.4 |
 | `stdd extract-proposal` | Extract structured data from proposal.md (JSON/YAML) | V2.4 |
 | `stdd dependency-graph` | Build spec dependency graph + cycle detection + topological sort | V2.4 |
 | `stdd ci <sub>` | CI checks (7 items: structure/format/scope/coverage/contracts/diff/experience) | V2.5 |
@@ -236,6 +236,7 @@ The system will guide you through Phase 1 (requirement understanding), generate 
 | Platform | Install | Invocation |
 |----------|---------|------------|
 | **Claude Code** | `stdd install claude-code` | `/stdd-xxx` slash commands |
+| **OpenAI Codex** | `stdd install codex` | `/stdd-xxx` slash commands |
 | **Cursor** | `stdd install cursor` | Auto-loaded project rules |
 | **GitHub Copilot** | `stdd install copilot` | `.github/copilot-instructions.md` |
 | **Aider** | `stdd install aider` | `.aider.conf.yml` |
@@ -249,7 +250,7 @@ The system will guide you through Phase 1 (requirement understanding), generate 
 
 ## Multi-Language Standards
 
-Language-specific development standards are auto-loaded before Phase 4 begins. V2.3 covers 5 major languages:
+Language-specific development standards are auto-loaded before Phase 4 begins. V2.9.6 covers 10 languages:
 
 | Language | Test Framework | Lint Tool | Since |
 |----------|---------------|-----------|-------|
@@ -258,6 +259,11 @@ Language-specific development standards are auto-loaded before Phase 4 begins. V
 | **Go** | testing + testify | golangci-lint | V2.3 |
 | **Rust** | cargo test | clippy + rustfmt | V2.3 |
 | **TypeScript** | Jest | ESLint + Prettier | V2.3 |
+| **JavaScript** | Jest / Vitest | ESLint + Prettier | V2.9.6 |
+| **C / C++** | GTest / Catch2 | clang-tidy / clang-format | V2.9.6 |
+| **Kotlin** | JUnit5 + MockK | ktlint / detekt | V2.9.6 |
+| **Swift** | XCTest | SwiftLint | V2.9.6 |
+| **Dart / Flutter** | flutter test | dart analyze | V2.9.6 |
 
 ---
 
@@ -269,9 +275,9 @@ STDD Repository                          Your Project (after init)
 │   ├── skills/          # 6 phase skills │   ├── skills/templates/standards/
 │   ├── skills/_shared/  # DRY fragments  │   ├── config.d/        # Modular config
 │   ├── templates/       # 9 doc templates│   └── platforms/       # Platform adapters
-│   ├── standards/       # 5 lang specs   ├── specs/               # Master specs
+│   ├── standards/       # 10 lang specs   ├── specs/               # Master specs
 │   ├── config.d/        # Modular config ├── changes/             # Active changes
-│   └── platforms/       # 7 platform ads ├── archive/             # Completed
+│   └── platforms/       # 8 platform ads ├── archive/             # Completed
 ├── stdd/cli/            # CLI modules    ├── STDD.md
 ├── bin/stdd             # CLI entry      └── AGENTS.md
 ├── tests/               # STDD self-tests
@@ -316,6 +322,7 @@ Completed in under 1 hour with the full STDD six-phase process: 271 lines of cor
 
 | Version | Date | Key Changes |
 |---------|------|-------------|
+| **V2.9.6** | 2026-07-01 | Codex platform adapter + 10 language standards + DELIVER experience auto-upload |
 | **V2.5** | 2026-05-21 | Experience lifecycle FSM + community pool + multi-agent support + cross-session resume + CI enhanced |
 | **V2.4** | 2026-05-20 | AI-assisted: self-learning experience library + spec auto-complete + smart slice + CI/CD integration |
 | **V2.3** | 2026-05-18 | Foundation: 5 language standards + 6 platforms + config modularization + skill standardization |

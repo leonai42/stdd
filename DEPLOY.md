@@ -1,7 +1,7 @@
 # STDD 部署与使用指南 | Deployment & Usage Guide
 
-> STDD (Spec+Test Driven Development) V2.9
-> 适用平台 / Supported Platforms：Claude Code / Cursor / Copilot / Aider / WorkBuddy / Trae / OpenCode / Windsurf
+> STDD (Spec+Test Driven Development) V2.9.6
+> 适用平台 / Supported Platforms：Claude Code / Cursor / Copilot / Aider / WorkBuddy / Trae / OpenCode / Codex / Windsurf
 
 ---
 
@@ -67,6 +67,9 @@ python /path/to/stdd-project/bin/stdd install cursor
 
 # 安装到 OpenCode / Install to OpenCode
 python /path/to/stdd-project/bin/stdd install opencode
+
+# 安装到 OpenAI Codex CLI / Install to OpenAI Codex CLI
+python /path/to/stdd-project/bin/stdd install codex
 ```
 
 ---
@@ -156,10 +159,12 @@ stdd abort feature-rate-limit
 │   ├── config.d/                  # 项目配置 / Project config
 │   ├── skills/                     # 6 个阶段 Skill / 6 phase skills
 │   ├── templates/                  # 9 个文档模板 / 9 document templates
-│   ├── standards/                  # 开发规范 / Dev standards
-│   │   └── python.md               # Python 开发规范 / Python standard
+│   ├── standards/                  # 10 语言开发规范 / 10 language dev standards
+│   │   ├── python.md               # Python
+│   │   └── ...                      # Java, Go, Rust, TypeScript, JavaScript, C/C++, Kotlin, Swift, Dart
 │   └── platforms/                  # 多平台适配 / Platform adapters
 │       ├── claude-code/skills/
+│       ├── codex/skills/
 │       ├── workbuddy/skills/
 │       ├── trae/skills/
 │       └── opencode/skills/
@@ -256,7 +261,21 @@ python /path/to/stdd-project/bin/stdd install opencode
 > **注意 / Note**：OpenCode 的 skill 加载机制与 Claude Code 类似，使用相同的 YAML frontmatter 格式和目录结构（一个 skill 一个子目录）。
 > OpenCode's skill loading mechanism is similar to Claude Code, using the same YAML frontmatter format and directory structure (one skill per subdirectory).
 
-### 6.8 Windsurf（手动 / Manual）
+### 6.8 OpenAI Codex CLI
+
+Skills 安装到 `.codex/skills/<name>/SKILL.md`，通过 `/stdd-xxx` 斜杠命令调用。Codex CLI 启动时自动加载 `.codex/skills/` 目录下的 skills，同时读取项目根 `AGENTS.md` 作为指令文件。
+Skills installed to `.codex/skills/<name>/SKILL.md`, invoked via `/stdd-xxx` slash commands. Codex CLI auto-loads skills from `.codex/skills/` on startup, and reads `AGENTS.md` as instruction file.
+
+```bash
+python /path/to/stdd-project/bin/stdd install codex
+# 重启 Codex CLI 或在对话框中输入 /stdd-understand <需求>
+# Restart Codex CLI or type /stdd-understand <requirement> in the dialog
+```
+
+> **注意 / Note**：Codex CLI 的 skill 机制与 Claude Code / OpenCode 类似，使用相同的 YAML frontmatter 格式和 directory-per-skill 目录结构（一个 skill 一个子目录）。Codex CLI 也通过 `~/.codex/config.toml` 支持 `project_doc_fallback_filenames` 配置来读取其他平台的指令文件。
+> Codex CLI's skill mechanism is similar to Claude Code / OpenCode, using the same YAML frontmatter format and directory-per-skill structure (one skill per subdirectory). Codex CLI also supports `project_doc_fallback_filenames` in `~/.codex/config.toml` to read instruction files from other platforms.
+
+### 6.9 Windsurf（手动 / Manual）
 
 ```bash
 # 手动复制 STDD.md 为项目规则 / Manually copy as project rules
@@ -319,12 +338,17 @@ tc_id:
 Phase 4 (BUILD) 开始前，Skill 会自动读取 `.stdd/standards/<language>.md`。
 Before Phase 4 (BUILD) begins, the Skill automatically reads `.stdd/standards/<language>.md`.
 
-当前支持的开发规范 / Currently supported standards：
+当前支持的开发规范 / Currently supported standards（共 10 门语言 / 10 languages total）：
 - `python.md` — Python 3.10+ 开发规范（V1.0 起）/ Python dev standard
 - `java.md` — Java / Spring Boot（V2.3 新增）
 - `go.md` — Go 标准布局（V2.3 新增）
 - `rust.md` — Rust / Cargo（V2.3 新增）
 - `typescript.md` — TypeScript / Node.js（V2.3 新增）
+- `javascript.md` — JavaScript / Node.js（V2.9.6 新增）
+- `c.md` — C/C++ 系统级开发（V2.9.6 新增）
+- `kotlin.md` — Kotlin / Android（V2.9.6 新增）
+- `swift.md` — Swift / iOS/macOS（V2.9.6 新增）
+- `dart.md` — Dart / Flutter（V2.9.6 新增）
 
 ---
 
